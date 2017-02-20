@@ -12,6 +12,7 @@ public interface Distance {
     }
     
     static double toMeters(double distanceInRadians) {
+        // checkArgument(0 <= distanceInRadians && distanceInRadians <);
         return distanceInRadians * EARTH_RADIUS;
     }
     
