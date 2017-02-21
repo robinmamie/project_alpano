@@ -25,13 +25,13 @@ public interface Azimuth {
         checkArgument(isCanonical(azimuth), "azimuth non canonical");
         String answer = "";
         final double distance = 3*Math.PI/8;
-        if(Math2.angularDistance(azimuth, 0) < distance)
+        if(Math.abs(Math2.angularDistance(azimuth, 0)) < distance)
             answer += n;
-        if(Math2.angularDistance(azimuth, Math.PI) < distance)
+        if(Math.abs(Math2.angularDistance(azimuth, Math.PI)) < distance)
             answer += s;
-        if(Math2.angularDistance(azimuth, Math.PI/2) < distance)
+        if(Math.abs(Math2.angularDistance(azimuth, Math.PI/2)) < distance)
             answer += e;
-        if(Math2.angularDistance(azimuth, 3 * Math.PI/2) < distance)
+        if(Math.abs(Math2.angularDistance(azimuth, 3*Math.PI/2)) < distance)
             answer += w;
         return answer;
     }

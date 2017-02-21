@@ -41,8 +41,18 @@ public interface Math2 {
     }
     
     static double improveRoot(DoubleUnaryOperator f, double x1, double x2, double epsilon) {
-        double inf = firstIntervalContainingRoot(f, x1, x2, epsilon);
+        double limit = 0.01;
+        double inf = firstIntervalContainingRoot(f, x1, x2, limit);
         checkArgument(inf != Double.POSITIVE_INFINITY);
+        double sup = inf + limit;
+        while(sup-inf > epsilon) {
+            double mid = (inf+sup)/2.0;
+            double value = f.applyAsDouble((inf+sup)/2.0);
+            if(value * f.applyAsDouble(inf) < 0)
+                sup = mid;
+            else
+                inf = mid;
+        }
         return inf;
     }
 }
