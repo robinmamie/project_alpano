@@ -42,7 +42,7 @@ public interface Math2 {
     
     static double improveRoot(DoubleUnaryOperator f, double x1, double x2, double epsilon) {
         double inf = firstIntervalContainingRoot(f, x1, x2, epsilon);
-        checkArgument(inf == Double.POSITIVE_INFINITY);
+        checkArgument(inf != Double.POSITIVE_INFINITY);
         return inf;
     }
 }
