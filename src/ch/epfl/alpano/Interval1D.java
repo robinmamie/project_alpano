@@ -54,7 +54,7 @@ public final class Interval1D {
                 return false;
         
             else 
-                return (this.includedFrom == (int)thatO.includedFrom) && this.includedTo == (int)thatO.includedTo);
+                return this.includedFrom == (int)((Interval1D)thatO).includedFrom && this.includedTo == (int)((Interval1D)thatO).includedTo;
     }
     
     @Override
