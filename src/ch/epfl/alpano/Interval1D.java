@@ -9,7 +9,7 @@ public final class Interval1D {
     private final int includedFrom;
     private final int includedTo;
 
-    Interval1D(int includedFrom, int includedTo) {
+    public Interval1D(int includedFrom, int includedTo) {
         checkArgument(includedFrom <= includedTo, "invalid interval");
         this.includedFrom = includedFrom;
         this.includedTo   = includedTo;
