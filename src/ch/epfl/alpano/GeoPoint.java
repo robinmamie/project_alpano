@@ -4,7 +4,7 @@ import static ch.epfl.alpano.Preconditions.checkArgument;
 
 import java.util.Locale;
 
-public class GeoPoint {
+public final class GeoPoint {
     
     private final double longitude;
     private final double latitude;
