@@ -16,6 +16,10 @@ public class GeoPoint {
         this.latitude  = latitude;
     }
     
+    public GeoPoint(double longitude, double latitude, boolean degrees) {
+        this(degrees ? Math.toRadians(longitude) : longitude, degrees ? Math.toRadians(latitude) : latitude);
+    }
+    
     public double longitude() { return longitude; }
     public double latitude()  { return latitude;  }
     

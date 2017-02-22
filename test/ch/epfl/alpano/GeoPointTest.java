@@ -6,10 +6,10 @@ import org.junit.Test;
 
 public class GeoPointTest {
 
-    private static GeoPoint rolex = new GeoPoint(Math.toRadians(46.51779), Math.toRadians(6.56727));
-    private static GeoPoint eiger = new GeoPoint(Math.toRadians(46.57759), Math.toRadians(8.00529));
-    private static GeoPoint lausanne = new GeoPoint(Math.toRadians(46.521), Math.toRadians(6.631));
-    private static GeoPoint moscow   = new GeoPoint(Math.toRadians(55.753), Math.toRadians(37.623));
+    private static GeoPoint rolex = new GeoPoint(46.51779, 6.56727, true);
+    private static GeoPoint eiger = new GeoPoint(46.57759, 8.00529, true);
+    private static GeoPoint lausanne = new GeoPoint(46.521, 6.631, true);
+    private static GeoPoint moscow   = new GeoPoint(55.753, 37.623, true);
     
     
     @Test
