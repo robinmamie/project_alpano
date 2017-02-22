@@ -6,66 +6,66 @@ import java.util.Objects;
 
 public final class Interval1D {
 
-    private int includedFrom;
-    private int includedTo;
-     
+    private final int includedFrom;
+    private final int includedTo;
+
     Interval1D(int includedFrom, int includedTo) {
-        checkArgument(includedTo > includedFrom, "invalid interval");
+        checkArgument(includedFrom <= includedTo, "invalid interval");
         this.includedFrom = includedFrom;
-        this.includedTo = includedTo;
+        this.includedTo   = includedTo;
     }
-    
-    public int includedFrom (){ return includedFrom; }
-    
-    public int includedTo(){return includedTo; }
-    
-    public boolean contains (int v) {return includedFrom <= v && v <=includedTo;}
-    
-    public int size(){
-        return includedTo-includedFrom+1;
+
+    public int includedFrom() { return includedFrom; }
+
+    public int includedTo() { return includedTo; }
+
+    public boolean contains (int v) {
+        return includedFrom <= v && v <= includedTo;
     }
-    
-    public int sizeOfIntersectionWith(Interval1D that){
-        if (this.includedTo < that.includedFrom || that.includedTo < this.includedFrom){
-            return 0;
-        }
-        return Math.min(this.size(), that.size());
+
+    public int size() {
+        return includedTo - includedFrom + 1;
     }
-    
-    public Interval1D boundingUnion(Interval1D that){
+
+    public int sizeOfIntersectionWith(Interval1D that) {
+        int size = Math.min(this.includedTo, that.includedTo) - Math.max(this.includedFrom, that.includedFrom) + 1;
+        return size < 0 ? 0 : size;
+    }
+
+    public Interval1D boundingUnion(Interval1D that) {
         return new Interval1D(Math.min(this.includedFrom, that.includedFrom), Math.max(this.includedTo, that.includedTo));
     }
-    
-    public boolean isUnionableWith (Interval1D that){
-       return (this.contains(that.includedFrom) || this.contains(that.includedTo)); 
+
+    public boolean isUnionableWith(Interval1D that) {
+        return  0 < sizeOfIntersectionWith(that); 
     }
-    
-    public Interval1D union (Interval1D that){
-            checkArgument(!isUnionableWith(that), "invalid union");
+
+    public Interval1D union(Interval1D that) {
+        checkArgument(isUnionableWith(that), "union not possible");
         return boundingUnion(that);
     }
-    
+
     @Override
     public boolean equals(Object thatO){
-        if (thatO == null)
+        if(thatO == null)
             return false;
-        else
-            if (thatO.getClass() != getClass())
-                return false;
+
+        if(getClass() != thatO.getClass())
+            return false;
         
-            else 
-                return this.includedFrom == (int)((Interval1D)thatO).includedFrom && this.includedTo == (int)((Interval1D)thatO).includedTo;
+        Interval1D that = (Interval1D)thatO;
+
+        return this.includedFrom == that.includedFrom && this.includedTo == that.includedTo;
     }
-    
+
     @Override
     public int hashCode() {
-      return Objects.hash(includedFrom(), includedTo());
+        return Objects.hash(includedFrom(), includedTo());
     }
-    
+
     @Override
     public String toString (){
-      String chaine = "[" + includedFrom + "..." + includedTo + "]";
-       return chaine;
+        return "[" + includedFrom + ".." + includedTo + "]";
     }
-    
+
 }
