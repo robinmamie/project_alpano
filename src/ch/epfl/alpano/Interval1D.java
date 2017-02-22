@@ -19,7 +19,7 @@ public final class Interval1D {
 
     public int includedTo() { return includedTo; }
 
-    public boolean contains (int v) {
+    public boolean contains(int v) {
         return includedFrom <= v && v <= includedTo;
     }
 
@@ -46,7 +46,7 @@ public final class Interval1D {
     }
 
     @Override
-    public boolean equals(Object thatO){
+    public boolean equals(Object thatO) {
         if(thatO == null)
             return false;
 
@@ -64,7 +64,7 @@ public final class Interval1D {
     }
 
     @Override
-    public String toString (){
+    public String toString() {
         return "[" + includedFrom + ".." + includedTo + "]";
     }
 
