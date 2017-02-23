@@ -20,7 +20,10 @@ public interface Distance {
     
     /**
      * Transforme une distance en mètre inscrite dans un grand cercle en radians.
-     * @param distanceInMeters distance en mètres
+     * 
+     * @param distanceInMeters
+     *              distance en mètres
+     *              
      * @return le nombre de radians correspondant à la distance en paramètre
      */
     static double toRadians(double distanceInMeters) {
@@ -30,11 +33,14 @@ public interface Distance {
     
     /**
      * Transforme le nombre de radians d'une distance inscrite dans un grand cercle en mètres.
-     * @param distanceInRadians distance en radians
+     * 
+     * @param distanceInRadians
+     *              distance en radians
+     * 
      * @return le nombre de mètres correspondant au nombre de radians en paramètre
      */
     static double toMeters(double distanceInRadians) {
         return distanceInRadians * EARTH_RADIUS;
     }
-    
+ 
 }
