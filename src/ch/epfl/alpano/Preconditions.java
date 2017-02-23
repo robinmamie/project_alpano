@@ -5,7 +5,7 @@ package ch.epfl.alpano;
  * Permet de tester une précondition spécifique.
  *  
  * @author Robin Mamie (257234)
- * @author Maxence Jouve
+ * @author Maxence Jouve (269716)
  */
 public interface Preconditions {
     

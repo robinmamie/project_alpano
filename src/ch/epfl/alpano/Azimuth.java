@@ -7,7 +7,7 @@ import static ch.epfl.alpano.Preconditions.checkArgument;
  * Fournit des opérations concernant l'azimut
  * 
  * @author Robin Mamie (257234)
- * @autjor Maxence Jouve
+ * @author Maxence Jouve (269716)
  */
 public interface Azimuth {
     

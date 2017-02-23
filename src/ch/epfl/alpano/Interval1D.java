@@ -4,6 +4,12 @@ import static ch.epfl.alpano.Preconditions.checkArgument;
 
 import java.util.Objects;
 
+/**
+ *
+ *
+ * @author Robin Mamie (257234)
+ * @author Maxence Jouve (269716)
+ */
 public final class Interval1D {
 
     private final int includedFrom;

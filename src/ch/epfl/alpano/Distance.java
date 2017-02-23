@@ -7,7 +7,7 @@ import static ch.epfl.alpano.Preconditions.checkArgument;
  * Fait le lien entre angles et distances terrestres.
  * 
  * @author Robin Mamie (257234)
- * @author Maxence Jouve
+ * @author Maxence Jouve (269716)
  */
 public interface Distance {
     

@@ -8,7 +8,7 @@ import static ch.epfl.alpano.Preconditions.checkArgument;
  * Fournit des outils mathématiques complémentaires à java.Lang.Math.
  * 
  * @author Robin Mamie (257234)
- * @author Maxence Jouve
+ * @author Maxence Jouve (269716)
  */
 public interface Math2 {
 
