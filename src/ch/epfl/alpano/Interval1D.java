@@ -17,6 +17,7 @@ public final class Interval1D {
 
     public Interval1D(int includedFrom, int includedTo) {
         checkArgument(includedFrom <= includedTo, "invalid interval");
+        
         this.includedFrom = includedFrom;
         this.includedTo   = includedTo;
     }
@@ -53,10 +54,7 @@ public final class Interval1D {
 
     @Override
     public boolean equals(Object thatO) {
-        if(thatO == null)
-            return false;
-
-        if(getClass() != thatO.getClass())
+        if(thatO == null || getClass() != thatO.getClass())
             return false;
         
         Interval1D that = (Interval1D)thatO;

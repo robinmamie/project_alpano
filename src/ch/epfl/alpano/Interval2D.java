@@ -1,13 +1,21 @@
 package ch.epfl.alpano;
 import static ch.epfl.alpano.Preconditions.checkArgument;
 
+import java.util.Objects;
+
+/**
+ * 
+ *
+ * @author Robin Mamie (257234)
+ * @author Maxence Jouve (269716)
+ */
 public final class Interval2D {
 
-    private Interval1D iX;
-    private Interval1D iY;
+    private final Interval1D iX;
+    private final Interval1D iY;
     
     public Interval2D(Interval1D iX, Interval1D iY){
-       checkArgument((iX == null || iY == null), "invalid Interval1D");
+       checkArgument(iX != null && iY != null, "null instance of Interval1D given");
         
         this.iX = iX;
         this.iY = iY;
@@ -18,15 +26,15 @@ public final class Interval2D {
     public Interval1D iY() { return iY; }
     
     public boolean contains(int x, int y) {
-        return (iX.contains(x) && iY.contains(y));
+        return iX.contains(x) && iY.contains(y);
     }
     
     public int size () {
-        return iX.size()*iY.size();
+        return iX.size() * iY.size();
     }
     
     public int sizeOfIntersectionWith(Interval2D that) {
-        return iX.sizeOfIntersectionWith(that.iX)*iY.sizeOfIntersectionWith(that.iY);
+        return this.iX.sizeOfIntersectionWith(that.iX) * this.iY.sizeOfIntersectionWith(that.iY);
     }
     
    public Interval2D boundingUnion(Interval2D that) {
@@ -34,32 +42,32 @@ public final class Interval2D {
    }
    
    public boolean isUnionableWith(Interval2D that) {
-       return ( (this.size() + that.size() - this.sizeOfIntersectionWith(that)) == this.boundingUnion(that).size() );
+       return 0 < sizeOfIntersectionWith(that);
    }
    
    public Interval2D union (Interval2D that) {
-       checkArgument(isUnionableWith(that), "invalid union");
-       return boundingUnion(that); //leger doute
+       checkArgument(isUnionableWith(that), "union not possible");
+       return boundingUnion(that);
    }
    
    @Override
-   public boolean equals(Object thatO){
-       if(thatO == null)
-           return false;
-
-       if(getClass() != thatO.getClass())
+   public boolean equals(Object thatO) {
+       if(thatO == null || getClass() != thatO.getClass())
            return false;
        
        Interval2D that = (Interval2D)thatO;
-       return (iX.equals(that.iX) && iY.equals(that.iY));
+       
+       return this.iX.equals(that.iX) && this.iY.equals(that.iY);
    }
    
    @Override
-   public int hashCode();
+   public int hashCode() {
+       return Objects.hash(iX.hashCode(), iY.hashCode());
+   }
    
    @Override
    public String toString() {
-     return iX.toString() + "x" + iY.toString();
+     return iX.toString() + "×" + iY.toString();
    }
    
 }
