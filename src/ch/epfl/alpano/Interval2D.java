@@ -36,7 +36,7 @@ public final class Interval2D {
      * @throws IllegalArgumentException
      *          si au moins l'un des arguments donnés est nul.
      */
-    public Interval2D(Interval1D iX, Interval1D iY){
+    public Interval2D(Interval1D iX, Interval1D iY) {
         checkArgument(iX != null && iY != null, "null instance of Interval1D given");
 
         this.iX = iX;

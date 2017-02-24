@@ -14,13 +14,13 @@ public final class GeoPoint {
     
     
     /**
-     * La longitude du point
+     * La longitude du point en radians, entre -Pi et Pi compris
      */
     private final double longitude;
     
     
     /**
-     * La latitude du point
+     * La latitude du point, entre -Pi/2 et Pi/2 compris
      */
     private final double latitude;
 
@@ -63,28 +63,28 @@ public final class GeoPoint {
     
     
     /**
-     * Retourne la longitude du point.
+     * Retourne la longitude du point en radians.
      * 
-     * @return la longitude du point
+     * @return la longitude du point en radians
      */
     public double longitude() { return longitude; }
     
     
     /**
-     * Retourne la latitude du point.
+     * Retourne la latitude du point en radians.
      * 
-     * @return la latitude du point
+     * @return la latitude du point en radians
      */
     public double latitude()  { return latitude;  }
     
     
     /**
-     * Calcule la distance entre deux points géographiques.
+     * Calcule la distance en mètres entre deux points géographiques.
      * 
      * @param that
-     *          un point géographique
+     *          un autre point géographique
      *          
-     * @return la distance entre les deux points géographiques
+     * @return la distance en mètres entre les deux points géographiques
      * 
      * @throws IllegalArgumentException
      *          si l'argument donné est null.
@@ -103,9 +103,9 @@ public final class GeoPoint {
      * Calcule à quel azimuth se trouve un point d'un autre.
      * 
      * @param that
-     *          un point géographique
+     *          un autre point géographique
      *          
-     * @return l'azimuth du premier au second point géographique
+     * @return l'azimuth en radians du premier au second point géographique
      * 
      * @throws IllegalArgumentException
      *          si l'argument donné est null.
