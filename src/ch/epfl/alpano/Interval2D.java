@@ -80,7 +80,7 @@ public final class Interval2D {
      * 
      * @return la taille de l'intervalle
      */
-    public int size () {
+    public int size() {
         return iX.size() * iY.size();
     }
 
@@ -92,12 +92,8 @@ public final class Interval2D {
      *          autre intervalle
      *          
      * @return la taille de l'intersection entre deux intervalles
-     * 
-     * @throws IllegalArgumentException
-     *          si l'argument donné est null.
      */
     public int sizeOfIntersectionWith(Interval2D that) {
-        checkArgument(that != null, "null argument given");
         return this.iX.sizeOfIntersectionWith(that.iX) * this.iY.sizeOfIntersectionWith(that.iY);
     }
 
@@ -109,12 +105,8 @@ public final class Interval2D {
      *          autre intervalle
      *          
      * @return l'union englobante de deux intervalles
-     * 
-     * @throws IllegalArgumentException
-     *          si l'argument donné est null.
      */
     public Interval2D boundingUnion(Interval2D that) {
-        checkArgument(that != null, "null argument given");
         return new Interval2D(this.iX.boundingUnion(that.iX), this.iY.boundingUnion(that.iY));
     }
 
@@ -126,9 +118,6 @@ public final class Interval2D {
      *          autre intervalle
      *          
      * @return si deux intervalles sont unionables
-     * 
-     * @throws IllegalArgumentException
-     *          si l'argument donné est null.
      */
     public boolean isUnionableWith(Interval2D that) {
         return 0 < sizeOfIntersectionWith(that);
@@ -144,10 +133,9 @@ public final class Interval2D {
      * @return l'union de deux intervalles
      * 
      * @throws IllegalArgumentException
-     *          si l'argument donné est null ou si les deux intervalles
-     *          ne sont pas unionables.
+     *          si les deux intervalles ne sont pas unionables.
      */
-    public Interval2D union (Interval2D that) {
+    public Interval2D union(Interval2D that) {
         checkArgument(isUnionableWith(that), "union not possible");
         return boundingUnion(that);
     }
@@ -166,7 +154,7 @@ public final class Interval2D {
     
     @Override
     public int hashCode() {
-        return Objects.hash(iX.hashCode(), iY.hashCode());
+        return Objects.hash(iX, iY);
     }
 
     

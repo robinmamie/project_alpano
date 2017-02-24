@@ -1,6 +1,7 @@
 package ch.epfl.alpano;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -21,7 +22,7 @@ public class GeoPointTest {
     
     @Test
     public void azimuthWorksBetweenRolexEiger() {
-        double expectedAzimuth = -86.66;
+        double expectedAzimuth = 86.66;
         double actualAzimuth   = Math.toDegrees(rolex.azimuthTo(eiger));
         assertEquals(expectedAzimuth, actualAzimuth, 0.7);
     }
@@ -35,9 +36,27 @@ public class GeoPointTest {
     
     @Test
     public void azimuthWorksBetweenLausanneMoscow() {
-        double expectedAzimuth = -52.95;
+        double expectedAzimuth = 52.95;
         double actualAzimuth   = Math.toDegrees(lausanne.azimuthTo(moscow));
         assertEquals(expectedAzimuth, actualAzimuth, 1e-2);
+    }
+    
+    @Test
+    public void toStringOutputsCorrectValue() {
+        double longitude = 12.3457;
+        double latitude  = -5.6578;
+        GeoPoint test = new GeoPoint(longitude, latitude, true);
+        String expectedString = "(" + longitude + "," + latitude + ")";
+        String actualString   = test.toString();
+        
+        assertEquals(expectedString, actualString);
+    }
+    
+    @Test
+    public void distanceToSamePointIsZero() {
+        double expectedDistance = 0;
+        double actualDistance   = lausanne.distanceTo(lausanne);
+        assertEquals(expectedDistance, actualDistance, 1e-10);
     }
 
 }

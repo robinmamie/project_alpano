@@ -90,12 +90,8 @@ public final class Interval1D {
      *          autre intervalle
      *          
      * @return la taille de l'intersection entre deux intervalles
-     * 
-     * @throws IllegalArgumentException
-     *          si l'argument donné est null.
      */
     public int sizeOfIntersectionWith(Interval1D that) {
-        checkArgument(that != null, "null argument given");
         int size = Math.min(this.includedTo, that.includedTo) - Math.max(this.includedFrom, that.includedFrom) + 1;
         return size < 0 ? 0 : size;
     }
@@ -108,12 +104,8 @@ public final class Interval1D {
      *          autre intervalle
      *          
      * @return l'union englobante de deux intervalles
-     * 
-     * @throws IllegalArgumentException
-     *          si l'argument donné est null.
      */
     public Interval1D boundingUnion(Interval1D that) {
-        checkArgument(that != null, "null argument given");
         return new Interval1D(Math.min(this.includedFrom, that.includedFrom), Math.max(this.includedTo, that.includedTo));
     }
 
@@ -125,9 +117,6 @@ public final class Interval1D {
      *          autre intervalle
      *          
      * @return si deux intervalles sont unionables
-     * 
-     * @throws IllegalArgumentException
-     *          si l'argument donné est null.
      */
     public boolean isUnionableWith(Interval1D that) {
         return  0 < sizeOfIntersectionWith(that); 
@@ -143,8 +132,7 @@ public final class Interval1D {
      * @return l'union de deux intervalles
      * 
      * @throws IllegalArgumentException
-     *          si l'argument donné est null ou si les deux intervalles
-     *          ne sont pas unionables.
+     *          si les deux intervalles ne sont pas unionables.
      */
     public Interval1D union(Interval1D that) {
         checkArgument(isUnionableWith(that), "union not possible");

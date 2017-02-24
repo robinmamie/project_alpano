@@ -85,12 +85,8 @@ public final class GeoPoint {
      *          un autre point géographique
      *          
      * @return la distance en mètres entre les deux points géographiques
-     * 
-     * @throws IllegalArgumentException
-     *          si l'argument donné est null.
      */
     public double distanceTo(GeoPoint that) {
-        checkArgument(that != null, "null argument given");
         return Distance.toMeters(
                 2 * Math.asin(
                         Math.sqrt(
@@ -106,13 +102,9 @@ public final class GeoPoint {
      *          un autre point géographique
      *          
      * @return l'azimuth en radians du premier au second point géographique
-     * 
-     * @throws IllegalArgumentException
-     *          si l'argument donné est null.
      */
     public double azimuthTo(GeoPoint that) {
-        checkArgument(that != null, "null argument given");
-        return Math.atan2(
+        return - Math.atan2(
                 Math.sin(this.latitude - that.latitude) * Math.cos(that.longitude)
                 , Math.cos(this.longitude) * Math.sin(that.longitude)
                 - Math.sin(this.longitude) * Math.cos(that.longitude) * Math.cos(this.latitude - that.latitude));
@@ -122,7 +114,7 @@ public final class GeoPoint {
     @Override
     public String toString() {
         Locale l = null;
-        return String.format(l, "(%.4f,%.4)", Math.toDegrees(longitude), Math.toDegrees(latitude));
+        return String.format(l, "(%.4f,%.4f)", Math.toDegrees(longitude), Math.toDegrees(latitude));
     }
     
 }
