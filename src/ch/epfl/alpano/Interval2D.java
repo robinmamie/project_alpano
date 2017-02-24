@@ -37,7 +37,8 @@ public final class Interval2D {
      *          si au moins l'un des arguments donnés est nul.
      */
     public Interval2D(Interval1D iX, Interval1D iY) {
-        checkArgument(iX != null && iY != null, "null instance of Interval1D given");
+        if(iX == null || iY == null)
+            throw new NullPointerException("at least one of the arguments given is null");
 
         this.iX = iX;
         this.iY = iY;

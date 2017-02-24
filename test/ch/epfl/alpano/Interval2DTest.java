@@ -6,7 +6,7 @@ import org.junit.Test;
 
 public class Interval2DTest {
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = NullPointerException.class)
     public void constructorThrowsErrorIfIncorrectArgumentsGiven() {
         new Interval2D(null, null);
     }
