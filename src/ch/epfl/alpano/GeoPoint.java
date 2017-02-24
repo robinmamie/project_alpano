@@ -5,7 +5,7 @@ import static ch.epfl.alpano.Preconditions.checkArgument;
 import java.util.Locale;
 
 /**
- * Représente un point géographique sur Terre.
+ * Représente un point géographique sur Terre. Classe immuable.
  *
  * @author Robin Mamie (257234)
  * @author Maxence Jouve (269716)
