@@ -38,21 +38,22 @@ public final class ContinuousElevationModel {
     public ContinuousElevationModel(DiscreteElevationModel dem) {
         this.dem = requireNonNull(dem);
     }
+    
 
-    private double elevationAtIndex(int x, int y) {
-        return dem.elevationSample(x, y);
-    }
-
-    private double slopeAtIndex(int x, int y) {
-        double a = elevationAtIndex(x  , y  );
-        double b = elevationAtIndex(x+1, y  );
-        double c = elevationAtIndex(x  , y+1);
-        return Math.acos(d / Math.sqrt( Math2.sq(b-a) + Math2.sq(c-a) + d*d ));
+    private double singleParameter(int x, int y, boolean slope) {
+        if(!slope)
+            return dem.elevationSample(x, y);
+        
+        double a = dem.elevationSample(x  , y  );
+        double b = dem.elevationSample(x+1, y  );
+        double c = dem.elevationSample(x  , y+1);
+        
+        return Math.acos(d / Math.sqrt( Math2.sq(b-a) + Math2.sq(c-a) + d*d ) );
     }
 
 
     private double[] parametersForBilerp(GeoPoint p, boolean slope) {
-        double[] t = new double[6];
+        double[] t = new double[6];   
 
         double aIndex = sampleIndex(p.longitude());
         double bIndex = sampleIndex(p.latitude());
@@ -61,19 +62,13 @@ public final class ContinuousElevationModel {
         int b = (int)Math.floor(bIndex);
 
         try {
-            for(int i = 0; i < 4; ++i) {
-                int addA = (i%2 == 1) ? 1 : 0;
-                int addB = (i > 1) ? 1 : 0;
-                if(slope)
-                    t[i] = slopeAtIndex(a + addA, b + addB);
-                else
-                    t[i] = elevationAtIndex(a + addA, b + addB);
-                
-            }
-        } catch(IllegalArgumentException e) {
+            for(int i = 0; i < 4; ++i)
+                t[i] = singleParameter(a + (i%2==1?1:0), b + (i > 1?1:0), slope);
+        }
+        catch(IllegalArgumentException e) {
             return new double[6];
         }
-
+        
         t[4]   = aIndex - a;
         t[5]   = bIndex - b;
 
