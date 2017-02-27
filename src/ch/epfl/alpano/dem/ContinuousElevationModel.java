@@ -38,8 +38,8 @@ public final class ContinuousElevationModel {
     }
     
     
-    private double[] parametersForBilerp(GeoPoint p) {
-        double[] param = new double[6];
+    private double[] parametersForBilerp(GeoPoint p, boolean slope) {
+        double[] t = new double[6];
         
         double aIndex = sampleIndex(p.longitude());
         double bIndex = sampleIndex(p.latitude());
@@ -47,15 +47,32 @@ public final class ContinuousElevationModel {
         int a = (int)Math.floor(aIndex);
         int b = (int)Math.floor(bIndex);
         
-        param[0] = dem.elevationSample(a  , b  );
-        param[1] = dem.elevationSample(a+1, b  );
-        param[2] = dem.elevationSample(a  , b+1);
-        param[3] = dem.elevationSample(a+1, b+1);
+        try {
+        t[0] = dem.elevationSample(a  , b  );
+        t[1] = dem.elevationSample(a+1, b  );
+        t[3] = dem.elevationSample(a  , b+1);
+        t[2] = dem.elevationSample(a+1, b+1);
+        } catch(IllegalArgumentException e) {
+            return new double[6];
+        }
         
-        param[4]   = aIndex - a;
-        param[5]   = bIndex - b;
+        if(slope) {
+            double[] s = new double[4];
+            final double d = Distance.toMeters(1 / SAMPLES_PER_RADIAN);
+            for(int i = 0; i < 4; ++i)
+                s[i] = Math.acos(d / Math.sqrt( Math2.sq(t[(i+1)%4] - t[i]) + Math2.sq(t[(i+2)%4] - t[i]) + d*d ));
+            for(int i = 0; i < 4; ++i)
+                t[i] = s[i];
+        }
         
-        return param;
+        double temp = t[2];
+        t[2] = t[3];
+        t[3] = temp;
+        
+        t[4]   = aIndex - a;
+        t[5]   = bIndex - b;
+        
+        return t;
     }
     
     
@@ -64,28 +81,30 @@ public final class ContinuousElevationModel {
      * interpolation bilinéaire du MNT discret donné au constructeur.
      * 
      * @param p
-     *          Point géographique.
+     *          un point géographique
      * 
      * @return l'altitude au point <code>p</code>
      */
     public double elevationAt(GeoPoint p) {
-        double[] a = parametersForBilerp(p);
+        double[] a = parametersForBilerp(p, false);
         
         return Math2.bilerp(a[0], a[1], a[2], a[3], a[4], a[5]);
     }
     
     
+    /**
+     * Retourne la pente du point donné, en radians. Elle est obtenue par
+     * interpolation bilinéaire du MNT discret donné au constructeur.
+     * 
+     * @param p
+     *          un point géographique
+     *          
+     * @return la pente au point <code>p</code>
+     */
     public double slopeAt(GeoPoint p) {
-        double[] a = parametersForBilerp(p);
+        double[] a = parametersForBilerp(p, true);            
         
-        final double d = Distance.toMeters(1 / SAMPLES_PER_RADIAN);
-        
-        double slope = 0;
-        
-        for(int i = 0; i < 4; ++i);
-            
-        
-        return Math.acos(d / Math.sqrt( Math2.sq(a[1] - a[0]) + Math2.sq(a[2] - a[0]) + d*d ));
+        return Math2.bilerp(a[0], a[1], a[2], a[3], a[4], a[5]);
     }
 
 }
