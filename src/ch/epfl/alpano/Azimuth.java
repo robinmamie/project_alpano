@@ -89,7 +89,7 @@ public interface Azimuth {
      * @return la chaîne de caractère correspondant à l'octant
      *         dans lequel se trouve l'azimut
      * 
-     * @throw IllegalArgumentException
+     * @throws IllegalArgumentException
      *          si l'azimut n'est pas canonique
      */
     static String toOctantString(double azimuth, String n, String e, String s, String w) {

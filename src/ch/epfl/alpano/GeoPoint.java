@@ -33,7 +33,7 @@ public final class GeoPoint {
      * @param latitude
      *                  la latitude du point, en radians, entre -Pi/2 et Pi/2 compris.
      *                  
-     * @throws InvalidArgumentException
+     * @throws IllegalArgumentException
      *                  si la latitude et la longitude ne se trouvent pas dans leur inetervalle standard
      */
     public GeoPoint(double longitude, double latitude) {
