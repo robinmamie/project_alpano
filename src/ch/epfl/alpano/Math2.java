@@ -43,7 +43,7 @@ public interface Math2 {
      * @return le reste de la division entière par défaut de x par y
      * 
      * @throws IllegalArgumentException
-     *          si y est égal à zéro
+     *          si <code>y</code> est égal à zéro
      */
     static double floorMod(double x, double y) {
         checkArgument(y != 0, "division by zero");

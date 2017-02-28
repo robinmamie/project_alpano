@@ -50,7 +50,6 @@ final class CompositeDiscreteElevationModel implements DiscreteElevationModel {
 
     @Override
     public Interval2D extent() {
-        // TODO regarder Piazza (try/catch?)
         return dem1.extent().union(dem2.extent());
     }
 

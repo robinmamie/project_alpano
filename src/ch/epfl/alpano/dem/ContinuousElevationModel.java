@@ -23,7 +23,7 @@ public final class ContinuousElevationModel {
      */
     private DiscreteElevationModel dem;
 
-    private static final double d = Distance.toMeters(1 / SAMPLES_PER_RADIAN);
+    private final double d = Distance.toMeters(1 / SAMPLES_PER_RADIAN);
 
 
     /**
@@ -38,16 +38,18 @@ public final class ContinuousElevationModel {
     public ContinuousElevationModel(DiscreteElevationModel dem) {
         this.dem = requireNonNull(dem);
     }
-    
+
 
     private double singleParameter(int x, int y, boolean slope) {
-        if(!slope)
-            return dem.elevationSample(x, y);
-        
+
         double a = dem.elevationSample(x  , y  );
+
+        if(!slope)
+            return a;
+
         double b = dem.elevationSample(x+1, y  );
         double c = dem.elevationSample(x  , y+1);
-        
+
         return Math.acos(d / Math.sqrt( Math2.sq(b-a) + Math2.sq(c-a) + d*d ) );
     }
 
@@ -68,13 +70,13 @@ public final class ContinuousElevationModel {
         catch(IllegalArgumentException e) {
             return new double[6];
         }
-        
-        t[4]   = aIndex - a;
-        t[5]   = bIndex - b;
+
+        t[4]   = Math2.floorMod(aIndex, 1);
+        t[5]   = Math2.floorMod(bIndex, 1);
 
         return t;
     }
-    
+
     private double bilerpChoice(GeoPoint p, boolean slope) {
         double[] a = parametersForBilerp(p, slope);
 
