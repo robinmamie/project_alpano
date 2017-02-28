@@ -10,7 +10,7 @@ import ch.epfl.alpano.Math2;
 
 
 /**
- * Représente un MNT continu. Classe immuable,.
+ * Représente un MNT continu. Classe immuable.
  *
  * @author Robin Mamie (257234)
  * @author Maxence Jouve (269716)

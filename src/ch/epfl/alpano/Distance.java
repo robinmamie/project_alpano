@@ -1,7 +1,5 @@
 package ch.epfl.alpano;
 
-import static ch.epfl.alpano.Preconditions.checkArgument;
-
 
 /**
  * Fait le lien entre angles et distances terrestres.
