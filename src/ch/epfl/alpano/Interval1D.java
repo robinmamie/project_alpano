@@ -119,7 +119,7 @@ public final class Interval1D {
      * @return si deux intervalles sont unionables
      */
     public boolean isUnionableWith(Interval1D that) {
-        return  0 < sizeOfIntersectionWith(that); 
+        return  this.size() + that.size() - this.sizeOfIntersectionWith(that) == this.boundingUnion(that).size(); 
     }
 
     

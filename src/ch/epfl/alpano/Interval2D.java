@@ -121,7 +121,7 @@ public final class Interval2D {
      * @return si deux intervalles sont unionables
      */
     public boolean isUnionableWith(Interval2D that) {
-        return 0 < sizeOfIntersectionWith(that);
+        return this.iX().isUnionableWith(that.iX()) && this.iY().isUnionableWith(that.iY());
     }
 
     
