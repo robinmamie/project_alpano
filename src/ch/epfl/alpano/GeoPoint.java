@@ -45,24 +45,6 @@ public final class GeoPoint {
     
     
     /**
-     * Appelle le constructeur en transformant les angles en radians si l'utilisateur le demande.
-     * 
-     * @param longitude
-     *                  la longitude du point, en radians, entre -Pi et Pi compris,
-     *                  éventuellement entre -180° et 180° compris. 
-     * @param latitude
-     *                  la latitude du point, en radians. Doit se trouver entre -Pi/2 et Pi/2 compris.
-     *                  Éventuellement en degrls, entre -90° et 90° compris.
-     *                  
-     * @param degrees   
-     *                  désigne la nécessité d'une conversion en radians.
-     */
-    public GeoPoint(double longitude, double latitude, boolean degrees) {
-        this(degrees ? Math.toRadians(longitude) : longitude, degrees ? Math.toRadians(latitude) : latitude);
-    }
-    
-    
-    /**
      * Retourne la longitude du point en radians.
      * 
      * @return la longitude du point en radians

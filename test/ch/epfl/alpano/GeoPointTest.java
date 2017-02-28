@@ -7,10 +7,10 @@ import org.junit.Test;
 
 public class GeoPointTest {
 
-    private GeoPoint rolex = new GeoPoint(6.56727, 46.51779, true);
-    private GeoPoint eiger = new GeoPoint(8.00529, 46.57759, true);
-    private GeoPoint lausanne = new GeoPoint(6.631, 46.521, true);
-    private GeoPoint moscow   = new GeoPoint(37.623, 55.753, true);
+    private GeoPoint rolex = new GeoPoint(Math.toRadians(6.56727), Math.toRadians(46.51779));
+    private GeoPoint eiger = new GeoPoint(Math.toRadians(8.00529), Math.toRadians(46.57759));
+    private GeoPoint lausanne = new GeoPoint(Math.toRadians(6.631), Math.toRadians(46.521));
+    private GeoPoint moscow   = new GeoPoint(Math.toRadians(37.623), Math.toRadians(55.753));
     
     
     @Test
@@ -57,7 +57,7 @@ public class GeoPointTest {
     public void toStringOutputsCorrectValue() {
         double longitude = -5.6578;
         double latitude  = 12.3457;
-        GeoPoint test = new GeoPoint(longitude, latitude, true);
+        GeoPoint test = new GeoPoint(Math.toRadians(longitude), Math.toRadians(latitude));
         String expectedString = "(" + longitude + "," + latitude + ")";
         String actualString   = test.toString();
         
