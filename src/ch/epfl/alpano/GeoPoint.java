@@ -90,8 +90,8 @@ public final class GeoPoint {
         return Distance.toMeters(
                 2 * Math.asin(
                         Math.sqrt(
-                                Math2.haversin(this.longitude - that.longitude)
-                + Math.cos(this.longitude) * Math.cos(that.longitude) * Math2.haversin(this.latitude - that.latitude))));
+                                Math2.haversin(this.latitude - that.latitude)
+                + Math.cos(this.latitude) * Math.cos(that.latitude) * Math2.haversin(this.longitude - that.longitude))));
     }
     
     
@@ -104,10 +104,10 @@ public final class GeoPoint {
      * @return l'azimuth en radians du premier au second point géographique
      */
     public double azimuthTo(GeoPoint that) {
-        return - Math.atan2(
-                Math.sin(this.latitude - that.latitude) * Math.cos(that.longitude)
-                , Math.cos(this.longitude) * Math.sin(that.longitude)
-                - Math.sin(this.longitude) * Math.cos(that.longitude) * Math.cos(this.latitude - that.latitude));
+        return Azimuth.fromMath(Azimuth.canonicalize(Math.atan2(
+                Math.sin(this.longitude - that.longitude) * Math.cos(that.latitude)
+                , Math.cos(this.latitude) * Math.sin(that.latitude)
+                - Math.sin(this.latitude) * Math.cos(that.latitude) * Math.cos(this.longitude - that.longitude))));
     }
     
     
