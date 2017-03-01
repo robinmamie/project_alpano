@@ -21,7 +21,7 @@ public interface DiscreteElevationModel extends AutoCloseable {
     /**
      * Le nombre d'échantillons par radian d'un MNT discret.
      */
-    double SAMPLES_PER_RADIAN = SAMPLES_PER_DEGREE * 180.0 / Math.PI;
+    double SAMPLES_PER_RADIAN = Math.toDegrees(SAMPLES_PER_DEGREE);
     
     
     /**
