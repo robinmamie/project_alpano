@@ -33,7 +33,7 @@ public final class Interval2D {
      * @param iY
      *          Second intervalle unidimensionnel
      *          
-     * @throws IllegalArgumentException
+     * @throws NullPointerException
      *          si au moins l'un des arguments donnés est nul.
      */
     public Interval2D(Interval1D iX, Interval1D iY) {
@@ -137,13 +137,16 @@ public final class Interval2D {
      *          si les deux intervalles ne sont pas unionables.
      */
     public Interval2D union(Interval2D that) {
-        checkArgument(isUnionableWith(that), "union not possible");
-        return boundingUnion(that);
+        checkArgument(this.isUnionableWith(that), "union not possible");
+        return this.boundingUnion(that);
     }
 
     
     @Override
     public boolean equals(Object thatO) {
+        if(this == thatO)
+            return true;
+        
         if(thatO == null || getClass() != thatO.getClass())
             return false;
 
@@ -161,7 +164,10 @@ public final class Interval2D {
     
     @Override
     public String toString() {
-        return iX.toString() + "×" + iY.toString();
+        return new StringBuilder(iX.toString())
+                .append("×")
+                .append(iY.toString())
+                .toString();
     }
     
 }

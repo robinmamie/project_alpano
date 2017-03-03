@@ -92,7 +92,7 @@ public final class Interval1D {
      * @return la taille de l'intersection entre deux intervalles
      */
     public int sizeOfIntersectionWith(Interval1D that) {
-        int size = Math.min(this.includedTo, that.includedTo) - Math.max(this.includedFrom, that.includedFrom) + 1;
+        int size = Math.min(this.includedTo, that.includedTo)- Math.max(this.includedFrom, that.includedFrom) + 1;
         return size < 0 ? 0 : size;
     }
 
@@ -135,13 +135,16 @@ public final class Interval1D {
      *          si les deux intervalles ne sont pas unionables.
      */
     public Interval1D union(Interval1D that) {
-        checkArgument(isUnionableWith(that), "union not possible");
-        return boundingUnion(that);
+        checkArgument(this.isUnionableWith(that), "union not possible");
+        return this.boundingUnion(that);
     }
 
     
     @Override
     public boolean equals(Object thatO) {
+        if(this == thatO)
+            return true;
+        
         if(thatO == null || getClass() != thatO.getClass())
             return false;
         
@@ -153,13 +156,18 @@ public final class Interval1D {
     
     @Override
     public int hashCode() {
-        return Objects.hash(includedFrom(), includedTo());
+        return Objects.hash(includedFrom, includedTo);
     }
 
     
     @Override
     public String toString() {
-        return "[" + includedFrom + ".." + includedTo + "]";
+        return new StringBuilder("[")
+                .append(includedFrom)
+                .append("..")
+                .append(includedTo)
+                .append("]")
+                .toString();
     }
     
 }
