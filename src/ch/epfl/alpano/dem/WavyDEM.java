@@ -8,7 +8,7 @@ final class WavyDEM implements DiscreteElevationModel {
     private final Interval2D extent;
 
     public WavyDEM(Interval2D extent) {
-      this.extent = extent;
+        this.extent = extent;
     }
 
     @Override
@@ -19,8 +19,8 @@ final class WavyDEM implements DiscreteElevationModel {
 
     @Override
     public double elevationSample(int x, int y) {
-      double x1 = PI * 2d * x / PERIOD;
-      double y1 = PI * 2d * y / PERIOD;
-      return (1 + sin(x1) * cos(y1)) / 2d * HEIGHT;
+        double x1 = PI * 2d * x / PERIOD;
+        double y1 = PI * 2d * y / PERIOD;
+        return (1 + sin(x1) * cos(y1)) / 2d * HEIGHT;
     }
-  }
+}
