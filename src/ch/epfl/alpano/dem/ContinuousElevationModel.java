@@ -57,7 +57,7 @@ public final class ContinuousElevationModel {
         double lon = sampleIndex(p.longitude());
         double lat = sampleIndex(p.latitude());
 
-        return new int[]{(int)floor(lon), (int)floor(lat)};
+        return new int[] {(int)floor(lon), (int)floor(lat)};
     }
 
 
@@ -74,7 +74,7 @@ public final class ContinuousElevationModel {
         double lon = sampleIndex(p.longitude());
         double lat = sampleIndex(p.latitude());
 
-        return new double[]{floorMod(lon, 1), floorMod(lat, 1)};
+        return new double[] {floorMod(lon, 1), floorMod(lat, 1)};
     }
 
     /**
@@ -107,14 +107,14 @@ public final class ContinuousElevationModel {
      * 			dans le MNT.
      */
     private double slopeAtIndex(int x, int y) {
-        double a = elevationAtIndex(  x  ,   y  );
-        double b = elevationAtIndex(x + 1,   y  );
-        double c = elevationAtIndex(  x  , y + 1);
+        double a = elevationAtIndex(x    , y    );
+        double b = elevationAtIndex(x + 1, y    );
+        double c = elevationAtIndex(x    , y + 1);
 
         if(a == nInf || b == nInf || c == nInf)
             return nInf;
 
-        return Math.acos(d / Math.sqrt( Math2.sq(b-a) + Math2.sq(c-a) + d*d ) );
+        return Math.acos(d / Math.sqrt( Math2.sq(b-a) + Math2.sq(c-a) + Math2.sq(d) ) );
     }
 
 
@@ -150,9 +150,9 @@ public final class ContinuousElevationModel {
         int[]    i = floorIndex(p);
         double[] v = modIndex  (p);
 
-        double z00 = parameterAtIndex(   i[0] ,    i[1] , slope);
-        double z10 = parameterAtIndex(i[0] + 1,    i[1] , slope);
-        double z01 = parameterAtIndex(   i[0] , i[1] + 1, slope);
+        double z00 = parameterAtIndex(i[0]    , i[1]    , slope);
+        double z10 = parameterAtIndex(i[0] + 1, i[1]    , slope);
+        double z01 = parameterAtIndex(i[0]    , i[1] + 1, slope);
         double z11 = parameterAtIndex(i[0] + 1, i[1] + 1, slope);
 
         if(z00 == nInf || z10 == nInf || z01 == nInf || z11 == nInf)
