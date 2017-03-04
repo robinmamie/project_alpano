@@ -1,8 +1,11 @@
 package ch.epfl.alpano.dem;
 
+import static ch.epfl.alpano.Math2.bilerp;
+import static ch.epfl.alpano.Math2.floorMod;
 import static ch.epfl.alpano.dem.DiscreteElevationModel.SAMPLES_PER_RADIAN;
 import static ch.epfl.alpano.dem.DiscreteElevationModel.sampleIndex;
 import static java.util.Objects.requireNonNull;
+import static java.lang.Math.floor;
 
 import ch.epfl.alpano.Distance;
 import ch.epfl.alpano.GeoPoint;
@@ -18,97 +21,158 @@ import ch.epfl.alpano.Math2;
 public final class ContinuousElevationModel {
 
 
-    /**
-     * MNT discret utilis√©.
-     */
-    private DiscreteElevationModel dem;
+	/**
+	 * MNT discret utilis√©.
+	 */
+	private DiscreteElevationModel dem;
 
-    private final double d = Distance.toMeters(1 / SAMPLES_PER_RADIAN);
-
-
-    /**
-     * Construit un MNT continu √† partir d'un MNT discret.
-     * 
-     * @param dem
-     *          MNT discret
-     *          
-     * @throws NullPointerException
-     *          si l'argument donn√© est null
-     */
-    public ContinuousElevationModel(DiscreteElevationModel dem) {
-        this.dem = requireNonNull(dem);
-    }
+	private final double d    = Distance.toMeters(1 / SAMPLES_PER_RADIAN);
+	
+	private final double nInf = Double.NEGATIVE_INFINITY;
 
 
-    private double singleParameter(int x, int y, boolean slope) {
+	/**
+	 * Construit un MNT continu √† partir d'un MNT discret.
+	 * 
+	 * @param dem
+	 *          MNT discret
+	 *          
+	 * @throws NullPointerException
+	 *          si l'argument donn√© est null
+	 */
+	public ContinuousElevationModel(DiscreteElevationModel dem) {
+		this.dem = requireNonNull(dem);
+	}
+	
+	
+	/**
+	 * Retourne les index correspondant au coint infÈrieur gauche du carrÈ
+	 * unitaire dans lequel se trouve un point gÈographique.
+	 * 
+	 * @param p
+	 * 			un point gÈogrpahique
+	 * 
+	 * @return les index du coin infÈrieur droit correspondant au point gÈographique.
+	 */
+	private int[] floorIndex(GeoPoint p) {
+		double lon = sampleIndex(p.longitude());
+		double lat = sampleIndex(p.latitude());
+		
+		int[] t    = {(int)floor(lon), (int)floor(lat)};
+		
+		return t;
+	}
+	
+	
+	/**
+	 * Retourne la distance en index en coordonnÈes cartÈsiennes par rapport au coin infÈrieur
+	 * gauche du carrÈ unitaire dans lequel se trouve un point gÈographique.
+	 * 
+	 * @param p
+	 * 			un point gÈographique
+	 * 
+	 * @return la distance en index du point par rapport au coin infÈrieure gauche
+	 */
+	private double[] modIndex(GeoPoint p) {
+		double lon = sampleIndex(p.longitude());
+		double lat = sampleIndex(p.latitude());
+		
+		double[] t = {floorMod(lon, 1), floorMod(lat, 1)};
+		
+		return t;
+	}
 
-        double a = dem.elevationSample(x  , y  );
+	/**
+	 * Retourne une altitude cohÈrente correspondant ‡ l'index donnÈ.
+	 * 
+	 * @param x
+	 * 			index horizontal
+	 * @param y
+	 * 			index vertical
+	 * 
+	 * @return l'altitude du point ou Double.NEGATIVE_INFINITY si elle n'existe pas
+	 * 			dans le MNT.
+	 */
+	private double elevationAtIndex(int x, int y) {
 
-        if(!slope)
-            return a;
+		if(!dem.extent().contains(x, y))
+			return nInf;
 
-        double b = dem.elevationSample(x+1, y  );
-        double c = dem.elevationSample(x  , y+1);
+		return dem.elevationSample(x, y);
 
-        return Math.acos(d / Math.sqrt( Math2.sq(b-a) + Math2.sq(c-a) + d*d ) );
-    }
+	}
 
+	/**
+	 * Retourne une pente cohÈrente correspondant ‡ l'index donnÈ.
+	 * 
+	 * @param x
+	 * 			index horizontal
+	 * @param y
+	 * 			index vertical
+	 * 
+	 * @return la pente du point ou Double.NEGATIVE_INFINITY si elle n'existe pas
+	 * 			dans le MNT.
+	 */
+	private double slopeAtIndex(int x, int y) {
 
-    private double[] parametersForBilerp(GeoPoint p, boolean slope) {
-        double[] t = new double[6];   
+		double a = elevationAtIndex(x    , y    );
+		double b = elevationAtIndex(x + 1, y    );
+		double c = elevationAtIndex(x    , y + 1);
 
-        double aIndex = sampleIndex(p.longitude());
-        double bIndex = sampleIndex(p.latitude());
+		if(a == nInf || b == nInf || c == nInf)
+			return nInf;
 
-        int a = (int)Math.floor(aIndex);
-        int b = (int)Math.floor(bIndex);
-
-        try {
-            for(int i = 0; i < 4; ++i)
-                t[i] = singleParameter(a + (i%2==1?1:0), b + (i > 1?1:0), slope);
-        }
-        catch(IllegalArgumentException e) {
-            return new double[6];
-        }
-
-        t[4]   = Math2.floorMod(aIndex, 1);
-        t[5]   = Math2.floorMod(bIndex, 1);
-
-        return t;
-    }
-
-    private double bilerpChoice(GeoPoint p, boolean slope) {
-        double[] a = parametersForBilerp(p, slope);
-
-        return Math2.bilerp(a[0], a[1], a[2], a[3], a[4], a[5]);
-    }
-
-
-    /**
-     * Retourne l'altitude au point donn√©, en m√®tres. Elle est obtenue par
-     * interpolation bilin√©aire du MNT discret donn√© au constructeur.
-     * 
-     * @param p
-     *          un point g√©ographique
-     * 
-     * @return l'altitude au point <code>p</code>
-     */
-    public double elevationAt(GeoPoint p) {
-        return bilerpChoice(p, false);
-    }
+		return Math.acos(d / Math.sqrt( Math2.sq(b-a) + Math2.sq(c-a) + d*d ) );
+	}
 
 
-    /**
-     * Retourne la pente du point donn√©, en radians. Elle est obtenue par
-     * interpolation bilin√©aire du MNT discret donn√© au constructeur.
-     * 
-     * @param p
-     *          un point g√©ographique
-     *          
-     * @return la pente au point <code>p</code>
-     */
-    public double slopeAt(GeoPoint p) {
-        return bilerpChoice(p, true);
-    }
+	/**
+	 * Retourne l'altitude au point donn√©, en m√®tres. Elle est obtenue par
+	 * interpolation bilin√©aire du MNT discret donn√© au constructeur.
+	 * 
+	 * @param p
+	 *          un point g√©ographique
+	 * 
+	 * @return l'altitude au point <code>p</code>
+	 */
+	public double elevationAt(GeoPoint p) {
+		int[]    i = floorIndex(p);
+		double[] v = modIndex(p);
+		
+		double z00 = elevationAtIndex(i[0]    , i[1]    );
+		double z10 = elevationAtIndex(i[0] + 1, i[1]    );
+		double z01 = elevationAtIndex(i[0]    , i[1] + 1);
+		double z11 = elevationAtIndex(i[0] + 1, i[1] + 1);
+		
+		if(z00 == nInf || z10 == nInf || z01 == nInf || z11 == nInf)
+			return 0.0;
+
+		return bilerp(z00, z10, z01, z11, v[0], v[1]);
+	}
+
+
+	/**
+	 * Retourne la pente du point donn√©, en radians. Elle est obtenue par
+	 * interpolation bilin√©aire du MNT discret donn√© au constructeur.
+	 * 
+	 * @param p
+	 *          un point g√©ographique
+	 *          
+	 * @return la pente au point <code>p</code>
+	 */
+	public double slopeAt(GeoPoint p) {
+		int[]    i = floorIndex(p);
+		double[] v = modIndex(p);
+		
+		double z00 = slopeAtIndex(i[0]    , i[1]    );
+		double z10 = slopeAtIndex(i[0] + 1, i[1]    );
+		double z01 = slopeAtIndex(i[0]    , i[1] + 1);
+		double z11 = slopeAtIndex(i[0] + 1, i[1] + 1);
+		
+		if(z00 == nInf || z10 == nInf || z01 == nInf || z11 == nInf)
+			return 0.0;
+
+		return bilerp(z00, z10, z01, z11, v[0], v[1]);
+	}
 
 }
