@@ -20,6 +20,8 @@ public final class DrawDEM {
   @SuppressWarnings("resource")
   public static void main(String[] args)
     throws IOException {
+	  
+	long startTime = System.nanoTime();
 
     DiscreteElevationModel dDEM1 =
       new WavyDEM(new Interval2D(new Interval1D(0, 50),
@@ -52,6 +54,10 @@ public final class DrawDEM {
 
     ImageIO.write(elI, "png", new File("elevation.png"));
     ImageIO.write(slI, "png", new File("slope.png"));
+    
+    long endTime = System.nanoTime();
+	System.out.println("Took "+(endTime - startTime) + " ns");
+	System.out.println("Took "+(endTime - startTime)/1e6 + " ms");
   }
 
   private static int gray(double v) {

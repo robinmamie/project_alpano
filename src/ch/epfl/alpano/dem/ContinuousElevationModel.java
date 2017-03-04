@@ -94,7 +94,6 @@ public final class ContinuousElevationModel {
 	 * 			dans le MNT.
 	 */
 	private double elevationAtIndex(int x, int y) {
-
 		if(!dem.extent().contains(x, y))
 			return nInf;
 
@@ -114,7 +113,6 @@ public final class ContinuousElevationModel {
 	 * 			dans le MNT.
 	 */
 	private double slopeAtIndex(int x, int y) {
-
 		double a = elevationAtIndex(x    , y    );
 		double b = elevationAtIndex(x + 1, y    );
 		double c = elevationAtIndex(x    , y + 1);
@@ -123,6 +121,50 @@ public final class ContinuousElevationModel {
 			return nInf;
 
 		return Math.acos(d / Math.sqrt( Math2.sq(b-a) + Math2.sq(c-a) + d*d ) );
+	}
+	
+	
+	/**
+	 * Vérifie si aucun des paramètres donnés n'est égal
+	 * à Double.NEGATIVE_INFINITY et donc s'ils appartiennent
+	 * au MNT.
+	 * 
+	 * @param a
+	 * 			Premier parametre
+	 * @param b
+	 * 			Deuxieme parametre
+	 * @param c
+	 * 			Troisieme parametre
+	 * @param d
+	 * 			Quatrieme parametre
+	 * 
+	 * @return si les parametres sont contenus dans le MNT
+	 */
+	private boolean demContainsPoint(double a, double b, double c, double d) {
+		return a == nInf || b == nInf || c == nInf || d == nInf;
+	}
+	
+	
+	private double parameterAtIndex(int x, int y, boolean slope) {
+		if(slope)
+			return slopeAtIndex(x, y);
+		
+		return elevationAtIndex(x, y);
+	}
+	
+	private double bilinearInterpolation(GeoPoint p, boolean slope) {
+		int[]    i = floorIndex(p);
+		double[] v = modIndex(p);
+		
+		double z00 = parameterAtIndex(i[0]    , i[1]    , slope);
+		double z10 = parameterAtIndex(i[0] + 1, i[1]    , slope);
+		double z01 = parameterAtIndex(i[0]    , i[1] + 1, slope);
+		double z11 = parameterAtIndex(i[0] + 1, i[1] + 1, slope);
+		
+		if(demContainsPoint(z00, z10, z01, z11))
+			return 0.0;
+
+		return bilerp(z00, z10, z01, z11, v[0], v[1]);
 	}
 
 
@@ -136,18 +178,7 @@ public final class ContinuousElevationModel {
 	 * @return l'altitude au point <code>p</code>
 	 */
 	public double elevationAt(GeoPoint p) {
-		int[]    i = floorIndex(p);
-		double[] v = modIndex(p);
-		
-		double z00 = elevationAtIndex(i[0]    , i[1]    );
-		double z10 = elevationAtIndex(i[0] + 1, i[1]    );
-		double z01 = elevationAtIndex(i[0]    , i[1] + 1);
-		double z11 = elevationAtIndex(i[0] + 1, i[1] + 1);
-		
-		if(z00 == nInf || z10 == nInf || z01 == nInf || z11 == nInf)
-			return 0.0;
-
-		return bilerp(z00, z10, z01, z11, v[0], v[1]);
+		return bilinearInterpolation(p, false);
 	}
 
 
@@ -161,18 +192,7 @@ public final class ContinuousElevationModel {
 	 * @return la pente au point <code>p</code>
 	 */
 	public double slopeAt(GeoPoint p) {
-		int[]    i = floorIndex(p);
-		double[] v = modIndex(p);
-		
-		double z00 = slopeAtIndex(i[0]    , i[1]    );
-		double z10 = slopeAtIndex(i[0] + 1, i[1]    );
-		double z01 = slopeAtIndex(i[0]    , i[1] + 1);
-		double z11 = slopeAtIndex(i[0] + 1, i[1] + 1);
-		
-		if(z00 == nInf || z10 == nInf || z01 == nInf || z11 == nInf)
-			return 0.0;
-
-		return bilerp(z00, z10, z01, z11, v[0], v[1]);
+		return bilinearInterpolation(p, true);
 	}
 
 }
