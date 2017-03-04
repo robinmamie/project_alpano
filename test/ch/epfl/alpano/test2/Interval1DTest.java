@@ -6,13 +6,6 @@ import org.junit.Test;
 
 import ch.epfl.alpano.Interval1D;
 
-/**
- * Tests Interval1D
- *
- * @author Charline Montial
- * @author Yves Zumbach
- */
-
 public class Interval1DTest {
 
     @Test

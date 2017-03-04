@@ -7,12 +7,6 @@ import org.junit.Test;
 import ch.epfl.alpano.Interval1D;
 import ch.epfl.alpano.Interval2D;
 
-/**
- * Class that test if Interval2D behave as expected.
- *
- * @author Charline Montial
- * @author Yves Zumbach
- */
 
 public class Interval2DTest {
 

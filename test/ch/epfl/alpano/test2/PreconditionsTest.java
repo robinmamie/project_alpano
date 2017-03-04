@@ -5,7 +5,6 @@ import static ch.epfl.alpano.Preconditions.checkArgument;
 import org.junit.Test;
 
 public class PreconditionsTest {
-    ////////// checkArgument (1 argument)
 
     @Test
     public void checkArgument1SucceedsForTrue() {
