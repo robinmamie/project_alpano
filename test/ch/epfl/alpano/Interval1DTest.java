@@ -96,7 +96,7 @@ public class Interval1DTest {
     @Test(expected = IllegalArgumentException.class)
     public void unionFailsWithNonUnionableIntervals() {
         Interval1D a = new Interval1D(0,5);
-        Interval1D b = new Interval1D(6,6);
+        Interval1D b = new Interval1D(7,7);
         
         a.union(b);
     }

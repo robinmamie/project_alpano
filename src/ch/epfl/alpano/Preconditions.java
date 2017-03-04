@@ -15,6 +15,9 @@ public interface Preconditions {
      * 
      * @param b
      *          précondition spécifique
+     *          
+     * @throws IllegalArgumentException
+     *            lorsque le booléen b est faux
      */
     static void checkArgument(boolean b) {
         checkArgument(b, "");

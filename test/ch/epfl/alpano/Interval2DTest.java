@@ -88,7 +88,7 @@ public class Interval2DTest {
         Interval1D a1 = new Interval1D(0,2);
         Interval1D b1 = new Interval1D(5,8);
         Interval2D c1 = new Interval2D(a1,b1);
-        Interval1D a2 = new Interval1D(2,4);
+        Interval1D a2 = new Interval1D(0,4);
         Interval1D b2 = new Interval1D(3,8);
         Interval2D c2 = new Interval2D(a2,b2);
         
@@ -105,7 +105,7 @@ public class Interval2DTest {
         Interval1D b1 = new Interval1D(5,8);
         Interval2D c1 = new Interval2D(a1,b1);
         
-        Interval1D a2 = new Interval1D(3,4);
+        Interval1D a2 = new Interval1D(4,4);
         Interval1D b2 = new Interval1D(3,8);
         Interval2D c2 = new Interval2D(a2,b2);
         

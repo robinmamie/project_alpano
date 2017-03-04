@@ -21,7 +21,7 @@ public interface Azimuth {
      * @return si l'azimut est canonique ou non
      */
     static boolean isCanonical(double azimuth) {
-        return (0 <= azimuth) && (azimuth < Math2.PI2);
+        return 0 <= azimuth && azimuth < Math2.PI2;
     }
     
     
@@ -49,7 +49,7 @@ public interface Azimuth {
      * @throws IllegalArgumentException
      *          si l'azimut n'est pas canonique
      */
-    static double toMath(double azimuth) {
+    static double toMath(double azimuth) throws IllegalArgumentException {
         checkArgument(isCanonical(azimuth), "argument non canonical");
         return canonicalize(Math2.PI2 - azimuth);
     }
@@ -66,7 +66,7 @@ public interface Azimuth {
      * @throws IllegalArgumentException
      *          si l'angle n'est pas compris entre 0 et 2Pi exclu
      */
-    static double fromMath(double angle) {
+    static double fromMath(double angle) throws IllegalArgumentException {
         return toMath(angle);
     }
     
@@ -89,13 +89,15 @@ public interface Azimuth {
      * @return la chaîne de caractère correspondant à l'octant
      *         dans lequel se trouve l'azimut
      * 
-     * @throw IllegalArgumentException
+     * @throws IllegalArgumentException
      *          si l'azimut n'est pas canonique
      */
     static String toOctantString(double azimuth, String n, String e, String s, String w) {
         checkArgument(isCanonical(azimuth), "azimuth non canonical");
+        
         String answer = "";
         final double distance = 3*Math.PI/8;
+        
         if(Math.abs(Math2.angularDistance(azimuth, 0)) < distance)
             answer += n;
         else if(Math.abs(Math2.angularDistance(azimuth, Math.PI)) < distance)
@@ -105,6 +107,7 @@ public interface Azimuth {
             answer += e;
         else if(Math.abs(Math2.angularDistance(azimuth, 3*Math.PI/2)) < distance)
             answer += w;
+        
         return answer;
     }
     

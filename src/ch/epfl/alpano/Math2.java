@@ -16,7 +16,7 @@ public interface Math2 {
     /**
      * La valeur 2*Pi.
      */
-    double PI2 = 2*Math.PI;
+    double PI2 = 2 * Math.PI;
     
     
     /**
@@ -41,12 +41,8 @@ public interface Math2 {
      *          le diviseur
      *          
      * @return le reste de la division entière par défaut de x par y
-     * 
-     * @throws IllegalArgumentException
-     *          si y est égal à zéro
      */
     static double floorMod(double x, double y) {
-        checkArgument(y != 0, "division by zero");
         return x - y * Math.floor(x / y);
     }
     
@@ -60,7 +56,7 @@ public interface Math2 {
      * @return le demi sinus verse de x
      */
     static double haversin(double x) {
-        return Math.pow(Math.sin(x / 2), 2);
+        return sq(Math.sin(x / 2.0));
     }
     
     
@@ -136,7 +132,7 @@ public interface Math2 {
      */
     static double firstIntervalContainingRoot(DoubleUnaryOperator f, double minX, double maxX, double dX) {
         while(minX <= maxX - dX) {
-            if(f.applyAsDouble(minX)*f.applyAsDouble(minX + dX) <= 0)
+            if(f.applyAsDouble(minX) * f.applyAsDouble(minX + dX) <= 0)
                 return minX;
             minX += dX;
         }
@@ -167,12 +163,10 @@ public interface Math2 {
                 , inf = firstIntervalContainingRoot(f, x1, x2, limit);
         checkArgument(inf != Double.POSITIVE_INFINITY);
         double sup = inf + limit
-                , mid
-                , value;
+                , mid;
         while(sup-inf > epsilon) {
             mid = (inf+sup)/2.0;
-            value = f.applyAsDouble((inf+sup)/2.0);
-            if(value * f.applyAsDouble(inf) < 0)
+            if(f.applyAsDouble(mid) * f.applyAsDouble(inf) < 0)
                 sup = mid;
             else
                 inf = mid;
