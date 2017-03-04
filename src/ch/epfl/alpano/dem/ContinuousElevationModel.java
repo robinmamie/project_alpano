@@ -55,9 +55,6 @@ public final class ContinuousElevationModel {
      * 			dans le MNT.
      */
     private double elevationAtIndex(int x, int y) {
-        if(!dem.extent().contains(x, y))
-            return 0.0;
-
         return dem.elevationSample(x, y);
     }
 
@@ -73,9 +70,9 @@ public final class ContinuousElevationModel {
      * 			dans le MNT.
      */
     private double slopeAtIndex(int x, int y) {
-        double a = elevationAtIndex(x    , y    );
-        double b = elevationAtIndex(x + 1, y    );
-        double c = elevationAtIndex(x    , y + 1);
+        double a = dem.elevationSample(x    , y    );
+        double b = dem.elevationSample(x + 1, y    );
+        double c = dem.elevationSample(x    , y + 1);
 
         return Math.acos(d / Math.sqrt( Math2.sq(b-a) + Math2.sq(c-a) + Math2.sq(d) ) );
     }
@@ -100,7 +97,7 @@ public final class ContinuousElevationModel {
 
     
     /**
-     * Produit l'interpolation linéaire selon les paramètre donnés.
+     * Produit l'interpolation linéaire selon les paramètres donnés.
      * 
      * @param p
      *          Un point géographique

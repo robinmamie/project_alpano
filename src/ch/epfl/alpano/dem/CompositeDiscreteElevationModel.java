@@ -55,12 +55,13 @@ final class CompositeDiscreteElevationModel implements DiscreteElevationModel {
 
     @Override
     public double elevationSample(int x, int y) {
-        checkArgument(extent().contains(x, y), "the DEM does not contain the index given");
-        
         if(dem1.extent().contains(x, y))
             return dem1.elevationSample(x, y);
         
-        return dem2.elevationSample(x, y);
+        if(dem2.extent().contains(x, y))
+            return dem2.elevationSample(x, y);
+        
+        return 0.0;
     }
 
 }
