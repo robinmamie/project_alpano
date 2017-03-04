@@ -16,13 +16,13 @@ final class CompositeDiscreteElevationModel implements DiscreteElevationModel {
     /**
      * Le premier MNT.
      */
-    private DiscreteElevationModel dem1;
+    private final DiscreteElevationModel dem1;
     
     
     /**
      * Le second MNT.
      */
-    private DiscreteElevationModel dem2;
+    private final DiscreteElevationModel dem2;
     
     
     /**

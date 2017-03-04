@@ -25,10 +25,10 @@ public final class ContinuousElevationModel {
     /**
      * MNT discret utilisé.
      */
-    private DiscreteElevationModel dem;
+    private final DiscreteElevationModel dem;
     
-    private Interval2D extent;
-    private final double d    = Distance.toMeters(1 / SAMPLES_PER_RADIAN);
+    private final Interval2D extent;
+    private final double     d      = Distance.toMeters(1 / SAMPLES_PER_RADIAN);
 
 
     /**
