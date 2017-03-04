@@ -27,7 +27,6 @@ public final class ContinuousElevationModel {
     private DiscreteElevationModel dem;
 
     private final double d    = Distance.toMeters(1 / SAMPLES_PER_RADIAN);
-    private final double nInf = Double.NEGATIVE_INFINITY;
 
 
     /**
@@ -45,39 +44,6 @@ public final class ContinuousElevationModel {
 
 
     /**
-     * Retourne les index correspondant au coint inférieur gauche du carré
-     * unitaire dans lequel se trouve un point géographique.
-     * 
-     * @param p
-     * 			un point géogrpahique
-     * 
-     * @return les index du coin inférieur droit correspondant au point géographique.
-     */
-    private int[] floorIndex(GeoPoint p) {
-        double lon = sampleIndex(p.longitude());
-        double lat = sampleIndex(p.latitude());
-
-        return new int[] {(int)floor(lon), (int)floor(lat)};
-    }
-
-
-    /**
-     * Retourne la distance en index en coordonn�es cartésiennes par rapport au coin inférieur
-     * gauche du carré unitaire dans lequel se trouve un point g�ographique.
-     * 
-     * @param p
-     * 			un point géographique
-     * 
-     * @return la distance en index du point par rapport au coin inférieur gauche
-     */
-    private double[] modIndex(GeoPoint p) {
-        double lon = sampleIndex(p.longitude());
-        double lat = sampleIndex(p.latitude());
-
-        return new double[] {floorMod(lon, 1), floorMod(lat, 1)};
-    }
-
-    /**
      * Retourne une altitude cohérente correspondant à l'index donné.
      * 
      * @param x
@@ -90,7 +56,7 @@ public final class ContinuousElevationModel {
      */
     private double elevationAtIndex(int x, int y) {
         if(!dem.extent().contains(x, y))
-            return nInf;
+            return 0.0;
 
         return dem.elevationSample(x, y);
     }
@@ -110,9 +76,6 @@ public final class ContinuousElevationModel {
         double a = elevationAtIndex(x    , y    );
         double b = elevationAtIndex(x + 1, y    );
         double c = elevationAtIndex(x    , y + 1);
-
-        if(a == nInf || b == nInf || c == nInf)
-            return nInf;
 
         return Math.acos(d / Math.sqrt( Math2.sq(b-a) + Math2.sq(c-a) + Math2.sq(d) ) );
     }
@@ -147,16 +110,16 @@ public final class ContinuousElevationModel {
      * @return L'interpolation bilinéaire (pente ou altitude) du point donné.
      */
     private double bilinearInterpolation(GeoPoint p, boolean slope) {
-        int[]    i = floorIndex(p);
-        double[] v = modIndex  (p);
+        double lon = sampleIndex(p.longitude());
+        double lat = sampleIndex(p.latitude());
+        
+        int[]    i = {(int)floor(lon) , (int)floor(lat) };
+        double[] v = {floorMod(lon, 1), floorMod(lat, 1)};
 
         double z00 = parameterAtIndex(i[0]    , i[1]    , slope);
         double z10 = parameterAtIndex(i[0] + 1, i[1]    , slope);
         double z01 = parameterAtIndex(i[0]    , i[1] + 1, slope);
         double z11 = parameterAtIndex(i[0] + 1, i[1] + 1, slope);
-
-        if(z00 == nInf || z10 == nInf || z01 == nInf || z11 == nInf)
-            return 0.0;
 
         return bilerp(z00, z10, z01, z11, v[0], v[1]);
     }
