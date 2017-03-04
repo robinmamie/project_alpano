@@ -54,8 +54,8 @@ public final class ContinuousElevationModel {
      * @param y
      * 			index vertical
      * 
-     * @return l'altitude du point ou Double.NEGATIVE_INFINITY si elle n'existe pas
-     * 			dans le MNT.
+     * @return l'altitude du point du MNT, ou 0 si l'index se trouve en-dehors
+     *          de son champ de définition.
      */
     private double elevationAtIndex(int x, int y) {
         if(!extent.contains(x, y))
@@ -72,8 +72,7 @@ public final class ContinuousElevationModel {
      * @param y
      * 			index vertical
      * 
-     * @return la pente du point ou Double.NEGATIVE_INFINITY si elle n'existe pas
-     * 			dans le MNT.
+     * @return la pente du point à l'index donné
      */
     private double slopeAtIndex(int x, int y) {
         double a = elevationAtIndex(x    , y    );
@@ -116,15 +115,14 @@ public final class ContinuousElevationModel {
         double lon = sampleIndex(p.longitude());
         double lat = sampleIndex(p.latitude());
         
-        int[]    i = {(int)floor(lon) , (int)floor(lat) };
-        double[] v = {floorMod(lon, 1), floorMod(lat, 1)};
+        int[]    i = { (int)floor(lon) , (int)floor(lat) };
 
         double z00 = parameterAtIndex(i[0]    , i[1]    , slope);
         double z10 = parameterAtIndex(i[0] + 1, i[1]    , slope);
         double z01 = parameterAtIndex(i[0]    , i[1] + 1, slope);
         double z11 = parameterAtIndex(i[0] + 1, i[1] + 1, slope);
 
-        return bilerp(z00, z10, z01, z11, v[0], v[1]);
+        return bilerp(z00, z10, z01, z11, floorMod(lon, 1), floorMod(lat, 1));
     }
 
 
