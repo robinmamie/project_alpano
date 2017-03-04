@@ -4,11 +4,12 @@ import static ch.epfl.alpano.Math2.bilerp;
 import static ch.epfl.alpano.Math2.floorMod;
 import static ch.epfl.alpano.dem.DiscreteElevationModel.SAMPLES_PER_RADIAN;
 import static ch.epfl.alpano.dem.DiscreteElevationModel.sampleIndex;
-import static java.util.Objects.requireNonNull;
 import static java.lang.Math.floor;
+import static java.util.Objects.requireNonNull;
 
 import ch.epfl.alpano.Distance;
 import ch.epfl.alpano.GeoPoint;
+import ch.epfl.alpano.Interval2D;
 import ch.epfl.alpano.Math2;
 
 
@@ -25,7 +26,8 @@ public final class ContinuousElevationModel {
      * MNT discret utilisé.
      */
     private DiscreteElevationModel dem;
-
+    
+    private Interval2D extent;
     private final double d    = Distance.toMeters(1 / SAMPLES_PER_RADIAN);
 
 
@@ -39,7 +41,8 @@ public final class ContinuousElevationModel {
      *          si l'argument donné est null
      */
     public ContinuousElevationModel(DiscreteElevationModel dem) {
-        this.dem = requireNonNull(dem);
+        this.dem    = requireNonNull(dem);
+        this.extent = dem.extent();
     }
 
 
@@ -55,6 +58,9 @@ public final class ContinuousElevationModel {
      * 			dans le MNT.
      */
     private double elevationAtIndex(int x, int y) {
+        if(!extent.contains(x, y))
+            return 0.0;
+        
         return dem.elevationSample(x, y);
     }
 
@@ -70,9 +76,9 @@ public final class ContinuousElevationModel {
      * 			dans le MNT.
      */
     private double slopeAtIndex(int x, int y) {
-        double a = dem.elevationSample(x    , y    );
-        double b = dem.elevationSample(x + 1, y    );
-        double c = dem.elevationSample(x    , y + 1);
+        double a = elevationAtIndex(x    , y    );
+        double b = elevationAtIndex(x + 1, y    );
+        double c = elevationAtIndex(x    , y + 1);
 
         return Math.acos(d / Math.sqrt( Math2.sq(b-a) + Math2.sq(c-a) + Math2.sq(d) ) );
     }

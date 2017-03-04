@@ -61,7 +61,7 @@ final class CompositeDiscreteElevationModel implements DiscreteElevationModel {
         if(dem2.extent().contains(x, y))
             return dem2.elevationSample(x, y);
         
-        return 0.0;
+        throw new IllegalArgumentException("the DEM does not contain the given index");
     }
 
 }
