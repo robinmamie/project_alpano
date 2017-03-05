@@ -2,7 +2,6 @@ package ch.epfl.alpano.dem;
 
 import ch.epfl.alpano.Interval2D;
 import static java.util.Objects.requireNonNull;
-import static ch.epfl.alpano.Preconditions.checkArgument;
 
 
 /**
