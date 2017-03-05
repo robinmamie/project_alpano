@@ -26,16 +26,9 @@ public final class ContinuousElevationModel {
      * MNT discret utilisé.
      */
     private final DiscreteElevationModel dem;
-
-    /**
-     * Étendue du MNT utilisé.
-     */
-    private final Interval2D extent;
     
-    /**
-     * Distance prise en compte pour le calcul de la pente
-     */
-    private final double d = Distance.toMeters(1 / SAMPLES_PER_RADIAN);
+    private final Interval2D extent;
+    private final double     d      = Distance.toMeters(1 / SAMPLES_PER_RADIAN);
 
 
     /**
@@ -65,32 +58,71 @@ public final class ContinuousElevationModel {
      *          de son champ de définition.
      */
     private double elevationAtIndex(int x, int y) {
-        if(extent.contains(x, y))
-            return dem.elevationSample(x, y);
-
-        return 0.0;
+        if(!extent.contains(x, y))
+            return 0.0;
+        
+        return dem.elevationSample(x, y);
     }
-    
-    
+
     /**
-     * Calcule l'élévation d'un point selon un index réel.
+     * Retourne une pente coh�rente correspondant à l'index donné.
      * 
      * @param x
-     *          Premier index réel
+     * 			index horizontal
      * @param y
-     *          Second index réel
-     *          
-     * @return l'interpolation de l'altitude aux index donnés
+     * 			index vertical
+     * 
+     * @return la pente du point à l'index donné
      */
-    private double elevationAt(double x, double y) {
-        int[]  i   = { (int)floor(x) , (int)floor(y) };
+    private double slopeAtIndex(int x, int y) {
+        double a = elevationAtIndex(x    , y    );
+        double b = elevationAtIndex(x + 1, y    );
+        double c = elevationAtIndex(x    , y + 1);
 
-        double z00 = elevationAtIndex(i[0]    , i[1]    );
-        double z10 = elevationAtIndex(i[0] + 1, i[1]    );
-        double z01 = elevationAtIndex(i[0]    , i[1] + 1);
-        double z11 = elevationAtIndex(i[0] + 1, i[1] + 1);
+        return Math.acos(d / Math.sqrt( Math2.sq(b-a) + Math2.sq(c-a) + Math2.sq(d) ) );
+    }
 
-        return bilerp(z00, z10, z01, z11, floorMod(x, 1), floorMod(y, 1));
+
+    /**
+     * Donne l'altitude ou la pente correspondant aux parametres
+     * donnes.
+     * 
+     * @param x
+     * 			Parametre horizontal
+     * @param y
+     * 			Parametre vertical
+     * @param slope
+     * 			Determine si l'utilisateur d�sire la pente ou l'altitude
+     * 
+     * @return La pente ou l'altitude aux index donnés.
+     */
+    private double parameterAtIndex(int x, int y, boolean slope) {
+        return slope ? slopeAtIndex(x, y) : elevationAtIndex(x, y);
+    }
+
+    
+    /**
+     * Produit l'interpolation linéaire selon les paramètres donnés.
+     * 
+     * @param p
+     *          Un point géographique
+     * @param slope
+     *          Determine si l'utilisateur désire la pente ou l'altitude
+     *          
+     * @return L'interpolation bilinéaire (pente ou altitude) du point donné.
+     */
+    private double bilinearInterpolation(GeoPoint p, boolean slope) {
+        double lon = sampleIndex(p.longitude());
+        double lat = sampleIndex(p.latitude());
+        
+        int[]    i = { (int)floor(lon) , (int)floor(lat) };
+
+        double z00 = parameterAtIndex(i[0]    , i[1]    , slope);
+        double z10 = parameterAtIndex(i[0] + 1, i[1]    , slope);
+        double z01 = parameterAtIndex(i[0]    , i[1] + 1, slope);
+        double z11 = parameterAtIndex(i[0] + 1, i[1] + 1, slope);
+
+        return bilerp(z00, z10, z01, z11, floorMod(lon, 1), floorMod(lat, 1));
     }
 
 
@@ -104,10 +136,7 @@ public final class ContinuousElevationModel {
      * @return l'altitude au point <code>p</code>
      */
     public double elevationAt(GeoPoint p) {
-        double lon = sampleIndex(p.longitude());
-        double lat = sampleIndex(p.latitude());
-
-        return elevationAt(lon, lat);
+        return bilinearInterpolation(p, false);
     }
 
 
@@ -121,14 +150,7 @@ public final class ContinuousElevationModel {
      * @return la pente au point <code>p</code>
      */
     public double slopeAt(GeoPoint p) {
-        double lon = sampleIndex(p.longitude());
-        double lat = sampleIndex(p.latitude());
-
-        double a   = elevationAt(lon    , lat    );
-        double b   = elevationAt(lon + 1, lat    );
-        double c   = elevationAt(lon    , lat + 1);
-
-        return Math.acos(d / Math.sqrt( Math2.sq(b-a) + Math2.sq(c-a) + Math2.sq(d) ) );
+        return bilinearInterpolation(p, true);
     }
 
 }
