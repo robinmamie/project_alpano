@@ -26,9 +26,16 @@ public final class ContinuousElevationModel {
      * MNT discret utilisé.
      */
     private final DiscreteElevationModel dem;
-    
+
+    /**
+     * Étendue du MNT utilisé.
+     */
     private final Interval2D extent;
-    private final double     d      = Distance.toMeters(1 / SAMPLES_PER_RADIAN);
+
+    /**
+     * Distance prise en compte pour le calcul de la pente
+     */
+    private final double d = Distance.toMeters(1 / SAMPLES_PER_RADIAN);
 
 
     /**
@@ -47,7 +54,7 @@ public final class ContinuousElevationModel {
 
 
     /**
-     * Retourne une altitude cohérente correspondant à l'index donné.
+     * Retourne l'altitude correspondant à l'index donné.
      * 
      * @param x
      * 			index horizontal
@@ -58,14 +65,14 @@ public final class ContinuousElevationModel {
      *          de son champ de définition.
      */
     private double elevationAtIndex(int x, int y) {
-        if(!extent.contains(x, y))
-            return 0.0;
-        
-        return dem.elevationSample(x, y);
+        if(extent.contains(x, y))
+            return dem.elevationSample(x, y);
+
+        return 0.0;
     }
 
     /**
-     * Retourne une pente coh�rente correspondant à l'index donné.
+     * Retourne une pente correspondant à l'index donné.
      * 
      * @param x
      * 			index horizontal
@@ -100,7 +107,7 @@ public final class ContinuousElevationModel {
         return slope ? slopeAtIndex(x, y) : elevationAtIndex(x, y);
     }
 
-    
+
     /**
      * Produit l'interpolation linéaire selon les paramètres donnés.
      * 
@@ -114,7 +121,7 @@ public final class ContinuousElevationModel {
     private double bilinearInterpolation(GeoPoint p, boolean slope) {
         double lon = sampleIndex(p.longitude());
         double lat = sampleIndex(p.latitude());
-        
+
         int[]    i = { (int)floor(lon) , (int)floor(lat) };
 
         double z00 = parameterAtIndex(i[0]    , i[1]    , slope);
