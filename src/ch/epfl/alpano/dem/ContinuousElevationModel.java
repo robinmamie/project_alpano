@@ -26,9 +26,16 @@ public final class ContinuousElevationModel {
      * MNT discret utilisé.
      */
     private final DiscreteElevationModel dem;
-    
+
+    /**
+     * Étendue du MNT utilisé.
+     */
     private final Interval2D extent;
-    private final double     d      = Distance.toMeters(1 / SAMPLES_PER_RADIAN);
+    
+    /**
+     * Distance prise en compte pour le calcul de la pente
+     */
+    private final double d = Distance.toMeters(1 / SAMPLES_PER_RADIAN);
 
 
     /**
@@ -58,10 +65,32 @@ public final class ContinuousElevationModel {
      *          de son champ de définition.
      */
     private double elevationAtIndex(int x, int y) {
-        if(!extent.contains(x, y))
-            return 0.0;
-        
-        return dem.elevationSample(x, y);
+        if(extent.contains(x, y))
+            return dem.elevationSample(x, y);
+
+        return 0.0;
+    }
+    
+    
+    /**
+     * Calcule l'élévation d'un point selon un index réel.
+     * 
+     * @param x
+     *          Premier index réel
+     * @param y
+     *          Second index réel
+     *          
+     * @return l'interpolation de l'altitude aux index donnés
+     */
+    private double elevationAt(double x, double y) {
+        int[]  i   = { (int)floor(x) , (int)floor(y) };
+
+        double z00 = elevationAtIndex(i[0]    , i[1]    );
+        double z10 = elevationAtIndex(i[0] + 1, i[1]    );
+        double z01 = elevationAtIndex(i[0]    , i[1] + 1);
+        double z11 = elevationAtIndex(i[0] + 1, i[1] + 1);
+
+        return bilerp(z00, z10, z01, z11, floorMod(x, 1), floorMod(y, 1));
     }
 
 
@@ -77,15 +106,8 @@ public final class ContinuousElevationModel {
     public double elevationAt(GeoPoint p) {
         double lon = sampleIndex(p.longitude());
         double lat = sampleIndex(p.latitude());
-        
-        int[]    i = { (int)floor(lon) , (int)floor(lat) };
 
-        double z00 = elevationAtIndex(i[0]    , i[1]    );
-        double z10 = elevationAtIndex(i[0] + 1, i[1]    );
-        double z01 = elevationAtIndex(i[0]    , i[1] + 1);
-        double z11 = elevationAtIndex(i[0] + 1, i[1] + 1);
-
-        return bilerp(z00, z10, z01, z11, floorMod(lon, 1), floorMod(lat, 1));
+        return elevationAt(lon, lat);
     }
 
 
@@ -99,13 +121,12 @@ public final class ContinuousElevationModel {
      * @return la pente au point <code>p</code>
      */
     public double slopeAt(GeoPoint p) {
-        double lon = p.longitude();
-        double lat = p.latitude();
-        double r   = Distance.toRadians(d);
-        
-        double a = elevationAt(p);
-        double b = elevationAt(new GeoPoint(lon + r, lat    ));
-        double c = elevationAt(new GeoPoint(lon    , lat + r));
+        double lon = sampleIndex(p.longitude());
+        double lat = sampleIndex(p.latitude());
+
+        double a   = elevationAt(lon    , lat    );
+        double b   = elevationAt(lon + 1, lat    );
+        double c   = elevationAt(lon    , lat + 1);
 
         return Math.acos(d / Math.sqrt( Math2.sq(b-a) + Math2.sq(c-a) + Math2.sq(d) ) );
     }
