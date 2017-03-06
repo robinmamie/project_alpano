@@ -13,7 +13,6 @@ import java.util.ArrayList;
 
 import ch.epfl.alpano.Distance;
 import ch.epfl.alpano.GeoPoint;
-import ch.epfl.alpano.Math2;
 
 public final class ElevationProfile {
 

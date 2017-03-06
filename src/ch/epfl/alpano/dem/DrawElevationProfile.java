@@ -49,7 +49,6 @@ final class DrawElevationProfile {
         ImageIO.write(i, "png", new File("profile.png"));
 
         long endTime = System.nanoTime();
-        System.out.println("Took "+(endTime - startTime) + " ns");
-        System.out.println("Took "+(endTime - startTime)/1e6 + " ms");
+        System.out.printf("DrawElevationProfile took %.3f ms", (endTime - startTime)/1e6);
     }
 }

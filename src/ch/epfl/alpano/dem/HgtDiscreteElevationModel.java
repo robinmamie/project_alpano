@@ -22,7 +22,7 @@ public final class HgtDiscreteElevationModel implements DiscreteElevationModel {
         final long l = file.length();
         final int limit =  2 * side * side;
         checkArgument(valid(file), "file name invalid");
-        checkArgument(l == limit,  "file does not comply to restrictions");
+        checkArgument(l == limit,  "file does not comply to byte restrictions");
         
         try (FileInputStream s = new FileInputStream(file)) {
             source = s.getChannel()
