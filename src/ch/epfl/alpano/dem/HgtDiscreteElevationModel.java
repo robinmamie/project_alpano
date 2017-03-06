@@ -18,15 +18,18 @@ public final class HgtDiscreteElevationModel implements DiscreteElevationModel {
     private int lonIndex;
     private int latIndex;
 
-    public HgtDiscreteElevationModel(File file) throws IOException {
+    public HgtDiscreteElevationModel(File file) {
         final long l = file.length();
         final int limit =  2 * side * side;
-        checkArgument(valid(file) && l == limit, "file name invalid");
+        checkArgument(valid(file), "file name invalid");
+        checkArgument(l == limit,  "file does not comply to restrictions");
         
         try (FileInputStream s = new FileInputStream(file)) {
             source = s.getChannel()
               .map(MapMode.READ_ONLY, 0, l)
               .asShortBuffer();
+          } catch(IOException e) {
+              throw new IllegalArgumentException("file invalid");
           }
     }
 
@@ -46,7 +49,7 @@ public final class HgtDiscreteElevationModel implements DiscreteElevationModel {
         
         lonIndex = (ew == 'E' ? 1 : -1) * lon * SAMPLES_PER_DEGREE;
         latIndex = (ns == 'N' ? 1 : -1) * lat * SAMPLES_PER_DEGREE;
-
+        
         boolean invalid = n.length() != 11
                 || ns != 'N' &&  ns != 'S'
                 || ns == 'N' &&  90 <= lat
@@ -54,7 +57,7 @@ public final class HgtDiscreteElevationModel implements DiscreteElevationModel {
                 || ew != 'E' &&  ew != 'W'
                 || ew == 'E' && 180 <= lon
                 || ew == 'W' && 180 <  lon
-                || n.substring(7, 11) != ".hgt";
+                || !n.substring(7, 11).equals(".hgt");
 
         return !invalid;
     }
