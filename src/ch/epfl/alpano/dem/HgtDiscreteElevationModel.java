@@ -3,36 +3,82 @@ package ch.epfl.alpano.dem;
 import static ch.epfl.alpano.Preconditions.checkArgument;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.ShortBuffer;
+import java.nio.channels.FileChannel.MapMode;
 
+import ch.epfl.alpano.Interval1D;
 import ch.epfl.alpano.Interval2D;
-import ch.epfl.alpano.Math2;
 
 public final class HgtDiscreteElevationModel implements DiscreteElevationModel {
 
-    private static final int LIMIT = (60*60+1)*(60*60+1);
-    private final File file;
-    
-    public HgtDiscreteElevationModel(File file) {
-        checkArgument(file.exists() && file.length(), "file name invalid");
-        this.file = file;
+    private ShortBuffer source;
+    private final int side = SAMPLES_PER_DEGREE + 1;
+    private int lonIndex;
+    private int latIndex;
+
+    public HgtDiscreteElevationModel(File file) throws IOException {
+        final long l = file.length();
+        final int limit =  2 * side * side;
+        checkArgument(valid(file) && l == limit, "file name invalid");
+        
+        try (FileInputStream s = new FileInputStream(file)) {
+            source = s.getChannel()
+              .map(MapMode.READ_ONLY, 0, l)
+              .asShortBuffer();
+          }
+    }
+
+    private boolean valid(File file) {
+        String n = file.getName();
+
+        char ns = n.charAt(0);
+        char ew = n.charAt(3);
+        int lat, lon;
+
+        try {        
+            lat = Integer.parseInt(n.substring(1,3));
+            lon = Integer.parseInt(n.substring(4,7));
+        } catch(NumberFormatException e) {
+            return false;
+        }
+        
+        lonIndex = (ew == 'E' ? 1 : -1) * lon * SAMPLES_PER_DEGREE;
+        latIndex = (ns == 'N' ? 1 : -1) * lat * SAMPLES_PER_DEGREE;
+
+        boolean invalid = n.length() != 11
+                || ns != 'N' &&  ns != 'S'
+                || ns == 'N' &&  90 <= lat
+                || ns == 'S' &&  90 <  lat
+                || ew != 'E' &&  ew != 'W'
+                || ew == 'E' && 180 <= lon
+                || ew == 'W' && 180 <  lon
+                || n.substring(7, 11) != ".hgt";
+
+        return !invalid;
     }
 
     @Override
     public void close() throws Exception {
-        // TODO Auto-generated method stub
-        
+        source = null;
     }
 
     @Override
     public Interval2D extent() {
-        // TODO Auto-generated method stub
-        return null;
+        Interval1D lon = new Interval1D(lonIndex, lonIndex + SAMPLES_PER_DEGREE + 1);
+        Interval1D lat = new Interval1D(latIndex, latIndex + SAMPLES_PER_DEGREE + 1);
+        return new Interval2D(lon, lat);
     }
 
     @Override
     public double elevationSample(int x, int y) {
-        // TODO Auto-generated method stub
-        return 0;
+        checkArgument(extent().contains(x, y), "the HgtDEM does not contain the given index");
+        
+        int ySize = latIndex + side - y;
+        int xSize = x - lonIndex;
+        
+        return source.get(ySize * side + xSize);
     }
 
 }
