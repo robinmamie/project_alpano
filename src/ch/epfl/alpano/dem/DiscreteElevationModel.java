@@ -68,7 +68,7 @@ public interface DiscreteElevationModel extends AutoCloseable {
      * @param that
      *          autre instance de DiscreteElevationModel
      * 
-     * @return l'union du récpteur et de l'argument <code>that</code>.
+     * @return l'union du récepteur et de l'argument <code>that</code>.
      * 
      * @throws IllegalArgumentException
      *          si leurs étendues ne sont pas unionables

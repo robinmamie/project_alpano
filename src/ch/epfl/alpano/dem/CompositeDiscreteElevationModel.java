@@ -24,6 +24,9 @@ final class CompositeDiscreteElevationModel implements DiscreteElevationModel {
     private final DiscreteElevationModel dem2;
     
     
+    private final Interval2D ext1;
+    private final Interval2D ext2;
+    
     /**
      * Construit un CompositeDiscreteElevationModel, composé par l'union de deux
      * autres MNT.
@@ -39,6 +42,8 @@ final class CompositeDiscreteElevationModel implements DiscreteElevationModel {
     public CompositeDiscreteElevationModel(DiscreteElevationModel dem1, DiscreteElevationModel dem2) {
         this.dem1 = requireNonNull(dem1);
         this.dem2 = requireNonNull(dem2);
+        this.ext1 = dem1.extent();
+        this.ext2 = dem2.extent();
     }
     
     @Override
@@ -49,15 +54,15 @@ final class CompositeDiscreteElevationModel implements DiscreteElevationModel {
 
     @Override
     public Interval2D extent() {
-        return dem1.extent().union(dem2.extent());
+        return ext1.union(ext2);
     }
 
     @Override
     public double elevationSample(int x, int y) {
-        if(dem1.extent().contains(x, y))
+        if(ext1.contains(x, y))
             return dem1.elevationSample(x, y);
         
-        if(dem2.extent().contains(x, y))
+        if(ext2.contains(x, y))
             return dem2.elevationSample(x, y);
         
         throw new IllegalArgumentException("the DEM does not contain the given index");
