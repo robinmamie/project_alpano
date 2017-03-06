@@ -66,8 +66,8 @@ public final class HgtDiscreteElevationModel implements DiscreteElevationModel {
 
     @Override
     public Interval2D extent() {
-        Interval1D lon = new Interval1D(lonIndex, lonIndex + SAMPLES_PER_DEGREE + 1);
-        Interval1D lat = new Interval1D(latIndex, latIndex + SAMPLES_PER_DEGREE + 1);
+        Interval1D lon = new Interval1D(lonIndex, lonIndex + side);
+        Interval1D lat = new Interval1D(latIndex, latIndex + side);
         return new Interval2D(lon, lat);
     }
 
