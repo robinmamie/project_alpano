@@ -50,16 +50,16 @@ public final class HgtDiscreteElevationModel implements DiscreteElevationModel {
         lonIndex = (ew == 'E' ? 1 : -1) * lon * SAMPLES_PER_DEGREE;
         latIndex = (ns == 'N' ? 1 : -1) * lat * SAMPLES_PER_DEGREE;
         
-        boolean invalid = n.length() != 11
+        boolean valid = !(n.length() != 11
                 || ns != 'N' &&  ns != 'S'
                 || ns == 'N' &&  90 <= lat
                 || ns == 'S' &&  90 <  lat
                 || ew != 'E' &&  ew != 'W'
                 || ew == 'E' && 180 <= lon
                 || ew == 'W' && 180 <  lon
-                || !n.substring(7, 11).equals(".hgt");
+                || !n.substring(7, 11).equals(".hgt"));
 
-        return !invalid;
+        return valid;
     }
 
     @Override
