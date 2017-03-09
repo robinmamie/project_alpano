@@ -1,16 +1,17 @@
 package ch.epfl.alpano.dem;
 
 import static ch.epfl.alpano.Math2.bilerp;
-import static ch.epfl.alpano.Math2.floorMod;
+import static ch.epfl.alpano.Math2.sq;
 import static ch.epfl.alpano.dem.DiscreteElevationModel.SAMPLES_PER_RADIAN;
 import static ch.epfl.alpano.dem.DiscreteElevationModel.sampleIndex;
 import static java.lang.Math.floor;
+import static java.lang.Math.sqrt;
+import static java.lang.Math.acos;
 import static java.util.Objects.requireNonNull;
 import static ch.epfl.alpano.Distance.toMeters;
 
 import ch.epfl.alpano.GeoPoint;
 import ch.epfl.alpano.Interval2D;
-import ch.epfl.alpano.Math2;
 
 
 /**
@@ -65,10 +66,7 @@ public final class ContinuousElevationModel {
      *          de son champ de définition.
      */
     private double elevationAtIndex(int x, int y) {
-        if(extent.contains(x, y))
-            return dem.elevationSample(x, y);
-
-        return 0.0;
+        return extent.contains(x, y) ? dem.elevationSample(x, y) : 0;
     }
 
     /**
@@ -86,7 +84,7 @@ public final class ContinuousElevationModel {
         double b = elevationAtIndex(x + 1, y    );
         double c = elevationAtIndex(x    , y + 1);
 
-        return Math.acos(D / Math.sqrt( Math2.sq(b-a) + Math2.sq(c-a) + Math2.sq(D) ) );
+        return acos(D / sqrt(sq(b-a) + sq(c-a) + sq(D)));
     }
 
 
@@ -122,14 +120,15 @@ public final class ContinuousElevationModel {
         double lon = sampleIndex(p.longitude());
         double lat = sampleIndex(p.latitude());
 
-        int[]    i = { (int)floor(lon) , (int)floor(lat) };
+        int   indX = (int)floor(lon);
+        int   indY = (int)floor(lat);
 
-        double z00 = parameterAtIndex(i[0]    , i[1]    , slope);
-        double z10 = parameterAtIndex(i[0] + 1, i[1]    , slope);
-        double z01 = parameterAtIndex(i[0]    , i[1] + 1, slope);
-        double z11 = parameterAtIndex(i[0] + 1, i[1] + 1, slope);
+        double z00 = parameterAtIndex(indX    , indY    , slope);
+        double z10 = parameterAtIndex(indX + 1, indY    , slope);
+        double z01 = parameterAtIndex(indX    , indY + 1, slope);
+        double z11 = parameterAtIndex(indX + 1, indY + 1, slope);
 
-        return bilerp(z00, z10, z01, z11, floorMod(lon, 1), floorMod(lat, 1));
+        return bilerp(z00, z10, z01, z11, lon-indX, lat-indY);
     }
 
 

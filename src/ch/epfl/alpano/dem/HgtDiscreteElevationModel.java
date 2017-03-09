@@ -14,13 +14,14 @@ import ch.epfl.alpano.Interval2D;
 public final class HgtDiscreteElevationModel implements DiscreteElevationModel {
 
     private ShortBuffer source;
-    private final int side = SAMPLES_PER_DEGREE + 1;
+    private static final int SIDE = SAMPLES_PER_DEGREE + 1;
     private int lonIndex;
     private int latIndex;
+    private final Interval2D ext;
 
     public HgtDiscreteElevationModel(File file) {
         final long l = file.length();
-        final int limit =  2 * side * side;
+        final int limit =  2 * SIDE * SIDE;
         checkArgument(valid(file), "file name invalid");
         checkArgument(l == limit,  "file does not comply to byte restrictions");
         
@@ -31,6 +32,8 @@ public final class HgtDiscreteElevationModel implements DiscreteElevationModel {
           } catch(IOException e) {
               throw new IllegalArgumentException("file invalid");
           }
+        
+        this.ext = extent();
     }
 
     private boolean valid(File file) {
@@ -69,19 +72,19 @@ public final class HgtDiscreteElevationModel implements DiscreteElevationModel {
 
     @Override
     public Interval2D extent() {
-        Interval1D lon = new Interval1D(lonIndex, lonIndex + side);
-        Interval1D lat = new Interval1D(latIndex, latIndex + side);
+        Interval1D lon = new Interval1D(lonIndex, lonIndex + SIDE);
+        Interval1D lat = new Interval1D(latIndex, latIndex + SIDE);
         return new Interval2D(lon, lat);
     }
 
     @Override
     public double elevationSample(int x, int y) {
-        checkArgument(extent().contains(x, y), "the HgtDEM does not contain the given index");
+        checkArgument(ext.contains(x, y), "the HgtDEM does not contain the given index");
         
-        int ySize = latIndex + side - y;
+        int ySize = latIndex + SIDE - 1 - y;
         int xSize = x - lonIndex;
         
-        return source.get(ySize * side + xSize);
+        return source.get(ySize * SIDE + xSize);
     }
 
 }
