@@ -6,8 +6,8 @@ import static ch.epfl.alpano.dem.DiscreteElevationModel.SAMPLES_PER_RADIAN;
 import static ch.epfl.alpano.dem.DiscreteElevationModel.sampleIndex;
 import static java.lang.Math.floor;
 import static java.util.Objects.requireNonNull;
+import static ch.epfl.alpano.Distance.toMeters;
 
-import ch.epfl.alpano.Distance;
 import ch.epfl.alpano.GeoPoint;
 import ch.epfl.alpano.Interval2D;
 import ch.epfl.alpano.Math2;
@@ -35,7 +35,7 @@ public final class ContinuousElevationModel {
     /**
      * Distance prise en compte pour le calcul de la pente
      */
-    private final double d = Distance.toMeters(1 / SAMPLES_PER_RADIAN);
+    private static final double D = toMeters(1 / SAMPLES_PER_RADIAN);
 
 
     /**
@@ -48,7 +48,7 @@ public final class ContinuousElevationModel {
      *          si l'argument donné est null
      */
     public ContinuousElevationModel(DiscreteElevationModel dem) {
-        this.dem    = requireNonNull(dem);
+        this.dem    = requireNonNull(dem, "The given DEM is null.");
         this.extent = dem.extent();
     }
 
@@ -86,7 +86,7 @@ public final class ContinuousElevationModel {
         double b = elevationAtIndex(x + 1, y    );
         double c = elevationAtIndex(x    , y + 1);
 
-        return Math.acos(d / Math.sqrt( Math2.sq(b-a) + Math2.sq(c-a) + Math2.sq(d) ) );
+        return Math.acos(D / Math.sqrt( Math2.sq(b-a) + Math2.sq(c-a) + Math2.sq(D) ) );
     }
 
 

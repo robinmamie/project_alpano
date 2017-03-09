@@ -40,8 +40,8 @@ final class CompositeDiscreteElevationModel implements DiscreteElevationModel {
      *          si l'un des arguments est null.
      */
     public CompositeDiscreteElevationModel(DiscreteElevationModel dem1, DiscreteElevationModel dem2) {
-        this.dem1 = requireNonNull(dem1);
-        this.dem2 = requireNonNull(dem2);
+        this.dem1 = requireNonNull(dem1, "The first given DEM is null.");
+        this.dem2 = requireNonNull(dem2, "The second given DEM is null.");
         this.ext1 = dem1.extent();
         this.ext2 = dem2.extent();
     }
