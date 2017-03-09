@@ -51,7 +51,7 @@ public final class ElevationProfile {
         GeoPoint sndP = values.get(v+1);
         double   lon  = lerp(fstP.longitude(), sndP.longitude(), s);
         double   lat  = lerp(fstP.latitude() , sndP.latitude() , s);
-
+        
         return new GeoPoint(lon, lat);
     }
 
