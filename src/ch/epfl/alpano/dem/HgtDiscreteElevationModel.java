@@ -11,6 +11,13 @@ import java.nio.channels.FileChannel.MapMode;
 import ch.epfl.alpano.Interval1D;
 import ch.epfl.alpano.Interval2D;
 
+/**
+ * Représente un MNT discret obtenu d'un fichier au
+ * format HGT. Classe immuable.
+ *
+ * @author Robin Mamie (257234)
+ * @author Maxence Jouve (269716)
+ */
 public final class HgtDiscreteElevationModel implements DiscreteElevationModel {
 
     private static final int SIDE = SAMPLES_PER_DEGREE + 1;
@@ -21,8 +28,17 @@ public final class HgtDiscreteElevationModel implements DiscreteElevationModel {
     private final int latIndex;
     private final Interval2D ext;
 
+    
+    /**
+     * Constructeur de la classe HgtDEM.
+     * 
+     * @param file
+     *          fichier ".hgt"
+     */
     public HgtDiscreteElevationModel(File file) {
         String n   = file.getName();
+        
+        // On vérifie si le nom du fichier est valide.
         String fni = "file name invalid: ";
 
         char ns = n.charAt(0);
@@ -57,11 +73,14 @@ public final class HgtDiscreteElevationModel implements DiscreteElevationModel {
                 , fni + "doesn't end with correct extension");
 
 
+        // On vérifie si la taille du fichier est adéquate.
         final long l = file.length();
 
         checkArgument(l == 2 * SIDE * SIDE
                 ,  "file invalid: does not comply to byte restrictions");
 
+        // On extrait les points du fichiers pour les enregistrer
+        // dans un ShortBuffer.
         try {
             stream = new FileInputStream(file);
             source = stream.getChannel()
@@ -71,7 +90,11 @@ public final class HgtDiscreteElevationModel implements DiscreteElevationModel {
             throw new IllegalArgumentException("file invalid");
         }
 
-        this.ext = extent();
+        // On enregistre l'étendue du MNT pour ne pas devoir le recalculer
+        // à chaque fois que extent() est demandé.
+        Interval1D longi = new Interval1D(lonIndex, lonIndex + SIDE - 1);
+        Interval1D latit = new Interval1D(latIndex, latIndex + SIDE - 1);
+        this.ext = new Interval2D(longi, latit);
     }
 
     @Override
@@ -82,9 +105,7 @@ public final class HgtDiscreteElevationModel implements DiscreteElevationModel {
 
     @Override
     public Interval2D extent() {
-        Interval1D lon = new Interval1D(lonIndex, lonIndex + SIDE);
-        Interval1D lat = new Interval1D(latIndex, latIndex + SIDE);
-        return new Interval2D(lon, lat);
+        return ext;
     }
 
     @Override

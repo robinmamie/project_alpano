@@ -12,6 +12,12 @@ import javax.imageio.ImageIO;
 
 import ch.epfl.alpano.GeoPoint;
 
+/**
+ * Dessine un HgtDEM.
+ *
+ * @author Robin Mamie (257234)
+ * @author Maxence Jouve (269716)
+ */
 final class DrawHgtDEM {
     final static File HGT_FILE = new File("res/N46E006.hgt");
     final static double ORIGIN_LON = toRadians(6.25);
