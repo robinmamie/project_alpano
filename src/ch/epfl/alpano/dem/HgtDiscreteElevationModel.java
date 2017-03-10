@@ -21,7 +21,6 @@ import ch.epfl.alpano.Interval2D;
 public final class HgtDiscreteElevationModel implements DiscreteElevationModel {
 
     private static final int SIDE = SAMPLES_PER_DEGREE + 1;
-    private final FileInputStream stream;
     private ShortBuffer source;
 
     private final int lonIndex;
@@ -81,8 +80,7 @@ public final class HgtDiscreteElevationModel implements DiscreteElevationModel {
 
         // On extrait les points du fichiers pour les enregistrer
         // dans un ShortBuffer.
-        try {
-            stream = new FileInputStream(file);
+        try (FileInputStream stream = new FileInputStream(file)) {
             source = stream.getChannel()
                     .map(MapMode.READ_ONLY, 0, l)
                     .asShortBuffer();
@@ -99,7 +97,6 @@ public final class HgtDiscreteElevationModel implements DiscreteElevationModel {
 
     @Override
     public void close() throws Exception {
-        stream.close();
         source = null;
     }
 
