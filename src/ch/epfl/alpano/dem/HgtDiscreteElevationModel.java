@@ -13,6 +13,7 @@ import ch.epfl.alpano.Interval2D;
 
 public final class HgtDiscreteElevationModel implements DiscreteElevationModel {
 
+    private final FileInputStream stream;
     private ShortBuffer source;
     private static final int SIDE = SAMPLES_PER_DEGREE + 1;
     private int lonIndex;
@@ -25,8 +26,9 @@ public final class HgtDiscreteElevationModel implements DiscreteElevationModel {
         checkArgument(valid(file), "file name invalid");
         checkArgument(l == limit,  "file does not comply to byte restrictions");
         
-        try (FileInputStream s = new FileInputStream(file)) {
-            source = s.getChannel()
+        try {
+            stream = new FileInputStream(file);
+            source = stream.getChannel()
               .map(MapMode.READ_ONLY, 0, l)
               .asShortBuffer();
           } catch(IOException e) {
@@ -67,6 +69,7 @@ public final class HgtDiscreteElevationModel implements DiscreteElevationModel {
 
     @Override
     public void close() throws Exception {
+        stream.close();
         source = null;
     }
 
