@@ -1,14 +1,16 @@
 package ch.epfl.alpano.dem;
 
+import static ch.epfl.alpano.Distance.toMeters;
 import static ch.epfl.alpano.Math2.bilerp;
 import static ch.epfl.alpano.Math2.sq;
 import static ch.epfl.alpano.dem.DiscreteElevationModel.SAMPLES_PER_RADIAN;
 import static ch.epfl.alpano.dem.DiscreteElevationModel.sampleIndex;
+import static java.lang.Math.acos;
 import static java.lang.Math.floor;
 import static java.lang.Math.sqrt;
-import static java.lang.Math.acos;
 import static java.util.Objects.requireNonNull;
-import static ch.epfl.alpano.Distance.toMeters;
+
+import java.util.function.BiFunction;
 
 import ch.epfl.alpano.GeoPoint;
 import ch.epfl.alpano.Interval2D;
@@ -89,24 +91,6 @@ public final class ContinuousElevationModel {
 
 
     /**
-     * Donne l'altitude ou la pente correspondant aux parametres
-     * donnes.
-     * 
-     * @param x
-     * 			Parametre horizontal
-     * @param y
-     * 			Parametre vertical
-     * @param slope
-     * 			Determine si l'utilisateur d�sire la pente ou l'altitude
-     * 
-     * @return La pente ou l'altitude aux index donnés.
-     */
-    private double parameterAtIndex(int x, int y, boolean slope) {
-        return slope ? slopeAtIndex(x, y) : elevationAtIndex(x, y);
-    }
-
-
-    /**
      * Produit l'interpolation linéaire selon les paramètres donnés.
      * 
      * @param p
@@ -116,17 +100,17 @@ public final class ContinuousElevationModel {
      *          
      * @return L'interpolation bilinéaire (pente ou altitude) du point donné.
      */
-    private double bilinearInterpolation(GeoPoint p, boolean slope) {
+    private double bilinearInterpolation(GeoPoint p, BiFunction<Integer, Integer, Double> par) {
         double lon = sampleIndex(p.longitude());
         double lat = sampleIndex(p.latitude());
 
         int   indX = (int)floor(lon);
         int   indY = (int)floor(lat);
 
-        double z00 = parameterAtIndex(indX    , indY    , slope);
-        double z10 = parameterAtIndex(indX + 1, indY    , slope);
-        double z01 = parameterAtIndex(indX    , indY + 1, slope);
-        double z11 = parameterAtIndex(indX + 1, indY + 1, slope);
+        double z00 = par.apply(indX    , indY    );
+        double z10 = par.apply(indX + 1, indY    );
+        double z01 = par.apply(indX    , indY + 1);
+        double z11 = par.apply(indX + 1, indY + 1);
 
         return bilerp(z00, z10, z01, z11, lon-indX, lat-indY);
     }
@@ -142,7 +126,7 @@ public final class ContinuousElevationModel {
      * @return l'altitude au point <code>p</code>
      */
     public double elevationAt(GeoPoint p) {
-        return bilinearInterpolation(p, false);
+        return bilinearInterpolation(p, (x, y) -> elevationAtIndex(x,y));
     }
 
 
@@ -156,7 +140,7 @@ public final class ContinuousElevationModel {
      * @return la pente au point <code>p</code>
      */
     public double slopeAt(GeoPoint p) {
-        return bilinearInterpolation(p, true);
+        return bilinearInterpolation(p, (x, y) -> slopeAtIndex(x,y));
     }
 
 }
