@@ -21,7 +21,7 @@ import ch.epfl.alpano.Interval2D;
 public final class HgtDiscreteElevationModel implements DiscreteElevationModel {
 
     private static final int SIDE = SAMPLES_PER_DEGREE + 1;
-    private ShortBuffer source;
+    private final ShortBuffer source;
 
     private final int lonIndex;
     private final int latIndex;
@@ -96,9 +96,7 @@ public final class HgtDiscreteElevationModel implements DiscreteElevationModel {
     }
 
     @Override
-    public void close() throws Exception {
-        source = null;
-    }
+    public void close() throws Exception {}
 
     @Override
     public Interval2D extent() {

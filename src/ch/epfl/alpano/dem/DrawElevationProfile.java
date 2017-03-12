@@ -11,7 +11,7 @@ import javax.imageio.ImageIO;
 import ch.epfl.alpano.GeoPoint;
 
 final class DrawElevationProfile {
-    final static File HGT_FILE = new File("res/N46E006.hgt");
+    final static File HGT_FILE = new File("N46E006.hgt");
     final static double MAX_ELEVATION = 1_500;
     final static int LENGTH = 111_000;
     final static double AZIMUTH = toRadians(27.97);

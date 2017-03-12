@@ -19,7 +19,7 @@ import ch.epfl.alpano.GeoPoint;
  * @author Maxence Jouve (269716)
  */
 final class DrawHgtDEM {
-    final static File HGT_FILE = new File("res/N46E006.hgt");
+    final static File HGT_FILE = new File("N46E006.hgt");
     final static double ORIGIN_LON = toRadians(6.25);
     final static double ORIGIN_LAT = toRadians(46.25);
     final static double WIDTH = toRadians(0.5);
