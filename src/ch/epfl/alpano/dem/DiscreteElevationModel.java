@@ -2,6 +2,7 @@ package ch.epfl.alpano.dem;
 
 import ch.epfl.alpano.Interval2D;
 import static ch.epfl.alpano.Preconditions.checkArgument;
+import static java.lang.Math.toDegrees;
 
 /**
  * Représente un MNT (modèle numérique du terrain) discret.
@@ -21,7 +22,7 @@ public interface DiscreteElevationModel extends AutoCloseable {
     /**
      * Le nombre d'échantillons par radian d'un MNT discret.
      */
-    double SAMPLES_PER_RADIAN = Math.toDegrees(SAMPLES_PER_DEGREE);
+    double SAMPLES_PER_RADIAN = toDegrees(SAMPLES_PER_DEGREE);
     
     
     /**
@@ -68,13 +69,11 @@ public interface DiscreteElevationModel extends AutoCloseable {
      * @param that
      *          autre instance de DiscreteElevationModel
      * 
-     * @return l'union du récpteur et de l'argument <code>that</code>.
-     * 
-     * @throws IllegalArgumentException
-     *          si leurs étendues ne sont pas unionables
+     * @return l'union du récepteur et de l'argument <code>that</code>.
      */
     default DiscreteElevationModel union(DiscreteElevationModel that) {
-        checkArgument(this.extent().isUnionableWith(that.extent()));
+        checkArgument(this.extent().isUnionableWith(that.extent())
+                , "The provided DEMs are not unionable.");
         return new CompositeDiscreteElevationModel(this, that);
     }
 

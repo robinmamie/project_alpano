@@ -153,15 +153,13 @@ public interface Math2 {
      *          tolérance d'erreur pour le retour
      *          
      * @return une position à moins d'epsilon d'un zéro
-     * 
-     * @throws IllegalArgumentException
-     *          ssi l'intervalle ne contient pas de zéro
      */
     static double improveRoot(DoubleUnaryOperator f, double x1, double x2, double epsilon) {
         // Limite définie à 0.01 afin d'avoir un écart convenable
         double limit = 0.01
                 , inf = firstIntervalContainingRoot(f, x1, x2, limit);
-        checkArgument(inf != Double.POSITIVE_INFINITY);
+        checkArgument(inf != Double.POSITIVE_INFINITY
+                , "The interval does not contain a root.");
         double sup = inf + limit
                 , mid;
         while(sup-inf > epsilon) {

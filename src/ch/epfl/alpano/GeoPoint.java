@@ -1,6 +1,13 @@
 package ch.epfl.alpano;
 
 import static ch.epfl.alpano.Preconditions.checkArgument;
+import static ch.epfl.alpano.Math2.haversin;
+import static java.lang.Math.PI;
+import static java.lang.Math.sin;
+import static java.lang.Math.cos;
+import static java.lang.Math.asin;
+import static java.lang.Math.sqrt;
+import static java.lang.Math.atan2;
 
 import java.util.Locale;
 
@@ -32,13 +39,13 @@ public final class GeoPoint {
      *                  la longitude du point, en radians, entre -Pi et Pi compris.
      * @param latitude
      *                  la latitude du point, en radians, entre -Pi/2 et Pi/2 compris.
-     *                  
-     * @throws IllegalArgumentException
-     *                  si la latitude et la longitude ne se trouvent pas dans leur inetervalle standard
      */
     public GeoPoint(double longitude, double latitude) {
-        checkArgument(-Math.PI <= longitude && longitude <= Math.PI, "invalid longitude");
-        checkArgument(-Math.PI/2 <= latitude && latitude <= Math.PI/2, "invalid latitude");
+        checkArgument(-PI <= longitude && longitude <= PI
+                , "The given longitude is out of range.");
+        checkArgument(-PI/2 <= latitude && latitude <= PI/2
+                , "The given latitude is out of range.");
+        
         this.longitude = longitude;
         this.latitude  = latitude;
     }
@@ -70,10 +77,8 @@ public final class GeoPoint {
      */
     public double distanceTo(GeoPoint that) {
         return Distance.toMeters(
-                2 * Math.asin(
-                        Math.sqrt(
-                                Math2.haversin(this.latitude - that.latitude)
-                + Math.cos(this.latitude) * Math.cos(that.latitude) * Math2.haversin(this.longitude - that.longitude))));
+                2 * asin(sqrt(haversin(this.latitude - that.latitude)
+                + cos(this.latitude) * cos(that.latitude) * haversin(this.longitude - that.longitude))));
     }
     
     
@@ -86,10 +91,10 @@ public final class GeoPoint {
      * @return l'azimuth en radians du premier au second point géographique
      */
     public double azimuthTo(GeoPoint that) {
-        return Azimuth.fromMath(Azimuth.canonicalize(Math.atan2(
-                Math.sin(this.longitude - that.longitude) * Math.cos(that.latitude)
-                , Math.cos(this.latitude) * Math.sin(that.latitude)
-                - Math.sin(this.latitude) * Math.cos(that.latitude) * Math.cos(this.longitude - that.longitude))));
+        return Azimuth.fromMath(Azimuth.canonicalize(atan2(
+                sin(this.longitude - that.longitude) * cos(that.latitude)
+                , cos(this.latitude) * sin(that.latitude)
+                - sin(this.latitude) * cos(that.latitude) * cos(this.longitude - that.longitude))));
     }
     
     

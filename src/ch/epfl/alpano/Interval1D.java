@@ -1,6 +1,8 @@
 package ch.epfl.alpano;
 
 import static ch.epfl.alpano.Preconditions.checkArgument;
+import static java.lang.Math.min;
+import static java.lang.Math.max;
 
 import java.util.Objects;
 
@@ -32,12 +34,10 @@ public final class Interval1D {
      *          Borne inférieure de l'intervalle.
      * @param includedTo
      *          Borne supérieure de l'intervalle.
-     *          
-     * @throws IllegalArgumentException
-     *          si la borne supérieure est strictement inférieure à la borne inférieure
      */
     public Interval1D(int includedFrom, int includedTo) {
-        checkArgument(includedFrom <= includedTo, "invalid interval");
+        checkArgument(includedFrom <= includedTo
+                , "The upper bound is lower than the lower bound.");
         
         this.includedFrom = includedFrom;
         this.includedTo   = includedTo;
@@ -69,7 +69,7 @@ public final class Interval1D {
      * @return si l'entier appartient à l'intervalle
      */
     public boolean contains(int v) {
-        return includedFrom <= v && v <= includedTo;
+        return includedFrom() <= v && v <= includedTo();
     }
 
     
@@ -79,7 +79,7 @@ public final class Interval1D {
      * @return la taille de l'intervalle
      */
     public int size() {
-        return includedTo - includedFrom + 1;
+        return includedTo() - includedFrom() + 1;
     }
 
     
@@ -92,7 +92,9 @@ public final class Interval1D {
      * @return la taille de l'intersection entre deux intervalles
      */
     public int sizeOfIntersectionWith(Interval1D that) {
-        int size = Math.min(this.includedTo, that.includedTo)- Math.max(this.includedFrom, that.includedFrom) + 1;
+        int size = min(this.includedTo(), that.includedTo())
+                - max(this.includedFrom(), that.includedFrom())
+                + 1;
         return size < 0 ? 0 : size;
     }
 
@@ -106,7 +108,9 @@ public final class Interval1D {
      * @return l'union englobante de deux intervalles
      */
     public Interval1D boundingUnion(Interval1D that) {
-        return new Interval1D(Math.min(this.includedFrom, that.includedFrom), Math.max(this.includedTo, that.includedTo));
+        return new Interval1D(
+                min(this.includedFrom(), that.includedFrom())
+                , max(this.includedTo(), that.includedTo()));
     }
 
     
@@ -130,12 +134,10 @@ public final class Interval1D {
      *          autre intervalle
      *          
      * @return l'union de deux intervalles
-     * 
-     * @throws IllegalArgumentException
-     *          si les deux intervalles ne sont pas unionables.
      */
     public Interval1D union(Interval1D that) {
-        checkArgument(this.isUnionableWith(that), "union not possible");
+        checkArgument(this.isUnionableWith(that)
+                , "The union of the given Interval1Ds does not produce an Interval1D.");
         return this.boundingUnion(that);
     }
 
@@ -150,22 +152,23 @@ public final class Interval1D {
         
         Interval1D that = (Interval1D)thatO;
 
-        return this.includedFrom == that.includedFrom && this.includedTo == that.includedTo;
+        return this.includedFrom() == that.includedFrom()
+                && this.includedTo() == that.includedTo();
     }
 
     
     @Override
     public int hashCode() {
-        return Objects.hash(includedFrom, includedTo);
+        return Objects.hash(includedFrom(), includedTo());
     }
 
     
     @Override
     public String toString() {
         return new StringBuilder("[")
-                .append(includedFrom)
+                .append(includedFrom())
                 .append("..")
-                .append(includedTo)
+                .append(includedTo())
                 .append("]")
                 .toString();
     }

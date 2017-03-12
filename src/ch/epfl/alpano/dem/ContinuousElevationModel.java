@@ -1,15 +1,19 @@
 package ch.epfl.alpano.dem;
 
+import static ch.epfl.alpano.Distance.toMeters;
 import static ch.epfl.alpano.Math2.bilerp;
-import static ch.epfl.alpano.Math2.floorMod;
+import static ch.epfl.alpano.Math2.sq;
 import static ch.epfl.alpano.dem.DiscreteElevationModel.SAMPLES_PER_RADIAN;
 import static ch.epfl.alpano.dem.DiscreteElevationModel.sampleIndex;
-import static java.util.Objects.requireNonNull;
+import static java.lang.Math.acos;
 import static java.lang.Math.floor;
+import static java.lang.Math.sqrt;
+import static java.util.Objects.requireNonNull;
 
-import ch.epfl.alpano.Distance;
+import java.util.function.BiFunction;
+
 import ch.epfl.alpano.GeoPoint;
-import ch.epfl.alpano.Math2;
+import ch.epfl.alpano.Interval2D;
 
 
 /**
@@ -24,10 +28,17 @@ public final class ContinuousElevationModel {
     /**
      * MNT discret utilisé.
      */
-    private DiscreteElevationModel dem;
+    private final DiscreteElevationModel dem;
 
-    private final double d    = Distance.toMeters(1 / SAMPLES_PER_RADIAN);
-    private final double nInf = Double.NEGATIVE_INFINITY;
+    /**
+     * Étendue du MNT utilisé.
+     */
+    private final Interval2D extent;
+
+    /**
+     * Distance prise en compte pour le calcul de la pente
+     */
+    private static final double D = toMeters(1 / SAMPLES_PER_RADIAN);
 
 
     /**
@@ -35,109 +46,53 @@ public final class ContinuousElevationModel {
      * 
      * @param dem
      *          MNT discret
-     *          
-     * @throws NullPointerException
-     *          si l'argument donné est null
      */
     public ContinuousElevationModel(DiscreteElevationModel dem) {
-        this.dem = requireNonNull(dem);
+        this.dem    = requireNonNull(dem
+                , "The given DEM is null.");
+        
+        // Sauvegarde directement les étendues des MNT afin
+        // de gagner en vitesse d'exécution.
+        this.extent = dem.extent();
     }
 
 
     /**
-     * Retourne les index correspondant au coint inférieur gauche du carré
-     * unitaire dans lequel se trouve un point géographique.
-     * 
-     * @param p
-     * 			un point géogrpahique
-     * 
-     * @return les index du coin inférieur droit correspondant au point géographique.
-     */
-    private int[] floorIndex(GeoPoint p) {
-        double lon = sampleIndex(p.longitude());
-        double lat = sampleIndex(p.latitude());
-
-        return new int[] {(int)floor(lon), (int)floor(lat)};
-    }
-
-
-    /**
-     * Retourne la distance en index en coordonn�es cartésiennes par rapport au coin inférieur
-     * gauche du carré unitaire dans lequel se trouve un point g�ographique.
-     * 
-     * @param p
-     * 			un point géographique
-     * 
-     * @return la distance en index du point par rapport au coin inférieur gauche
-     */
-    private double[] modIndex(GeoPoint p) {
-        double lon = sampleIndex(p.longitude());
-        double lat = sampleIndex(p.latitude());
-
-        return new double[] {floorMod(lon, 1), floorMod(lat, 1)};
-    }
-
-    /**
-     * Retourne une altitude cohérente correspondant à l'index donné.
+     * Retourne l'altitude correspondant à l'index donné.
      * 
      * @param x
      * 			index horizontal
      * @param y
      * 			index vertical
      * 
-     * @return l'altitude du point ou Double.NEGATIVE_INFINITY si elle n'existe pas
-     * 			dans le MNT.
+     * @return l'altitude du point du MNT, ou 0 si l'index se trouve en-dehors
+     *          de son champ de définition.
      */
     private double elevationAtIndex(int x, int y) {
-        if(!dem.extent().contains(x, y))
-            return nInf;
-
-        return dem.elevationSample(x, y);
+        return extent.contains(x, y) ? dem.elevationSample(x, y) : 0;
     }
 
     /**
-     * Retourne une pente coh�rente correspondant à l'index donné.
+     * Retourne une pente correspondant à l'index donné.
      * 
      * @param x
      * 			index horizontal
      * @param y
      * 			index vertical
      * 
-     * @return la pente du point ou Double.NEGATIVE_INFINITY si elle n'existe pas
-     * 			dans le MNT.
+     * @return la pente du point à l'index donné
      */
     private double slopeAtIndex(int x, int y) {
         double a = elevationAtIndex(x    , y    );
         double b = elevationAtIndex(x + 1, y    );
         double c = elevationAtIndex(x    , y + 1);
 
-        if(a == nInf || b == nInf || c == nInf)
-            return nInf;
-
-        return Math.acos(d / Math.sqrt( Math2.sq(b-a) + Math2.sq(c-a) + Math2.sq(d) ) );
+        return acos(D / sqrt(sq(b-a) + sq(c-a) + sq(D)));
     }
 
 
     /**
-     * Donne l'altitude ou la pente correspondant aux parametres
-     * donnes.
-     * 
-     * @param x
-     * 			Parametre horizontal
-     * @param y
-     * 			Parametre vertical
-     * @param slope
-     * 			Determine si l'utilisateur d�sire la pente ou l'altitude
-     * 
-     * @return La pente ou l'altitude aux index donnés.
-     */
-    private double parameterAtIndex(int x, int y, boolean slope) {
-        return slope ? slopeAtIndex(x, y) : elevationAtIndex(x, y);
-    }
-
-    
-    /**
-     * Produit l'interpolation linéaire selon les paramètre donnés.
+     * Produit l'interpolation linéaire selon les paramètres donnés.
      * 
      * @param p
      *          Un point géographique
@@ -146,19 +101,19 @@ public final class ContinuousElevationModel {
      *          
      * @return L'interpolation bilinéaire (pente ou altitude) du point donné.
      */
-    private double bilinearInterpolation(GeoPoint p, boolean slope) {
-        int[]    i = floorIndex(p);
-        double[] v = modIndex  (p);
+    private double bilinearInterpolation(GeoPoint p, BiFunction<Integer, Integer, Double> par) {
+        double lon = sampleIndex(p.longitude());
+        double lat = sampleIndex(p.latitude());
 
-        double z00 = parameterAtIndex(i[0]    , i[1]    , slope);
-        double z10 = parameterAtIndex(i[0] + 1, i[1]    , slope);
-        double z01 = parameterAtIndex(i[0]    , i[1] + 1, slope);
-        double z11 = parameterAtIndex(i[0] + 1, i[1] + 1, slope);
+        int   indX = (int)floor(lon);
+        int   indY = (int)floor(lat);
 
-        if(z00 == nInf || z10 == nInf || z01 == nInf || z11 == nInf)
-            return 0.0;
+        double z00 = par.apply(indX    , indY    );
+        double z10 = par.apply(indX + 1, indY    );
+        double z01 = par.apply(indX    , indY + 1);
+        double z11 = par.apply(indX + 1, indY + 1);
 
-        return bilerp(z00, z10, z01, z11, v[0], v[1]);
+        return bilerp(z00, z10, z01, z11, lon-indX, lat-indY);
     }
 
 
@@ -172,7 +127,7 @@ public final class ContinuousElevationModel {
      * @return l'altitude au point <code>p</code>
      */
     public double elevationAt(GeoPoint p) {
-        return bilinearInterpolation(p, false);
+        return bilinearInterpolation(p, (x, y) -> elevationAtIndex(x,y));
     }
 
 
@@ -186,7 +141,7 @@ public final class ContinuousElevationModel {
      * @return la pente au point <code>p</code>
      */
     public double slopeAt(GeoPoint p) {
-        return bilinearInterpolation(p, true);
+        return bilinearInterpolation(p, (x, y) -> slopeAtIndex(x,y));
     }
 
 }

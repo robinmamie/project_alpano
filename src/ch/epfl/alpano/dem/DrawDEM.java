@@ -16,6 +16,12 @@ import ch.epfl.alpano.GeoPoint;
 import ch.epfl.alpano.Interval1D;
 import ch.epfl.alpano.Interval2D;
 
+/**
+ * Dessine un MNT test.
+ *
+ * @author Robin Mamie (257234)
+ * @author Maxence Jouve (269716)
+ */
 public final class DrawDEM {
     @SuppressWarnings("resource")
     public static void main(String[] args)
@@ -56,8 +62,7 @@ public final class DrawDEM {
         ImageIO.write(slI, "png", new File("slope.png"));
 
         long endTime = System.nanoTime();
-        System.out.println("Took "+(endTime - startTime) + " ns");
-        System.out.println("Took "+(endTime - startTime)/1e6 + " ms");
+        System.out.printf("DrawDEM took %.3f ms", (endTime - startTime)/1e6);
     }
 
     private static int gray(double v) {

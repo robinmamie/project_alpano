@@ -16,7 +16,10 @@ import ch.epfl.alpano.Interval2DTest;
                 Interval2DTest.class,
                 ch.epfl.alpano.test2.GeoPointTest.class,
                 ch.epfl.alpano.test2.Interval1DTest.class,
-                ch.epfl.alpano.test2.Interval2DTest.class})
+                ch.epfl.alpano.test2.Interval2DTest.class,
+                ch.epfl.alpano.testM.GeoPointTest.class,
+                ch.epfl.alpano.testM.Interval1DTest.class,
+                ch.epfl.alpano.testM.Interval2DTest.class})
 
 public class Week2TestSuite {
 

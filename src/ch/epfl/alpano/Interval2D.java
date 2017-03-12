@@ -1,5 +1,7 @@
 package ch.epfl.alpano;
+
 import static ch.epfl.alpano.Preconditions.checkArgument;
+import static java.util.Objects.requireNonNull;
 
 import java.util.Objects;
 
@@ -32,16 +34,12 @@ public final class Interval2D {
      *          Premier intervalle unidimensionnel
      * @param iY
      *          Second intervalle unidimensionnel
-     *          
-     * @throws NullPointerException
-     *          si au moins l'un des arguments donnés est nul.
      */
     public Interval2D(Interval1D iX, Interval1D iY) {
-        if(iX == null || iY == null)
-            throw new NullPointerException("at least one of the arguments given is null");
-
-        this.iX = iX;
-        this.iY = iY;
+        this.iX = requireNonNull(iX
+                , "The first argument given is null.");
+        this.iY = requireNonNull(iY
+                , "The second argument given is null.");
     }
 
 
@@ -72,7 +70,7 @@ public final class Interval2D {
      * @return si le couple appartient à l'intervalle
      */
     public boolean contains(int x, int y) {
-        return iX.contains(x) && iY.contains(y);
+        return iX().contains(x) && iY().contains(y);
     }
 
 
@@ -82,7 +80,7 @@ public final class Interval2D {
      * @return la taille de l'intervalle
      */
     public int size() {
-        return iX.size() * iY.size();
+        return iX().size() * iY().size();
     }
 
 
@@ -95,7 +93,7 @@ public final class Interval2D {
      * @return la taille de l'intersection entre deux intervalles
      */
     public int sizeOfIntersectionWith(Interval2D that) {
-        return this.iX.sizeOfIntersectionWith(that.iX) * this.iY.sizeOfIntersectionWith(that.iY);
+        return this.iX().sizeOfIntersectionWith(that.iX()) * this.iY().sizeOfIntersectionWith(that.iY());
     }
 
     
@@ -108,7 +106,7 @@ public final class Interval2D {
      * @return l'union englobante de deux intervalles
      */
     public Interval2D boundingUnion(Interval2D that) {
-        return new Interval2D(this.iX.boundingUnion(that.iX), this.iY.boundingUnion(that.iY));
+        return new Interval2D(this.iX().boundingUnion(that.iX()), this.iY().boundingUnion(that.iY()));
     }
 
     
@@ -132,12 +130,10 @@ public final class Interval2D {
      *          autre intervalle
      *          
      * @return l'union de deux intervalles
-     * 
-     * @throws IllegalArgumentException
-     *          si les deux intervalles ne sont pas unionables.
      */
     public Interval2D union(Interval2D that) {
-        checkArgument(this.isUnionableWith(that), "union not possible");
+        checkArgument(this.isUnionableWith(that)
+                , "The union of the given Interval2Ds does not produce an Interval2D.");
         return this.boundingUnion(that);
     }
 
@@ -152,21 +148,21 @@ public final class Interval2D {
 
         Interval2D that = (Interval2D)thatO;
 
-        return this.iX.equals(that.iX) && this.iY.equals(that.iY);
+        return this.iX().equals(that.iX()) && this.iY().equals(that.iY());
     }
 
     
     @Override
     public int hashCode() {
-        return Objects.hash(iX, iY);
+        return Objects.hash(iX(), iY());
     }
 
     
     @Override
     public String toString() {
-        return new StringBuilder(iX.toString())
+        return new StringBuilder(iX().toString())
                 .append("×")
-                .append(iY.toString())
+                .append(iY().toString())
                 .toString();
     }
     

@@ -11,13 +11,11 @@ public interface Preconditions {
     
     
     /**
-     * Appelle la méthode plus spécifique en lui envoyant un message vide.
+     * Lance une IllegalArgumentException sans message spécifique
+     * lorsque l'argument est false.
      * 
      * @param b
      *          précondition spécifique
-     *          
-     * @throws IllegalArgumentException
-     *            lorsque le booléen b est faux
      */
     static void checkArgument(boolean b) {
         checkArgument(b, "");
@@ -25,16 +23,13 @@ public interface Preconditions {
     
     
     /**
-     * Lance une IllegalArgumentException avec un certain message lorsque le
-     * booléen est false.
+     * Lance une IllegalArgumentException avec un certain message
+     * lorsque l'argument est false.
      * 
      * @param b
      *          précondition spécifique
      * @param message
      *          message d'erreur à afficher
-     *          
-     * @throws IllegalArgumentException
-     *          lorsque le booléen b est faux
      */
     static void checkArgument(boolean b, String message) {
         if(!b)
