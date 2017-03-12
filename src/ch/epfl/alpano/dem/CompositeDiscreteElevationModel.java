@@ -35,13 +35,15 @@ final class CompositeDiscreteElevationModel implements DiscreteElevationModel {
      *          Premier MNT
      * @param dem2
      *          Second MNT
-     *          
-     * @throws NullPointerException
-     *          si l'un des arguments est null.
      */
     public CompositeDiscreteElevationModel(DiscreteElevationModel dem1, DiscreteElevationModel dem2) {
-        this.dem1 = requireNonNull(dem1, "The first given DEM is null.");
-        this.dem2 = requireNonNull(dem2, "The second given DEM is null.");
+        this.dem1 = requireNonNull(dem1
+                , "The first given DEM is null.");
+        this.dem2 = requireNonNull(dem2
+                , "The second given DEM is null.");
+        
+        // Sauvegarde directement les étendues des MNT afin
+        // de gagner en vitesse d'exécution.
         this.ext1 = dem1.extent();
         this.ext2 = dem2.extent();
     }
@@ -65,7 +67,7 @@ final class CompositeDiscreteElevationModel implements DiscreteElevationModel {
         if(ext2.contains(x, y))
             return dem2.elevationSample(x, y);
         
-        throw new IllegalArgumentException("the DEM does not contain the given index");
+        throw new IllegalArgumentException("The DEM does not contain the given index.");
     }
 
 }

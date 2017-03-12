@@ -47,13 +47,17 @@ public final class ElevationProfile {
     public ElevationProfile(ContinuousElevationModel elevation
             , GeoPoint origin, double azimuth, double length) {
         
-        this.cem    = requireNonNull(elevation);
-        requireNonNull(origin);
+        this.cem    = requireNonNull(elevation
+                , "The given CEM is null.");
+        requireNonNull(origin
+                , "The given origin is null.");
         
-        checkArgument(0 < length, "the given length isn't strictly positive");
+        checkArgument(0 < length
+                , "The given length isn't strictly positive.");
         this.length = length;
         
-        checkArgument(isCanonical(azimuth), "the given azimuth is not canonical");
+        checkArgument(isCanonical(azimuth)
+                , "The given azimuth is not in canonical form.");
         azimuth     = toMath(azimuth);
 
         this.values = new ArrayList<>();

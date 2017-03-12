@@ -46,12 +46,13 @@ public final class ContinuousElevationModel {
      * 
      * @param dem
      *          MNT discret
-     *          
-     * @throws NullPointerException
-     *          si l'argument donné est null
      */
     public ContinuousElevationModel(DiscreteElevationModel dem) {
-        this.dem    = requireNonNull(dem, "The given DEM is null.");
+        this.dem    = requireNonNull(dem
+                , "The given DEM is null.");
+        
+        // Sauvegarde directement les étendues des MNT afin
+        // de gagner en vitesse d'exécution.
         this.extent = dem.extent();
     }
 

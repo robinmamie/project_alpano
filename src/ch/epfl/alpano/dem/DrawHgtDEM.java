@@ -12,6 +12,7 @@ import javax.imageio.ImageIO;
 
 import ch.epfl.alpano.GeoPoint;
 
+
 /**
  * Dessine un HgtDEM.
  *

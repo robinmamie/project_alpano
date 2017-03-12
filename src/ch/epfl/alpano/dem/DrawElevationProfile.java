@@ -10,6 +10,13 @@ import javax.imageio.ImageIO;
 
 import ch.epfl.alpano.GeoPoint;
 
+
+/**
+ * Dessine un ElevationProfile.
+ *
+ * @author Robin Mamie (257234)
+ * @author Maxence Jouve (269716)
+ */
 final class DrawElevationProfile {
     final static File HGT_FILE = new File("N46E006.hgt");
     final static double MAX_ELEVATION = 1_500;

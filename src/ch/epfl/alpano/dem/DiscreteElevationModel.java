@@ -70,13 +70,10 @@ public interface DiscreteElevationModel extends AutoCloseable {
      *          autre instance de DiscreteElevationModel
      * 
      * @return l'union du récepteur et de l'argument <code>that</code>.
-     * 
-     * @throws IllegalArgumentException
-     *          si leurs étendues ne sont pas unionables
      */
     default DiscreteElevationModel union(DiscreteElevationModel that) {
         checkArgument(this.extent().isUnionableWith(that.extent())
-                , "The provided DEM are not unionable.");
+                , "The provided DEMs are not unionable.");
         return new CompositeDiscreteElevationModel(this, that);
     }
 
