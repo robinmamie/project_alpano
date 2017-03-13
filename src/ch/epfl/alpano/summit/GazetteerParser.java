@@ -12,7 +12,8 @@ import java.util.List;
 import ch.epfl.alpano.GeoPoint;
 
 /**
- * 
+ * Importe un fichier spécifique contenant les coordonnées des
+ * sommets alpins. Classe non instantiable.
  *
  * @author Robin Mamie (257234)
  * @author Maxence Jouve (269716)
@@ -42,23 +43,36 @@ public final class GazetteerParser {
         return Math.toRadians(angleDeg);
     }
 
+    private static GeoPoint getPoint(String lon, String lat) {
+        return new GeoPoint(getRadians(lon), getRadians(lat));
+    }
+
+    /**
+     * Construit une liste immuable des sommets alpins.
+     * 
+     * @param file
+     *          Fichier contenant les sommets alpins.
+     *          
+     * @return une liste immuable des sommets alpins.
+     * 
+     * @throws IOException
+     *          Si il y a un problème à la lecture du fichier
+     *          ou si le fichier n'est pas conforme aux restrictions.
+     */
     public static List<Summit> readSummitsFrom(File file) 
             throws IOException {
         ArrayList<Summit> summits = new ArrayList<>();
 
-        try (BufferedReader b = new BufferedReader(
-                new InputStreamReader(
-                        new FileInputStream(file)));) {
+        try (BufferedReader b = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
             while(b.ready()) {
-                String line = b.readLine().trim();
                 // Seperates the line in blocks
                 // Cuts where there is one or more whitespace
-                String[] elements = line.split("\\s+");
+                String[] elements = b.readLine().trim().split("\\s+");
+                
                 String summit = getSummit(elements);
-                double lon = getRadians(elements[0]);
-                double lat = getRadians(elements[1]);
-                GeoPoint point = new GeoPoint(lon, lat);
+                GeoPoint point = getPoint(elements[0], elements[1]);
                 int elevation = Integer.parseInt(elements[2]);
+                
                 summits.add(new Summit(summit, point, elevation));
             }
         } catch(Exception e) {

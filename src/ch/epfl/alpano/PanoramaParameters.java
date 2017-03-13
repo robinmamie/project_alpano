@@ -8,7 +8,8 @@ import static ch.epfl.alpano.Math2.PI2;
 import static ch.epfl.alpano.Math2.angularDistance;
 
 /**
- * 
+ * Définit les paramètres utiles à la création
+ * d'un panorama. Classe immuable.
  *
  * @author Robin Mamie (257234)
  * @author Maxence Jouve (269716)
@@ -23,6 +24,24 @@ public final class PanoramaParameters {
     private final int width;
     private final int height;
     
+    /**
+     * Construit les paramètres utiles au panorama.
+     * 
+     * @param observerPosition
+     *          Position de l'observateur.
+     * @param observerElevation
+     *          Altitude de l'observateur.
+     * @param centerAzimuth
+     *          Azimut central du panorama. Sous forme canonique.
+     * @param horizontalFieldOfView
+     *          Champ de vue horizontal. Entre 0 (exclus) et 2Pi (inclus).
+     * @param maxDistance
+     *          Profondeur maximale du panorama. Strictement positif.
+     * @param width
+     *          Largeur du panorama. Strictement positif.
+     * @param height
+     *          Hauteur du panorama. Strictement psotitif.
+     */
     public PanoramaParameters(GeoPoint observerPosition
             , int observerElevation
             , double centerAzimuth
@@ -54,34 +73,74 @@ public final class PanoramaParameters {
         this.height = height;
     }
 
+    /**
+     * Retourne la position de l'observateur.
+     * 
+     * @return la position de l'observateur
+     */
     public GeoPoint observerPosition() {
         return observerPosition;
     }
 
+    /**
+     * Retourne l'altitude de l'observateur.
+     * 
+     * @return l'altitude de l'observateur
+     */
     public int observerElevation() {
         return observerElevation;
     }
 
+    /**
+     * Retourne l'azimut central du panorama.
+     * 
+     * @return l'azimut central du panorama
+     */
     public double centerAzimuth() {
         return centerAzimuth;
     }
 
+    /**
+     * Retourne le champ de vue horizonal du panorama.
+     * 
+     * @return le champ de vue horizonal du panorama
+     */
     public double horizontalFieldOfView() {
         return horizontalFieldOfView;
     }
     
+    /**
+     * Retourne le champ de vue vertical du panorama.
+     * 
+     * @return le champ de vue vertical du panorama
+     */
     public double verticalFieldOfView() {
         return (horizontalFieldOfView() * (height()-1))/(width()-1);
     }
 
+    /**
+     * Retourne la profondeur maximale du panorama.
+     * 
+     * @return la profondeur maximale du panorama
+     */
     public int maxDistance() {
         return maxDistance;
     }
 
+    /**
+     * Retourne la largeur du panorama.
+     * 
+     * @return la largeur du panorama
+     */
     public int width() {
         return width;
     }
 
+    /**
+     * Retourne la hauteur du panorama.
+     * 
+     * @return la hauteur du panorama
+     */
     public int height() {
         return height;
     }
@@ -94,12 +153,33 @@ public final class PanoramaParameters {
         return width()/2.0;
     }
 
+    /**
+     * Calcule l'azimut correspondant à l'index de pixel
+     * horizontal x.
+     * 
+     * @param x
+     *          index de pixel horizontal (valide pour
+     *          le panorama)
+     * 
+     * @return l'azimut correspondant à l'index donné
+     */
     public double azimuthForX(double x) {
-        checkArgument(0 <= x && x < width()
+        checkArgument(0 <= x && x <= width()-1
                 , "The given index 'x' is invalid.");
         return canonicalize(centerAzimuth() + (x - centerPixel()) * delta());
     }
     
+    /**
+     * Calcule l'index du pixel horizontal correspondant à
+     * l'azimut donné.
+     * 
+     * @param a 
+     *          azimut (sous forme canonique et appartenant
+     *          à la zone visible)
+     * 
+     * @return l'index du pixel horizontal correspondant
+     *          à l'azimut donné
+     */
     public double xForAzimuth(double a) {
         checkArgument(isCanonical(a)
                 , "The given azimuth is not in canonical form.");
@@ -109,24 +189,65 @@ public final class PanoramaParameters {
         return centerPixel() + dist/delta();
     }
     
+    /**
+     * Calcule l'altitude correspondant à l'index de pixel
+     * vertical y.
+     * 
+     * @param y
+     *          index de pixel vertical (valide pour
+     *          le panorama)
+     * 
+     * @return l'altitude correspondant à l'index donné
+     */
     public double altitudeForY(double y) {
-        checkArgument(0 <= y && y < width()
+        checkArgument(0 <= y && y <= height()-1
                 , "The given index 'y' is invalid.");
         return (y - observerElevation()) * delta();
     }
 
+    /**
+     * Calcule l'index du pixel horizontal correspondant à
+     * l'altitude donnée.
+     * 
+     * @param a
+     *          altitude (appartenant à la zone visible)
+     * 
+     * @return l'index du pixel vertical correspondant
+     *          à l'azimut donné
+     */
     public double yForAltitude(double a) {
         double dist = a - observerElevation();
         checkArgument(Math.abs(dist) <= verticalFieldOfView()/2.0
                 , "The given altitude is not defined in the panorama.");
-        
         return dist / delta();
     }
     
+    /**
+     * Vérifie si les index donnés sont valides pour
+     * le panorama courant.
+     * 
+     * @param x
+     *          index horizontal
+     * @param y
+     *          index vertical
+     * 
+     * @return L'appartenance ou non de la paire d'index
+     *          au panorama.
+     */
     public boolean isValidSampleIndex(int x, int y) {
         return x < width() && y < height();
     }
     
+    /**
+     * Calcule l'index linéaire du panorama.
+     * 
+     * @param x
+     *          index horizontal
+     * @param y
+     *          index vertical
+     * 
+     * @return L'index linéaire du panorama.
+     */
     public int linearSampleIndex(int x, int y) {
         return y * width() + x;
     }
