@@ -114,7 +114,7 @@ public final class PanoramaParameters {
                 , "The given index 'y' is invalid.");
         return (y - observerElevation()) * delta();
     }
-    
+
     public double yForAltitude(double a) {
         double dist = a - observerElevation();
         checkArgument(Math.abs(dist) <= verticalFieldOfView()/2.0
