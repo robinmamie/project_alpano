@@ -15,11 +15,7 @@ import ch.epfl.alpano.PreconditionsTest;
                 AzimuthTest.class,
                 DistanceTest.class,
                 Math2Test.class,
-                PreconditionsTest.class,
-                ch.epfl.alpano.test2.AzimuthTest.class,
-                ch.epfl.alpano.test2.DistanceTest.class,
-                ch.epfl.alpano.test2.Math2Test.class,
-                ch.epfl.alpano.test2.PreconditionsTest.class})
+                PreconditionsTest.class})
 
 public class Week1TestSuite {
 
