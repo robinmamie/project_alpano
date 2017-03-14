@@ -235,7 +235,7 @@ public final class PanoramaParameters {
      *          au panorama.
      */
     public boolean isValidSampleIndex(int x, int y) {
-        return x < width() && y < height();
+        return 0 <= x && x < width() && 0 <= y && y < height();
     }
     
     /**
@@ -249,6 +249,8 @@ public final class PanoramaParameters {
      * @return L'index linéaire du panorama.
      */
     public int linearSampleIndex(int x, int y) {
+        checkArgument(isValidSampleIndex(x,y)
+                , "The given index is not valid for this panorama.");
         return y * width() + x;
     }
 }
