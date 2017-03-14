@@ -96,8 +96,8 @@ public final class ContinuousElevationModel {
      * 
      * @param p
      *          Un point géographique
-     * @param slope
-     *          Determine si l'utilisateur désire la pente ou l'altitude
+     * @param par
+     *          Determine la fonction à utiliser par la méthode.
      *          
      * @return L'interpolation bilinéaire (pente ou altitude) du point donné.
      */
