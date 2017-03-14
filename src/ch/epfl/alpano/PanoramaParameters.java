@@ -64,11 +64,11 @@ public final class PanoramaParameters {
                 , "The given maxDistance is not stricly positive.");
         this.maxDistance = maxDistance;
         
-        checkArgument(0 < width
+        checkArgument(1 < width
                 , "The given width is not stricly positive.");
         this.width = width;
         
-        checkArgument(0 < height
+        checkArgument(1 < height
                 , "The given height is not stricly positive.");
         this.height = height;
     }
