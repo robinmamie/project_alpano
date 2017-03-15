@@ -56,8 +56,7 @@ public interface Azimuth {
      */
     static double toMath(double azimuth) {
         checkArgument(isCanonical(azimuth),
-                new StringBuilder("The azimuth ").append(azimuth)
-                        .append(" is not in canonical form.").toString());
+                "The given azimuth is not in canonical form.");
         return canonicalize(PI2 - azimuth);
     }
 
@@ -74,8 +73,8 @@ public interface Azimuth {
      *             si l'azimut donné n'est pas sous forme canonique.
      */
     static double fromMath(double angle) {
-        checkArgument(isCanonical(angle), new StringBuilder("The angle ")
-                .append(angle).append(" is not in canonical form.").toString());
+        checkArgument(isCanonical(angle),
+                "The given angle is not in canonical form.");
         return canonicalize(PI2 - angle);
     }
 
@@ -103,8 +102,7 @@ public interface Azimuth {
     static String toOctantString(double azimuth, String n, String e, String s,
             String w) {
         checkArgument(isCanonical(azimuth),
-                new StringBuilder("The given azimuth ").append(azimuth)
-                        .append(" is not in canonical form.").toString());
+                "The given azimuth is not in canonical form.");
 
         StringBuilder answer = new StringBuilder();
         final double distance = 3 * PI / 8;

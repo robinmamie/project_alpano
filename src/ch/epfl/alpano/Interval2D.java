@@ -141,9 +141,7 @@ public final class Interval2D {
      */
     public Interval2D union(Interval2D that) {
         checkArgument(this.isUnionableWith(that),
-                new StringBuilder("The union of the given Interval2Ds ")
-                        .append(this).append(" and ").append(that)
-                        .append(" does not produce an Interval2D.").toString());
+                "The union of the given Interval2Ds does not produce an Interval2D.");
         return this.boundingUnion(that);
     }
 

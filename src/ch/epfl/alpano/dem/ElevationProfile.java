@@ -56,11 +56,11 @@ public final class ElevationProfile {
         requireNonNull(origin, "The given origin is null.");
 
         checkArgument(0 < length,
-                "The given length isn't strictly positive: " + length);
+                "The given length isn't strictly positive.");
         this.length = length;
 
         checkArgument(isCanonical(azimuth),
-                "The given azimuth is not in canonical form: " + azimuth);
+                "The given azimuth is not in canonical form.");
         azimuth = toMath(azimuth);
 
         this.values = new ArrayList<>();
@@ -105,7 +105,7 @@ public final class ElevationProfile {
      */
     public GeoPoint positionAt(double x) {
         checkArgument(0 <= x && x <= length,
-                "position not defined in the ElevationProfile: " + x);
+                "The position is not defined in the ElevationProfile.");
         double div = scalb(x, -12);
         int v = (int) div;
         double s = div % 1;
@@ -132,7 +132,7 @@ public final class ElevationProfile {
      */
     public double elevationAt(double x) {
         checkArgument(0 <= x && x <= length,
-                "position not defined in the ElevationProfile: " + x);
+                "The position not defined in the ElevationProfile.");
         return cem.elevationAt(positionAt(x));
     }
 
@@ -151,7 +151,7 @@ public final class ElevationProfile {
      */
     public double slopeAt(double x) {
         checkArgument(0 <= x && x <= length,
-                "position not defined in the ElevationProfile: " + x);
+                "The position not defined in the ElevationProfile.");
         return cem.slopeAt(positionAt(x));
     }
 

@@ -172,9 +172,7 @@ public interface Math2 {
         final double limit = 0.01;
         double inf = firstIntervalContainingRoot(f, x1, x2, limit);
         checkArgument(inf != Double.POSITIVE_INFINITY,
-                new StringBuilder("The interval from ").append(x1)
-                        .append(" to ").append(x2)
-                        .append(" does not contain a root.").toString());
+                "The interval does not contain a root.");
         double sup = inf + limit, mid;
         while (sup - inf > epsilon) {
             mid = (inf + sup) / 2.0;

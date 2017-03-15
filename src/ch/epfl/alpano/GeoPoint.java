@@ -44,13 +44,9 @@ public final class GeoPoint {
      */
     public GeoPoint(double longitude, double latitude) {
         checkArgument(-PI <= longitude && longitude <= PI,
-                new StringBuilder("The given longitude ").append(longitude)
-                .append(" is not defined between -Pi and Pi.")
-                .toString());
+                "The given longitude is not defined between -Pi and Pi.");
         checkArgument(-PI / 2 <= latitude && latitude <= PI / 2,
-                new StringBuilder("The given latitude ").append(latitude)
-                .append(" is not defined between -Pi/2 and Pi/2.")
-                .toString());
+                "The given latitude is not defined between -Pi/2 and Pi/2.");
 
         this.longitude = longitude;
         this.latitude = latitude;
@@ -87,7 +83,7 @@ public final class GeoPoint {
         return toMeters(2 * asin(sqrt(haversin(
                 this.latitude() - that.latitude())
                 + cos(this.latitude()) * cos(that.latitude())
-                * haversin(this.longitude() - that.longitude()))));
+                        * haversin(this.longitude() - that.longitude()))));
     }
 
     /**
@@ -104,8 +100,8 @@ public final class GeoPoint {
         return fromMath(canonicalize(atan2(
                 sin(this.longitude() - that.longitude()) * cos(that.latitude()),
                 cos(this.latitude()) * sin(that.latitude())
-                - sin(this.latitude()) * cos(that.latitude())
-                * cos(this.longitude() - that.longitude()))));
+                        - sin(this.latitude()) * cos(that.latitude())
+                                * cos(this.longitude() - that.longitude()))));
     }
 
     @Override

@@ -38,9 +38,7 @@ public final class Interval1D {
      */
     public Interval1D(int includedFrom, int includedTo) {
         checkArgument(includedFrom <= includedTo,
-                new StringBuilder("The upper bound ").append(includedTo)
-                        .append(" is lower than the lower bound ")
-                        .append(includedFrom).append(".").toString());
+                "The upper bound is lower than the lower bound.");
 
         this.includedFrom = includedFrom;
         this.includedTo = includedTo;
@@ -143,9 +141,7 @@ public final class Interval1D {
      */
     public Interval1D union(Interval1D that) {
         checkArgument(this.isUnionableWith(that),
-                new StringBuilder("The union of the given Interval1Ds ")
-                        .append(this).append(" and ").append(that)
-                        .append(" does not produce an Interval1D.").toString());
+                "The union of the given Interval1Ds does not produce an Interval1D.");
         return this.boundingUnion(that);
     }
 

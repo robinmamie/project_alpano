@@ -12,7 +12,6 @@ import javax.imageio.ImageIO;
 
 import ch.epfl.alpano.GeoPoint;
 
-
 /**
  * Dessine un HgtDEM.
  *
@@ -30,23 +29,19 @@ final class DrawHgtDEM {
 
     public static void main(String[] as) throws Exception {
         long startTime = System.nanoTime();
-        
-        DiscreteElevationModel dDEM =
-                new HgtDiscreteElevationModel(HGT_FILE);
-        ContinuousElevationModel cDEM =
-                new ContinuousElevationModel(dDEM);
+
+        DiscreteElevationModel dDEM = new HgtDiscreteElevationModel(HGT_FILE);
+        ContinuousElevationModel cDEM = new ContinuousElevationModel(dDEM);
 
         double step = WIDTH / (IMAGE_SIZE - 1);
-        BufferedImage i = new BufferedImage(IMAGE_SIZE,
-                IMAGE_SIZE,
+        BufferedImage i = new BufferedImage(IMAGE_SIZE, IMAGE_SIZE,
                 TYPE_INT_RGB);
         for (int x = 0; x < IMAGE_SIZE; ++x) {
             double lon = ORIGIN_LON + x * step;
             for (int y = 0; y < IMAGE_SIZE; ++y) {
                 double lat = ORIGIN_LAT + y * step;
                 GeoPoint p = new GeoPoint(lon, lat);
-                double el =
-                        (cDEM.elevationAt(p) - MIN_ELEVATION)
+                double el = (cDEM.elevationAt(p) - MIN_ELEVATION)
                         / (MAX_ELEVATION - MIN_ELEVATION);
                 i.setRGB(x, IMAGE_SIZE - 1 - y, gray(el));
             }
@@ -54,9 +49,10 @@ final class DrawHgtDEM {
         dDEM.close();
 
         ImageIO.write(i, "png", new File("dem.png"));
-        
+
         long endTime = System.nanoTime();
-        System.out.printf("DrawHgtDEM took %.3f ms", (endTime - startTime)/1e6);
+        System.out.printf("DrawHgtDEM took %.3f ms",
+                (endTime - startTime) / 1e6);
     }
 
     private static int gray(double v) {

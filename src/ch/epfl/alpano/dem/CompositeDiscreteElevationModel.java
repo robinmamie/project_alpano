@@ -74,9 +74,7 @@ final class CompositeDiscreteElevationModel implements DiscreteElevationModel {
             return dem2.elevationSample(x, y);
 
         throw new IllegalArgumentException(
-                new StringBuilder("The DEM, which extent is ").append(extent())
-                        .append(", does not contain the given index ").append(x)
-                        .append(" and ").append(y).append(".").toString());
+                "The DEM does not contain the given index.");
     }
 
 }

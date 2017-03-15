@@ -53,33 +53,23 @@ public final class PanoramaParameters {
         this.observerElevation = observerElevation;
 
         checkArgument(isCanonical(centerAzimuth),
-                new StringBuilder(
-                        "The given azimuth is not in canonical form: ")
-                                .append(centerAzimuth).toString());
+                "The given azimuth is not in canonical form.");
         this.centerAzimuth = centerAzimuth;
 
         checkArgument(0 < horizontalFieldOfView && horizontalFieldOfView <= PI2,
-                new StringBuilder(
-                        "The horizontal field of view is not defined between 0")
-                                .append(" (excluded) and 2 Pi (included) : ")
-                                .append(horizontalFieldOfView).toString());
+                "The horizontal field of view is not defined between 0 (excluded) and 2 Pi (included).");
         this.horizontalFieldOfView = horizontalFieldOfView;
 
         checkArgument(0 < maxDistance,
-                new StringBuilder(
-                        "The given maxDistance is not stricly positive: ")
-                                .append(maxDistance).toString());
+                "The given maxDistance is not stricly positive.");
         this.maxDistance = maxDistance;
 
         checkArgument(1 < width,
-                new StringBuilder(
-                        "The given width is not stricly superior to 1: ")
-                                .append(width).toString());
+                "The given width is not stricly superior to 1.");
         this.width = width;
 
         checkArgument(0 < height,
-                new StringBuilder("The given height is not stricly positive: ")
-                        .append(height).toString());
+                "The given height is not stricly positive.");
         this.height = height;
     }
 
@@ -177,7 +167,7 @@ public final class PanoramaParameters {
      */
     public double azimuthForX(double x) {
         checkArgument(0 <= x && x <= width() - 1,
-                "The given index 'x' is invalid: " + x);
+                "The given index 'x' is invalid.");
         return canonicalize(centerAzimuth() + (x - centerPixel()) * delta());
     }
 
@@ -196,10 +186,10 @@ public final class PanoramaParameters {
      */
     public double xForAzimuth(double a) {
         checkArgument(isCanonical(a),
-                "The given azimuth is not in canonical form: " + a);
+                "The given azimuth is not in canonical form.");
         double dist = angularDistance(centerAzimuth(), a);
         checkArgument(Math.abs(dist) <= horizontalFieldOfView() / 2.0,
-                "The given azimuth is not defined in the panorama: " + a);
+                "The given azimuth is not defined in the panorama.");
         return centerPixel() + dist / delta();
     }
 
@@ -217,7 +207,7 @@ public final class PanoramaParameters {
      */
     public double altitudeForY(double y) {
         checkArgument(0 <= y && y <= height() - 1,
-                "The given index 'y' is invalid: " + y);
+                "The given index 'y' is invalid.");
         return (y - observerElevation()) * delta();
     }
 
@@ -270,8 +260,7 @@ public final class PanoramaParameters {
      */
     public int linearSampleIndex(int x, int y) {
         checkArgument(isValidSampleIndex(x, y),
-                "The given indices are not valid for this panorama: " + x
-                        + " and " + y);
+                "The given indices are not valid for this panorama.");
         return y * width() + x;
     }
 }
