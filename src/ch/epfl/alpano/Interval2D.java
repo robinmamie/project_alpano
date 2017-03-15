@@ -6,164 +6,169 @@ import static java.util.Objects.requireNonNull;
 import java.util.Objects;
 
 /**
- * Représente un intervalle bidimensionnel. Classe immuable.
+ * Représente un intervalle bidimensionnel d'entiers. Composée du produit
+ * cartésien de deux intervalles unidimensionnels. Classe immuable.
  *
  * @author Robin Mamie (257234)
  * @author Maxence Jouve (269716)
  */
 public final class Interval2D {
 
-
     /**
      * Premier intervalle du produit cartésien.
      */
     private final Interval1D iX;
-
 
     /**
      * Second intervalle du produit cartésien.
      */
     private final Interval1D iY;
 
-
     /**
-     * Construit un intervalle bidimensionnel ssi deux intervalles unidimensionnels
-     * non null sont donnés.
+     * Construit un intervalle bidimensionnel.
      * 
      * @param iX
-     *          Premier intervalle unidimensionnel
+     *            Premier intervalle unidimensionnel.
      * @param iY
-     *          Second intervalle unidimensionnel
+     *            Second intervalle unidimensionnel.
+     * 
+     * @throws NullPointerException
+     *             si l'un des deux intervalles donnés en arguments est null.
      */
     public Interval2D(Interval1D iX, Interval1D iY) {
-        this.iX = requireNonNull(iX
-                , "The first argument given is null.");
-        this.iY = requireNonNull(iY
-                , "The second argument given is null.");
+        this.iX = requireNonNull(iX, "The first Interval1D given is null.");
+        this.iY = requireNonNull(iY, "The second Interval1D given is null.");
     }
-
 
     /**
      * Retourne le premier intervalle du produit cartésien.
      * 
-     * @return le premier intervalle du produit cartésien
+     * @return Le premier intervalle du produit cartésien de l'intervalle
+     *         bidimensionnel.
      */
-    public Interval1D iX() { return iX; }
-
+    public Interval1D iX() {
+        return iX;
+    }
 
     /**
      * Retourne le second intervalle du produit cartésien.
      * 
-     * @return le second intervalle du produit cartésien
+     * @return Le second intervalle du produit cartésien de l'intervalle
+     *         bidimensionnel.
      */
-    public Interval1D iY() { return iY; }
-
+    public Interval1D iY() {
+        return iY;
+    }
 
     /**
-     * Permet d'indiquer si l'intervalle contient un certain couple.
+     * Permet d'indiquer si l'intervalle bidimensionnel contient un certain
+     * couple d'entiers.
      * 
      * @param x
-     *          premier entier
+     *            Le premier entier.
      * @param y
-     *          second entier
-     *          
-     * @return si le couple appartient à l'intervalle
+     *            Le second entier.
+     * 
+     * @return True si le couple appartient à l'intervalle bidimensionnel.
      */
     public boolean contains(int x, int y) {
         return iX().contains(x) && iY().contains(y);
     }
 
-
     /**
-     * Calcule la taille de l'intervalle.
+     * Calcule la taille de l'intervalle bidimensionnel.
      * 
-     * @return la taille de l'intervalle
+     * @return La taille de l'intervalle bidimensionnel.
      */
     public int size() {
         return iX().size() * iY().size();
     }
 
-
     /**
-     * Calcule la taille de l'intersection entre deux intervalles.
+     * Calcule la taille de l'intersection entre deux intervalles
+     * bidimensionnels.
      * 
      * @param that
-     *          autre intervalle
-     *          
-     * @return la taille de l'intersection entre deux intervalles
+     *            L'autre intervalle bidimensionnel.
+     * 
+     * @return La taille de l'intersection entre les deux intervalles
+     *         bidimensionnels.
      */
     public int sizeOfIntersectionWith(Interval2D that) {
-        return this.iX().sizeOfIntersectionWith(that.iX()) * this.iY().sizeOfIntersectionWith(that.iY());
+        return this.iX().sizeOfIntersectionWith(that.iX())
+                * this.iY().sizeOfIntersectionWith(that.iY());
     }
 
-    
     /**
-     * Construit l'union englobante de deux intervalles.
+     * Construit l'union englobante de deux intervalles bidimensionnels.
      * 
      * @param that
-     *          autre intervalle
-     *          
-     * @return l'union englobante de deux intervalles
+     *            L'autre intervalle bidimensionnel.
+     * 
+     * @return L'union englobante de deux intervalles bidimensionnels.
      */
     public Interval2D boundingUnion(Interval2D that) {
-        return new Interval2D(this.iX().boundingUnion(that.iX()), this.iY().boundingUnion(that.iY()));
+        return new Interval2D(this.iX().boundingUnion(that.iX()),
+                this.iY().boundingUnion(that.iY()));
     }
 
-    
     /**
-     * Indique si deux intervalles sont unionables.
+     * Indique si deux intervalles bidimensionnels sont unionables, i.e. si leur
+     * union produit un autre intervalle bidimensionnel.
      * 
      * @param that
-     *          autre intervalle
-     *          
-     * @return si deux intervalles sont unionables
+     *            L'autre intervalle bidimensionnel.
+     * 
+     * @return Vrai si deux intervalles sont unionables.
      */
     public boolean isUnionableWith(Interval2D that) {
-        return this.size() + that.size() - this.sizeOfIntersectionWith(that) == this.boundingUnion(that).size();
+        return this.size() + that.size()
+                - this.sizeOfIntersectionWith(that) == this.boundingUnion(that)
+                        .size();
     }
 
-    
     /**
-     * Construit l'union de deux intervalles.
+     * Construit l'union de deux intervalles bidimensionnels.
      * 
      * @param that
-     *          autre intervalle
-     *          
-     * @return l'union de deux intervalles
+     *            L'autre intervalle bidimensionnel.
+     * 
+     * @return L'union de deux intervalles bidimensionnels.
+     * 
+     * @throws IllegalArgumentException
+     *             si les deux intervalles bidimensionnel ne sont pas
+     *             unionables.
      */
     public Interval2D union(Interval2D that) {
-        checkArgument(this.isUnionableWith(that)
-                , "The union of the given Interval2Ds does not produce an Interval2D.");
+        checkArgument(this.isUnionableWith(that),
+                new StringBuilder("The union of the given Interval2Ds ")
+                        .append(this).append(" and ").append(that)
+                        .append(" does not produce an Interval2D.").toString());
         return this.boundingUnion(that);
     }
 
-    
     @Override
     public boolean equals(Object thatO) {
-        if(this == thatO)
+        if (this == thatO)
             return true;
-        
-        if(thatO == null || getClass() != thatO.getClass())
+
+        if (thatO == null || getClass() != thatO.getClass())
             return false;
 
-        Interval2D that = (Interval2D)thatO;
+        Interval2D that = (Interval2D) thatO;
 
         return this.iX().equals(that.iX()) && this.iY().equals(that.iY());
     }
 
-    
     @Override
     public int hashCode() {
         return Objects.hash(iX(), iY());
     }
 
-    
     @Override
     public String toString() {
-        return new StringBuilder(iX().toString())
-                .append("×")
-                .append(iY().toString())
-                .toString();
+        return new StringBuilder(iX().toString()).append("×")
+                .append(iY().toString()).toString();
     }
-    
+
 }

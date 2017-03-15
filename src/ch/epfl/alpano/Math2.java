@@ -169,10 +169,12 @@ public interface Math2 {
     static double improveRoot(DoubleUnaryOperator f, double x1, double x2,
             double epsilon) {
         // Limite définie à 0.01 afin d'avoir un écart convenable
-        double limit = 0.01,
-                inf = firstIntervalContainingRoot(f, x1, x2, limit);
+        final double limit = 0.01;
+        double inf = firstIntervalContainingRoot(f, x1, x2, limit);
         checkArgument(inf != Double.POSITIVE_INFINITY,
-                "The interval does not contain a root.");
+                new StringBuilder("The interval from ").append(x1)
+                        .append(" to ").append(x2)
+                        .append(" does not contain a root.").toString());
         double sup = inf + limit, mid;
         while (sup - inf > epsilon) {
             mid = (inf + sup) / 2.0;

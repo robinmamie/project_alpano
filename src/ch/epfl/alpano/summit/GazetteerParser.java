@@ -32,7 +32,7 @@ public final class GazetteerParser {
         return sb.toString();
     }
 
-    private static double getRadians(String degrees) {
+    private static double hmsToRadians(String degrees) {
         String[] hms = degrees.split(":");
         double factor = 1.0;
         double angleDeg = 0.0;
@@ -44,19 +44,19 @@ public final class GazetteerParser {
     }
 
     private static GeoPoint getPoint(String lon, String lat) {
-        return new GeoPoint(getRadians(lon), getRadians(lat));
+        return new GeoPoint(hmsToRadians(lon), hmsToRadians(lat));
     }
 
     /**
      * Construit une liste immuable des sommets alpins.
      * 
      * @param file
-     *          Fichier contenant les sommets alpins.
+     *          Le fichier contenant les sommets alpins.
      *          
-     * @return une liste immuable des sommets alpins.
+     * @return Une liste immuable des sommets alpins.
      * 
      * @throws IOException
-     *          Si il y a un problème à la lecture du fichier
+     *          s'il y a un problème à la lecture du fichier
      *          ou si le fichier n'est pas conforme aux restrictions.
      */
     public static List<Summit> readSummitsFrom(File file) 

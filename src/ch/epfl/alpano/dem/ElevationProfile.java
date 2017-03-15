@@ -17,8 +17,8 @@ import java.util.ArrayList;
 import ch.epfl.alpano.GeoPoint;
 
 /**
- * Représente un profil altimétrique suivant un arc de grand cercle. Classe
- * immuable.
+ * Représente un profil altimétrique suivant un arc de grand cercle sur la
+ * surface de la Terre. Classe immuable.
  *
  * @author Robin Mamie (257234)
  * @author Maxence Jouve (269716)
@@ -34,15 +34,20 @@ public final class ElevationProfile {
      * Construit un profil altimétrique.
      * 
      * @param elevation
-     *            MNT continu dans lequel la classe doit chercher ses valeurs.
+     *            Le MNT continu dans lequel la classe doit chercher ses
+     *            valeurs.
      * @param origin
-     *            Point d'origine du profil altimétrique.
+     *            Le point d'origine du profil altimétrique.
      * @param azimuth
-     *            Azimuth (sous forme canonique) qui détermine la direction du
+     *            L'azimuth (sous forme canonique) qui détermine la direction du
      *            profil altimétrique.
      * @param length
-     *            Longueur (strictement positive) du profil altimétrique (en
+     *            La longueur (strictement positive) du profil altimétrique (en
      *            mètres).
+     * 
+     * @throws IllegalArgumentException
+     *             si les restrictions décrites ne sont pas remplies
+     * @thorws NullPointerException si elevation ou origin sont null.
      */
     public ElevationProfile(ContinuousElevationModel elevation, GeoPoint origin,
             double azimuth, double length) {
@@ -50,11 +55,12 @@ public final class ElevationProfile {
         this.cem = requireNonNull(elevation, "The given CEM is null.");
         requireNonNull(origin, "The given origin is null.");
 
-        checkArgument(0 < length, "The given length isn't strictly positive.");
+        checkArgument(0 < length,
+                "The given length isn't strictly positive: " + length);
         this.length = length;
 
         checkArgument(isCanonical(azimuth),
-                "The given azimuth is not in canonical form.");
+                "The given azimuth is not in canonical form: " + azimuth);
         azimuth = toMath(azimuth);
 
         this.values = new ArrayList<>();
@@ -89,13 +95,17 @@ public final class ElevationProfile {
      * distance demandée de l'origine.
      * 
      * @param x
-     *            Distance demandée (en mètres).
+     *            La distance demandée (en mètres).
      * 
      * @return Le point demandé après interpolation linéaire.
+     * 
+     * @throws IllegalArgumentException
+     *             si la distance passée en argument n'est pas définie dans le
+     *             profil altimétrique
      */
     public GeoPoint positionAt(double x) {
         checkArgument(0 <= x && x <= length,
-                "position not defined in the ElevationProfile");
+                "position not defined in the ElevationProfile: " + x);
         double div = scalb(x, -12);
         int v = (int) div;
         double s = div % 1;
@@ -112,13 +122,17 @@ public final class ElevationProfile {
      * distance demandée de l'origine.
      * 
      * @param x
-     *            Distance demandée (en mètres).
+     *            La distance demandée (en mètres).
      * 
      * @return L'altitude à la distance demandée.
+     * 
+     * @throws IllegalArgumentException
+     *             si la distance passée en argument n'est pas définie dans le
+     *             profil altimétrique
      */
     public double elevationAt(double x) {
         checkArgument(0 <= x && x <= length,
-                "position not defined in the ElevationProfile");
+                "position not defined in the ElevationProfile: " + x);
         return cem.elevationAt(positionAt(x));
     }
 
@@ -127,13 +141,17 @@ public final class ElevationProfile {
      * distance demandée de l'origine.
      * 
      * @param x
-     *            Distance demandée (en mètres).
+     *            La distance demandée (en mètres).
      * 
      * @return La pente à la distance demandée.
+     * 
+     * @throws IllegalArgumentException
+     *             si la distance passée en argument n'est pas définie dans le
+     *             profil altimétrique
      */
     public double slopeAt(double x) {
         checkArgument(0 <= x && x <= length,
-                "position not defined in the ElevationProfile");
+                "position not defined in the ElevationProfile: " + x);
         return cem.slopeAt(positionAt(x));
     }
 

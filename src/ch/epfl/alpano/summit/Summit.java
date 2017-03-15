@@ -22,11 +22,11 @@ public final class Summit {
      * Construit un sommet.
      * 
      * @param name
-     *          Nom du sommet.
+     *          Le nom du sommet.
      * @param position
-     *          Position du sommet.
+     *          La position du sommet.
      * @param elevation
-     *          Altitude du sommet.
+     *          L'altitude du sommet.
      */
     public Summit(String name, GeoPoint position, int elevation) {
         this.name = name;
@@ -37,7 +37,7 @@ public final class Summit {
     /**
      * Retourne le nom du sommet.
      * 
-     * @return le nom du sommet.
+     * @return Le nom du sommet.
      */
     public String name() {
         return name;
@@ -46,7 +46,7 @@ public final class Summit {
     /**
      * Retourne la position du sommet.
      * 
-     * @return la position du sommet.
+     * @return La position du sommet.
      */
     public GeoPoint position() {
         return position;
@@ -55,7 +55,7 @@ public final class Summit {
     /**
      * Retourne l'altitude du sommet.
      * 
-     * @return l'altitude du sommet.
+     * @return L'altitude du sommet.
      */
     public int elevation() {
         return elevation;
