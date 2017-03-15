@@ -149,8 +149,12 @@ public final class PanoramaParameters {
         return horizontalFieldOfView() / (width() - 1);
     }
 
-    private double centerPixel() {
+    private double centerPixelHor() {
         return width() / 2.0;
+    }
+    
+    private double centerPixelVer() {
+        return height() / 2.0;
     }
 
     /**
@@ -168,7 +172,7 @@ public final class PanoramaParameters {
     public double azimuthForX(double x) {
         checkArgument(0 <= x && x <= width() - 1,
                 "The given index 'x' is invalid.");
-        return canonicalize(centerAzimuth() + (x - centerPixel()) * delta());
+        return canonicalize(centerAzimuth() + (x - centerPixelHor()) * delta());
     }
 
     /**
@@ -190,7 +194,7 @@ public final class PanoramaParameters {
         double dist = angularDistance(centerAzimuth(), a);
         checkArgument(Math.abs(dist) <= horizontalFieldOfView() / 2.0,
                 "The given azimuth is not defined in the panorama.");
-        return centerPixel() + dist / delta();
+        return centerPixelHor() + dist / delta();
     }
 
     /**
@@ -208,7 +212,7 @@ public final class PanoramaParameters {
     public double altitudeForY(double y) {
         checkArgument(0 <= y && y <= height() - 1,
                 "The given index 'y' is invalid.");
-        return (y - observerElevation()) * delta();
+        return (y - centerPixelVer()) * delta() * maxDistance();
     }
 
     /**
