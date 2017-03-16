@@ -62,12 +62,12 @@ public final class GazetteerParser {
     public static List<Summit> readSummitsFrom(File file) 
             throws IOException {
         ArrayList<Summit> summits = new ArrayList<>();
-
+        String s;
         try (BufferedReader b = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
-            while(b.ready()) {
+            while((s = b.readLine()) != null) {
                 // Seperates the line in blocks
                 // Cuts where there is one or more whitespace
-                String[] elements = b.readLine().trim().split("\\s+");
+                String[] elements = s.trim().split("\\s+");
                 
                 String summit = getSummit(elements);
                 GeoPoint point = getPoint(elements[0], elements[1]);
