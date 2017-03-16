@@ -212,7 +212,7 @@ public final class PanoramaParameters {
     public double altitudeForY(double y) {
         checkArgument(0 <= y && y <= height() - 1,
                 "The given index 'y' is invalid.");
-        return (y - centerPixelVer()) * delta() * maxDistance();
+        return (centerPixelVer() - y) * delta() * maxDistance();
     }
 
     /**
