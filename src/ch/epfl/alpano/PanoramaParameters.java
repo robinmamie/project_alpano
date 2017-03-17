@@ -203,7 +203,7 @@ public final class PanoramaParameters {
      * @param y
      *            L'index de pixel vertical (valide pour le panorama).
      * 
-     * @return L'altitude correspondant à l'index donné.
+     * @return L'altitude en radians correspondant à l'index donné.
      * 
      * @throws IllegalArgumentException
      *             si le pixel donné n'est pas défini dans la hauteur du
@@ -212,14 +212,14 @@ public final class PanoramaParameters {
     public double altitudeForY(double y) {
         checkArgument(0 <= y && y <= height() - 1,
                 "The given index 'y' is invalid.");
-        return (centerPixelVer() - y) * delta() * maxDistance();
+        return (centerPixelVer() - y) * delta();
     }
 
     /**
      * Calcule l'index du pixel horizontal correspondant à l'altitude donnée.
      * 
      * @param a
-     *            altitude (appartenant à la zone visible)
+     *            altitude en radians (appartenant à la zone visible)
      * 
      * @return L'index du pixel vertical correspondant à l'altitude donnée.
      * 
@@ -228,10 +228,9 @@ public final class PanoramaParameters {
      *             du panorma.
      */
     public double yForAltitude(double a) {
-        double dist = a - observerElevation();
-        checkArgument(Math.abs(dist) <= verticalFieldOfView() / 2.0,
+        checkArgument(a <= verticalFieldOfView() / 2.0,
                 "The given altitude is not defined in the panorama.");
-        return dist / delta();
+        return centerPixelVer() - a / delta();
     }
 
     /**
