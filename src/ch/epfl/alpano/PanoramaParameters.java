@@ -68,8 +68,7 @@ public final class PanoramaParameters {
                 "The given width is not stricly superior to 1.");
         this.width = width;
 
-        checkArgument(0 < height,
-                "The given height is not stricly positive.");
+        checkArgument(0 < height, "The given height is not stricly positive.");
         this.height = height;
     }
 
@@ -150,11 +149,11 @@ public final class PanoramaParameters {
     }
 
     private double centerPixelHor() {
-        return width() / 2.0;
+        return (width() - 1) / 2.0;
     }
-    
+
     private double centerPixelVer() {
-        return height() / 2.0;
+        return (height() - 1) / 2.0;
     }
 
     /**
@@ -189,10 +188,8 @@ public final class PanoramaParameters {
      *             défini dans le champ de vue horizontal du panorma.
      */
     public double xForAzimuth(double a) {
-        checkArgument(isCanonical(a),
-                "The given azimuth is not in canonical form.");
         double dist = angularDistance(centerAzimuth(), a);
-        checkArgument(Math.abs(dist) <= horizontalFieldOfView() / 2.0,
+        checkArgument(Math.abs(dist) <= horizontalFieldOfView() / 2.0 + 1e-10,
                 "The given azimuth is not defined in the panorama.");
         return centerPixelHor() + dist / delta();
     }
@@ -228,7 +225,7 @@ public final class PanoramaParameters {
      *             du panorma.
      */
     public double yForAltitude(double a) {
-        checkArgument(a <= verticalFieldOfView() / 2.0,
+        checkArgument(a <= verticalFieldOfView() / 2.0 + 1e-10,
                 "The given altitude is not defined in the panorama.");
         return centerPixelVer() - a / delta();
     }
