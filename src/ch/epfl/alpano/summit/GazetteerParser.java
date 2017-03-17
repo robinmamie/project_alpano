@@ -61,7 +61,7 @@ public final class GazetteerParser {
      */
     public static List<Summit> readSummitsFrom(File file) 
             throws IOException {
-        ArrayList<Summit> summits = new ArrayList<>();
+        List<Summit> summits = new ArrayList<>();
         String s;
         try (BufferedReader b = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
             while((s = b.readLine()) != null) {

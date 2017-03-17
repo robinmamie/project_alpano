@@ -32,7 +32,6 @@ final class DrawHgtDEM {
 
         DiscreteElevationModel dDEM = new HgtDiscreteElevationModel(HGT_FILE);
         ContinuousElevationModel cDEM = new ContinuousElevationModel(dDEM);
-
         double step = WIDTH / (IMAGE_SIZE - 1);
         BufferedImage i = new BufferedImage(IMAGE_SIZE, IMAGE_SIZE,
                 TYPE_INT_RGB);
