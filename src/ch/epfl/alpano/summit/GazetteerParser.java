@@ -76,6 +76,6 @@ public final class GazetteerParser {
             throw new IOException(e.getMessage());
         }
 
-        return Collections.unmodifiableList(summits);
+        return Collections.unmodifiableList(new ArrayList<>(summits));
     }
 }
