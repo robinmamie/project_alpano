@@ -1,44 +1,46 @@
 package ch.epfl.alpano;
 
-
 /**
- * Fait le lien entre angles et distances terrestres.
+ * Interface faisant le lien entre angles et distances terrestres. Permet de
+ * convertir des radians en mètres en suivant le rayon de la Terre, défini à
+ * 6.371.800 mètres.
  * 
  * @author Robin Mamie (257234)
  * @author Maxence Jouve (269716)
  */
 public interface Distance {
-    
-    
+
     /**
-     * Rayon de la terre.
+     * Rayon de la Terre, en mètres.
      */
-    double EARTH_RADIUS = 6_371_000;
-    
-    
+    double EARTH_RADIUS = 6_371_000.0;
+
     /**
-     * Transforme une distance en mètre inscrite dans un grand cercle en radians.
+     * Transforme une distance terrestre en mètres en radians, selon le rayon de
+     * la Terre. Suit automatiquement un grand cercle.
      * 
      * @param distanceInMeters
-     *              distance en mètres
-     *              
-     * @return le nombre de radians correspondant à la distance en paramètre
+     *            Distance terrestre en mètres.
+     * 
+     * @return Le nombre de radians correspondant à la distance en mètres donnée
+     *         en paramètre.
      */
     static double toRadians(double distanceInMeters) {
         return distanceInMeters / EARTH_RADIUS;
     }
-    
-    
+
     /**
-     * Transforme le nombre de radians d'une distance inscrite dans un grand cercle en mètres.
+     * Transforme les radians déterminant une distance inscrite dans un grand
+     * cercle en mètres.
      * 
      * @param distanceInRadians
-     *              distance en radians
+     *            Distance terrestre en radians.
      * 
-     * @return le nombre de mètres correspondant au nombre de radians en paramètre
+     * @return La distance en mètres correspondant au nombre de radians donné en
+     *         paramètre.
      */
     static double toMeters(double distanceInRadians) {
         return distanceInRadians * EARTH_RADIUS;
     }
- 
+
 }

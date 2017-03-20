@@ -10,7 +10,6 @@ import javax.imageio.ImageIO;
 
 import ch.epfl.alpano.GeoPoint;
 
-
 /**
  * Dessine un ElevationProfile.
  *
@@ -29,23 +28,18 @@ final class DrawElevationProfile {
     public static void main(String[] as) throws Exception {
         long startTime = System.nanoTime();
 
-        DiscreteElevationModel dDEM =
-                new HgtDiscreteElevationModel(HGT_FILE);
-        ContinuousElevationModel cDEM =
-                new ContinuousElevationModel(dDEM);
-        GeoPoint o =
-                new GeoPoint(LONGITUDE, LATITUDE);
-        ElevationProfile p =
-                new ElevationProfile(cDEM, o, AZIMUTH, LENGTH);
+        DiscreteElevationModel dDEM = new HgtDiscreteElevationModel(HGT_FILE);
+        ContinuousElevationModel cDEM = new ContinuousElevationModel(dDEM);
+        GeoPoint o = new GeoPoint(LONGITUDE, LATITUDE);
+        ElevationProfile p = new ElevationProfile(cDEM, o, AZIMUTH, LENGTH);
 
         int BLACK = 0x00_00_00, WHITE = 0xFF_FF_FF;
 
-        BufferedImage i =
-                new BufferedImage(WIDTH, HEIGHT, TYPE_INT_RGB);
+        BufferedImage i = new BufferedImage(WIDTH, HEIGHT, TYPE_INT_RGB);
         for (int x = 0; x < WIDTH; ++x) {
             double pX = x * (double) LENGTH / (WIDTH - 1);
             double pY = p.elevationAt(pX);
-            int yL = (int)((pY / MAX_ELEVATION) * (HEIGHT - 1));
+            int yL = (int) ((pY / MAX_ELEVATION) * (HEIGHT - 1));
             for (int y = 0; y < HEIGHT; ++y) {
                 int color = y < yL ? BLACK : WHITE;
                 i.setRGB(x, HEIGHT - 1 - y, color);
@@ -56,6 +50,7 @@ final class DrawElevationProfile {
         ImageIO.write(i, "png", new File("profile.png"));
 
         long endTime = System.nanoTime();
-        System.out.printf("DrawElevationProfile took %.3f ms", (endTime - startTime)/1e6);
+        System.out.printf("DrawElevationProfile took %.3f ms%n",
+                (endTime - startTime) / 1e6);
     }
 }
