@@ -32,13 +32,13 @@ public final class PanoramaComputer {
             ElevationProfile profile = new ElevationProfile(dem,
                     parameters.observerPosition(), parameters.azimuthForX(x),
                     parameters.maxDistance());
-            double[] val = new double[parameters.height()];
+            double[] val = new double[parameters.height()+1];
             for (int y = parameters.height() - 1; y >= 0; --y) {
                 angle = parameters.altitudeForY(y);
                 DoubleUnaryOperator f = rayToGroundDistance(profile,
                         parameters.observerElevation(), angle);
                 val[y] = firstIntervalContainingRoot(f,
-                        val[parameters.height() - 1 - y],
+                        val[y+1],
                         parameters.maxDistance(), limit);
                 if (val[y] == Double.POSITIVE_INFINITY)
                     break;
