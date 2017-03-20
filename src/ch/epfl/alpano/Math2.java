@@ -136,7 +136,9 @@ public interface Math2 {
      *            valeur est petite.
      * 
      * @return La borne inférieure d'un intervalle de taille prédéfinie dans
-     *         lequel la fonction contient une racine.
+     *         lequel la fonction contient une racine ou
+     *         Double.POSITIVE_INFINITY si l'intervalle ne contient pas de
+     *         racine.
      */
     static double firstIntervalContainingRoot(DoubleUnaryOperator f,
             double minX, double maxX, double dX) {
@@ -149,8 +151,8 @@ public interface Math2 {
     }
 
     /**
-     * Effectue une recherche dichotomique dans un intervalle afin de trouver
-     * une racine.
+     * Effectue une recherche dichotomique dans un intervalle contenant une
+     * racine afin de trouver de trouver une valeur précise.
      * 
      * @param f
      *            Fonction dont on souhaite trouver une racine.
@@ -169,19 +171,17 @@ public interface Math2 {
     static double improveRoot(DoubleUnaryOperator f, double x1, double x2,
             double epsilon) {
         // Limite définie à 0.01 afin d'avoir un écart convenable
-        final double limit = 0.01;
-        double inf = firstIntervalContainingRoot(f, x1, x2, limit);
-        checkArgument(inf != Double.POSITIVE_INFINITY,
+        checkArgument(f.applyAsDouble(x1) * f.applyAsDouble(x2) < 0,
                 "The interval does not contain a root.");
-        double sup = inf + limit, mid;
-        while (sup - inf > epsilon) {
-            mid = (inf + sup) / 2.0;
-            if (f.applyAsDouble(mid) * f.applyAsDouble(inf) < 0)
-                sup = mid;
+        double mid;
+        while (x2 - x1 > epsilon) {
+            mid = (x1 + x2) / 2.0;
+            if (f.applyAsDouble(x1) * f.applyAsDouble(mid) < 0)
+                x2 = mid;
             else
-                inf = mid;
+                x1 = mid;
         }
-        return inf;
+        return x1;
     }
 
 }

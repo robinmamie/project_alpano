@@ -55,7 +55,7 @@ public final class DrawDEM {
         ImageIO.write(slI, "png", new File("slope.png"));
 
         long endTime = System.nanoTime();
-        System.out.printf("DrawDEM took %.3f ms", (endTime - startTime) / 1e6);
+        System.out.printf("DrawDEM took %.3f ms%n", (endTime - startTime) / 1e6);
     }
 
     private static int gray(double v) {

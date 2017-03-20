@@ -50,7 +50,7 @@ final class DrawHgtDEM {
         ImageIO.write(i, "png", new File("dem.png"));
 
         long endTime = System.nanoTime();
-        System.out.printf("DrawHgtDEM took %.3f ms",
+        System.out.printf("DrawHgtDEM took %.3f ms%n",
                 (endTime - startTime) / 1e6);
     }
 
