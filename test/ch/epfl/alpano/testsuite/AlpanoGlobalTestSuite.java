@@ -12,7 +12,8 @@ import ch.epfl.alpano.testsuite.Week2TestSuite;
 @SuiteClasses({
                 Week1TestSuite.class,
                 Week2TestSuite.class,
-                Week3TestSuite.class})
+                Week3TestSuite.class,
+                Week4TestSuite.class})
 
 public class AlpanoGlobalTestSuite {
 
