@@ -34,9 +34,15 @@ public final class GazetteerParser {
     }
 
     private static double hmsToRadians(String degrees) {
-        String[] hms = degrees.split(":");
-        double angleDeg = (Integer.parseInt(hms[2]) / 60.0
-                + Integer.parseInt(hms[1])) / 60.0 + Integer.parseInt(hms[0]);
+        String[] hmsS = degrees.split(":");
+        int[] hms = { Integer.parseInt(hmsS[0]), Integer.parseInt(hmsS[1]),
+                Integer.parseInt(hmsS[2]) };
+        double angleDeg;
+        if (hms[0] >= 0)
+            angleDeg = hms[0] + (hms[1] + hms[2] / 60.0) / 60.0;
+        else
+            angleDeg = hms[0] - (hms[1] + hms[2] / 60.0) / 60.0;
+        
         return Math.toRadians(angleDeg);
     }
 
