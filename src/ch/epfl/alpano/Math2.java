@@ -170,7 +170,6 @@ public interface Math2 {
      */
     static double improveRoot(DoubleUnaryOperator f, double x1, double x2,
             double epsilon) {
-        // Limite définie à 0.01 afin d'avoir un écart convenable
         checkArgument(f.applyAsDouble(x1) * f.applyAsDouble(x2) < 0,
                 "The interval does not contain a root.");
         double mid;
