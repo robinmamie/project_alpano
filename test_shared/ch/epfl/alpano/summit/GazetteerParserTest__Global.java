@@ -95,7 +95,7 @@ public class GazetteerParserTest__Global {
         List<Summit> ols = null;
         try {
             ols = GazetteerParser
-                    .readSummitsFrom(new File("alpsTestOneLine.txt"));
+                    .readSummitsFrom(new File("test_shared/alpsTestOneLine.txt"));
         } catch (IOException e) {
             e.printStackTrace();
             fail("Could not parse the file!");
@@ -110,7 +110,7 @@ public class GazetteerParserTest__Global {
         List<Summit> mls = null;
         try {
             mls = GazetteerParser
-                    .readSummitsFrom(new File("alpsTestMultipleLines.txt"));
+                    .readSummitsFrom(new File("test_shared/alpsTestMultipleLines.txt"));
         } catch (IOException e) {
             e.printStackTrace();
             fail("Could not parse the file!");
@@ -125,7 +125,7 @@ public class GazetteerParserTest__Global {
         List<Summit> nls = null;
         try {
             nls = GazetteerParser
-                    .readSummitsFrom(new File("alpsTestNegativeLatitudes.txt"));
+                    .readSummitsFrom(new File("test_shared/alpsTestNegativeLatitudes.txt"));
         } catch (IOException e) {
             e.printStackTrace();
             fail("Could not parse the file!");

@@ -94,6 +94,53 @@ public class CompositeDiscreteElevationModelTest__Global {
         assertTrue(dem1.isClosed);
         assertTrue(dem2.isClosed);
     }
+
+
+	TestElevationModelConstantHeight__Global constantDEM1 = new TestElevationModelConstantHeight__Global(
+			new Interval2D(new Interval1D(0, 5), new Interval1D(0, 10)), 1);
+	TestElevationModelConstantHeight__Global constantDEM2 = new TestElevationModelConstantHeight__Global(
+			new Interval2D(new Interval1D(5, 10), new Interval1D(0, 10)), 2);
+	DiscreteElevationModel constantDEM = constantDEM1.union(constantDEM2);
+	
+	DiscreteElevationModel dDEM1 = new WavyDEM(new Interval2D(new Interval1D(0, 50), new Interval1D(0, 100)));
+	DiscreteElevationModel dDEM2 = new WavyDEM(new Interval2D(new Interval1D(50, 100), new Interval1D(0, 100)));
+	DiscreteElevationModel dDEM = dDEM1.union(dDEM2);
+
+	@Test(expected = NullPointerException.class)
+	public void testConstructorThrowsException() {
+		new CompositeDiscreteElevationModel(dDEM1, null);
+	}
+
+	@Test(expected = NullPointerException.class)
+	public void testConstructorThrowsException2() {
+		new CompositeDiscreteElevationModel(null, dDEM2);
+	}
+
+	@Test(expected = NullPointerException.class)
+	public void testConstructorThrowsException3() {
+		new CompositeDiscreteElevationModel(null, null);
+	}
+
+	@Test
+	public void testExtent() {
+		assertEquals(new Interval2D(new Interval1D(0, 100), new Interval1D(0, 100)), dDEM.extent());
+	}
+
+	@Test
+	public void testElevationAtWithPointInDEM1 () {
+		assertEquals(1, constantDEM.elevationSample(0, 0), 10e-7);
+	}
+
+	@Test
+	public void testElevationAtWithPointInDEM2 () {
+		assertEquals(2, constantDEM.elevationSample(6, 6), 10e-7);
+	}
+
+	@Test
+	public void testElevationAtWithPointAtTheBorderOfDEM1AndDEM () {
+		assertEquals(1, constantDEM.elevationSample(5, 0), 10e-7);
+	}
+
 }
 
 class ConstantElevationDEM implements DiscreteElevationModel {

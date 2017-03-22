@@ -183,24 +183,24 @@ public class Math2Test__Global {
 
     @Test
     public void firstIntervalContainingRootWorksOnSin() {
-        double i1 = firstIntervalContainingRoot(new Sin(), -1d, 1d, 0.1 + 1e-11);
+        double i1 = firstIntervalContainingRoot(new Sin__Global(), -1d, 1d, 0.1 + 1e-11);
         assertEquals(-0.1, i1, 1e-10);
         
-        double i2 = firstIntervalContainingRoot(new Sin(), 1, 4, 1);
+        double i2 = firstIntervalContainingRoot(new Sin__Global(), 1, 4, 1);
         assertEquals(3, i2, 0);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void improveRootFailsWhenIntervalDoesNotContainRoot() {
-        improveRoot(new Sin(), 1, 2, 1e-10);
+        improveRoot(new Sin__Global(), 1, 2, 1e-10);
     }
 
     @Test
     public void improveRootWorksOnSin() {
-        double pi = improveRoot(new Sin(), 3.1, 3.2, 1e-10);
+        double pi = improveRoot(new Sin__Global(), 3.1, 3.2, 1e-10);
         assertEquals(PI, pi, 1e-10);
 
-        double mPi = improveRoot(new Sin(), -4, -3.1, 1e-10);
+        double mPi = improveRoot(new Sin__Global(), -4, -3.1, 1e-10);
         assertEquals(-PI, mPi, 1e-10);
     }
 
@@ -209,7 +209,7 @@ public class Math2Test__Global {
     }
 }
 
-class Sin implements DoubleUnaryOperator {
+class Sin__Global implements DoubleUnaryOperator {
     @Override
     public double applyAsDouble(double x) {
         return sin(x);

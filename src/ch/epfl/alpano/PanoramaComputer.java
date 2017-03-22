@@ -54,11 +54,11 @@ public final class PanoramaComputer {
     public Panorama computePanorama(PanoramaParameters parameters) {
         Panorama.Builder pb = new Panorama.Builder(parameters);
         double angle;
+        double[] val = new double[parameters.height() + 1];
         for (int x = 0; x < parameters.width(); ++x) {
             ElevationProfile profile = new ElevationProfile(dem,
                     parameters.observerPosition(), parameters.azimuthForX(x),
                     parameters.maxDistance());
-            double[] val = new double[parameters.height() + 1];
             for (int y = parameters.height() - 1; y >= 0; --y) {
                 angle = parameters.altitudeForY(y);
                 DoubleUnaryOperator f = rayToGroundDistance(profile,

@@ -151,4 +151,34 @@ public class HgtDiscreteElevationModelTest__Global {
     private static Path copyEmptyHgtFileAs(String hgtFileName) throws IOException {
         return Files.copy(FAKE_HGT_FILE, FAKE_HGT_DIR.resolve(hgtFileName), REPLACE_EXISTING);
     }
+    
+
+
+    @Test
+    public void testCornerSW() {
+        HgtDiscreteElevationModel h = new HgtDiscreteElevationModel(new File("N46E007.hgt"));
+        //System.out.println(7.+" "+46.);
+        h.elevationSample(7*3600, 3600*46); 
+    }
+    
+    @Test
+    public void testCornerNW() {
+        HgtDiscreteElevationModel h = new HgtDiscreteElevationModel(new File("N46E007.hgt"));
+        //System.out.println(7.+" "+47.);
+        h.elevationSample(7*3600, 3600*47); 
+    }
+    
+    @Test
+    public void testCornerSE() {
+        HgtDiscreteElevationModel h = new HgtDiscreteElevationModel(new File("N46E007.hgt"));
+        //System.out.println(8.+" "+46.);
+        h.elevationSample(8*3600, 3600*46); 
+    }
+
+    @Test
+    public void testCornerNE() {
+        HgtDiscreteElevationModel h = new HgtDiscreteElevationModel(new File("N46E007.hgt"));
+        //System.out.println(8.+" "+47.);
+        h.elevationSample(8*3600, 3600*47); 
+    }
 }

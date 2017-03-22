@@ -109,6 +109,8 @@ public final class ElevationProfile {
         double div = scalb(x, -12);
         int v = (int) div;
         double s = div % 1;
+        if(v == values.size()-1)
+            return values.get(values.size()-1);
         GeoPoint fstP = values.get(v);
         GeoPoint sndP = values.get(v + 1);
         double lon = lerp(fstP.longitude(), sndP.longitude(), s);

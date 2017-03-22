@@ -111,6 +111,72 @@ public class ContinuousElevationModelTest__Global {
     private static GeoPoint pointForSampleIndex(double x, double y) {
         return new GeoPoint(toRadians(x / 3600d), toRadians(y / 3600d));
     }
+    
+
+
+	GeoPoint origin = new GeoPoint (0, 0);
+	GeoPoint upperRightCorner = new GeoPoint(10/DiscreteElevationModel.SAMPLES_PER_RADIAN, 10/DiscreteElevationModel.SAMPLES_PER_RADIAN);
+	GeoPoint middlePoint = new GeoPoint(5/DiscreteElevationModel.SAMPLES_PER_RADIAN, 5/DiscreteElevationModel.SAMPLES_PER_RADIAN);
+	GeoPoint outOfExtent = new GeoPoint(1, 1);
+	
+	TestElevationModelConstantHeight__Global constantDEM = new TestElevationModelConstantHeight__Global();
+	ContinuousElevationModel constantCEM = new ContinuousElevationModel	(constantDEM);
+	
+	TestElevationModelLinearHeight__Global linearDEM = new TestElevationModelLinearHeight__Global();
+	ContinuousElevationModel linearCEM = new ContinuousElevationModel	(linearDEM);
+
+	
+	// Constant DEM
+	
+	@Test(expected = NullPointerException.class)
+	public void testConstructorWithNullDem() {
+		new ContinuousElevationModel(null);
+	}
+
+	@Test
+	public void testElevationAtConstantElevation() {
+		assertEquals(1.0, constantCEM.elevationAt(origin), 10e-7);
+	}
+
+	@Test
+	public void testSlopeAtConstantElevationOutOfTheExtentOfTheCEM() {
+		assertEquals(0.0, constantCEM.slopeAt(origin), 10e-7);
+	}
+
+	@Test
+	public void testSlopeAtCornerPoint() {
+		assertEquals(0.0, constantCEM.slopeAt(origin), 10e-7);
+	}
+	
+	@Test
+	public void testSlopeAtMiddlePoint() {
+//		System.out.println("Longitude: " + DiscreteElevationModel.sampleIndex(middlePoint.longitude()));
+//		System.out.println("Latitude: " + DiscreteElevationModel.sampleIndex(middlePoint.latitude()));
+		assertEquals(0.0, constantCEM.slopeAt(middlePoint), 10e-7);
+	}
+
+	
+	// Linear DEM
+	
+	@Test
+	public void testElevationAtLinearElevation() {
+		assertEquals(0.0, linearCEM.elevationAt(origin), 10e-7);
+	}
+	
+	@Test
+	public void testElevationAtLinearElevation2() {
+		assertEquals(5.0, linearCEM.elevationAt(middlePoint), 10e-7);
+	}
+	
+	@Test
+	public void testElevationAtLinearElevation3() {
+		assertEquals(10.0, linearCEM.elevationAt(upperRightCorner), 10e-7);
+	}
+
+	@Test
+	public void testSlopeAtLinearElevationOutOfTheExtentOfTheCEM() {
+		assertEquals(0.0, linearCEM.slopeAt(outOfExtent), 10e-7);
+	}
 }
 
 class RandomElevationDEM implements DiscreteElevationModel {
@@ -146,6 +212,63 @@ class RandomElevationDEM implements DiscreteElevationModel {
     @Override
     public void close() throws Exception { }
 }
+
+
+
+class TestElevationModelConstantHeight__Global implements DiscreteElevationModel {
+
+	private final int elevation;
+	private final Interval2D extent; 
+	
+	public TestElevationModelConstantHeight__Global(Interval2D i2d, int e) {
+		extent = i2d;
+		elevation = e;
+	}
+	
+	public TestElevationModelConstantHeight__Global(int e) {
+		extent = new Interval2D(new Interval1D(0, 10), new Interval1D(0, 10));
+		elevation = e;
+	}
+	
+	public TestElevationModelConstantHeight__Global() {
+		extent = new Interval2D(new Interval1D(0, 10), new Interval1D(0, 10));
+		elevation = 1;
+	}
+	
+	@Override
+	public void close() throws Exception {
+	}
+
+	@Override
+	public Interval2D extent() {
+		return extent;
+	}
+
+	@Override
+	public double elevationSample(int x, int y) {
+		return elevation;
+	}
+
+}
+
+class TestElevationModelLinearHeight__Global implements DiscreteElevationModel {
+
+	@Override
+	public void close() throws Exception {
+	}
+
+	@Override
+	public Interval2D extent() {
+		return new Interval2D(new Interval1D(0, 10), new Interval1D(0, 10));
+	}
+
+	@Override
+	public double elevationSample(int x, int y) {
+		return x;
+	}
+
+}
+
 
 class ConstantSlopeDEM implements DiscreteElevationModel {
     public final static double INTER_SAMPLE_DISTANCE =
