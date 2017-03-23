@@ -49,32 +49,33 @@ public final class PanoramaComputer {
      * @param parameters
      *            Les paramètres qui définissent le Panorama à construire.
      * 
-     * @return Le Panorama à l'aide des paramètres passés en argument.
+     * @return Le Panorama créé à l'aide des paramètres passés en argument.
      */
     public Panorama computePanorama(PanoramaParameters parameters) {
         Panorama.Builder pb = new Panorama.Builder(parameters);
-        double angle;
-        double[] val = new double[parameters.height() + 1];
-        for (int x = 0; x < parameters.width(); ++x) {
-            ElevationProfile profile = new ElevationProfile(dem,
-                    parameters.observerPosition(), parameters.azimuthForX(x),
-                    parameters.maxDistance());
-            for (int y = parameters.height() - 1; y >= 0; --y) {
+        ElevationProfile profile;
+        double angle, dist, max = parameters.maxDistance(),
+                obsEl = parameters.observerElevation();
+        int width = parameters.width(), heightM = parameters.height() - 1;
+        DoubleUnaryOperator f;
+        GeoPoint obsPos = parameters.observerPosition(), point;
+        for (int x = 0; x < width; ++x) {
+            profile = new ElevationProfile(dem, obsPos,
+                    parameters.azimuthForX(x), max);
+            dist = 0;
+            for (int y = heightM; y >= 0; --y) {
                 angle = parameters.altitudeForY(y);
-                DoubleUnaryOperator f = rayToGroundDistance(profile,
-                        parameters.observerElevation(), tan(angle));
-                val[y] = firstIntervalContainingRoot(f, val[y + 1],
-                        parameters.maxDistance(), limit);
-                if (val[y] == Double.POSITIVE_INFINITY)
+                f = rayToGroundDistance(profile, obsEl, tan(angle));
+                dist = firstIntervalContainingRoot(f, dist, max, limit);
+                if (dist == Double.POSITIVE_INFINITY)
                     break;
-                val[y] = improveRoot(f, val[y], val[y] + limit, epsilon);
-                GeoPoint point = profile.positionAt(val[y]);
-                pb.setDistanceAt(x, y, (float) (val[y] / cos(angle)))
+                dist = improveRoot(f, dist, dist + limit, epsilon);
+                point = profile.positionAt(dist);
+                pb.setDistanceAt(x, y, (float) (dist / cos(angle)))
                         .setLongitudeAt(x, y, (float) point.longitude())
                         .setLatitudeAt(x, y, (float) point.latitude())
-                        .setElevationAt(x, y,
-                                (float) profile.elevationAt(val[y]))
-                        .setSlopeAt(x, y, (float) profile.slopeAt(val[y]));
+                        .setElevationAt(x, y, (float) profile.elevationAt(dist))
+                        .setSlopeAt(x, y, (float) profile.slopeAt(dist));
             }
         }
         return pb.build();
