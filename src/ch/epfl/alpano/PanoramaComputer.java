@@ -62,7 +62,7 @@ public final class PanoramaComputer {
             for (int y = parameters.height() - 1; y >= 0; --y) {
                 angle = parameters.altitudeForY(y);
                 DoubleUnaryOperator f = rayToGroundDistance(profile,
-                        parameters.observerElevation(), angle);
+                        parameters.observerElevation(), tan(angle));
                 val[y] = firstIntervalContainingRoot(f, val[y + 1],
                         parameters.maxDistance(), limit);
                 if (val[y] == Double.POSITIVE_INFINITY)
@@ -97,8 +97,7 @@ public final class PanoramaComputer {
      */
     public static DoubleUnaryOperator rayToGroundDistance(
             ElevationProfile profile, double ray0, double raySlope) {
-        return x -> ray0 + x * tan(raySlope) - profile.elevationAt(x)
-                + factor * sq(x);
+        return x -> ray0 + x * (raySlope + factor * x) - profile.elevationAt(x);
     }
 
 }
