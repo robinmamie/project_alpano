@@ -240,7 +240,7 @@ public final class PanoramaParameters {
      * 
      * @return L'appartenance ou non de la paire d'index au panorama.
      */
-    public boolean isValidSampleIndex(int x, int y) {
+    protected boolean isValidSampleIndex(int x, int y) {
         return 0 <= x && x < width() && 0 <= y && y < height();
     }
 
@@ -258,9 +258,8 @@ public final class PanoramaParameters {
      *             si les index passés en arguments ne sont pas valides pour le
      *             panorama.
      */
-    public int linearSampleIndex(int x, int y) {
-        checkArgument(isValidSampleIndex(x, y),
-                "The given indices are not valid for this panorama.");
+    protected int linearSampleIndex(int x, int y) {
+        assert isValidSampleIndex(x, y);
         return y * width() + x;
     }
 }
