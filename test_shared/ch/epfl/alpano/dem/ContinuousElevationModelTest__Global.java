@@ -31,7 +31,7 @@ public class ContinuousElevationModelTest__Global {
 
     @Test
     public void elevationAtReturns0OutsideOfExtent() {
-        DiscreteElevationModel dDEM = new ConstantElevationDEM(EXT_100_100, 1000);
+        DiscreteElevationModel dDEM = new ConstantElevationDEM__Prof(EXT_100_100, 1000);
         ContinuousElevationModel cDEM = new ContinuousElevationModel(dDEM);
         assertEquals(0, cDEM.elevationAt(pointForSampleIndex(101, 0)), 0);
     }
@@ -39,7 +39,7 @@ public class ContinuousElevationModelTest__Global {
     @Test
     public void elevationAtReturnsCorrectElevationInsideExtent() {
         double elevation = 1000;
-        DiscreteElevationModel dDEM = new ConstantElevationDEM(EXT_100_100, elevation);
+        DiscreteElevationModel dDEM = new ConstantElevationDEM__Prof(EXT_100_100, elevation);
         ContinuousElevationModel cDEM = new ContinuousElevationModel(dDEM);
         Random rng = newRandom();
         for (int i = 0; i < RANDOM_ITERATIONS; ++i) {
@@ -50,27 +50,27 @@ public class ContinuousElevationModelTest__Global {
 
     @Test
     public void elevationAtInterpolatesJustOutsideExtent() {
-        DiscreteElevationModel dDEM = new ConstantElevationDEM(EXT_100_100, 1000);
+        DiscreteElevationModel dDEM = new ConstantElevationDEM__Prof(EXT_100_100, 1000);
         ContinuousElevationModel cDEM = new ContinuousElevationModel(dDEM);
         assertEquals(500, cDEM.elevationAt(pointForSampleIndex(100.5, 10)), 1e-10);
     }
 
     @Test
     public void elevationAtReturnsCorrectInterpolatedElevation() {
-        DiscreteElevationModel dDEM = new ConstantSlopeDEM(EXT_100_100);
+        DiscreteElevationModel dDEM = new ConstantSlopeDEM__Global(EXT_100_100);
         ContinuousElevationModel cDEM = new ContinuousElevationModel(dDEM);
         Random rng = new Random();
         for (int i = 0; i < RANDOM_ITERATIONS; ++i) {
             double x = rng.nextDouble() * 100;
             double y = rng.nextDouble() * 100;
-            assertEquals((x + y) * ConstantSlopeDEM.INTER_SAMPLE_DISTANCE, cDEM.elevationAt(pointForSampleIndex(x, y)), 1e-6);
+            assertEquals((x + y) * ConstantSlopeDEM__Global.INTER_SAMPLE_DISTANCE, cDEM.elevationAt(pointForSampleIndex(x, y)), 1e-6);
         }
     }
 
     @Test
     public void elevationAtStaysWithinBoundsOnRandomTerrain() {
         int maxElevation = 1000;
-        DiscreteElevationModel dDEM = new RandomElevationDEM(EXT_13_13, maxElevation);
+        DiscreteElevationModel dDEM = new RandomElevationDEM__Global(EXT_13_13, maxElevation);
         ContinuousElevationModel cDEM = new ContinuousElevationModel(dDEM);
         Random rng = newRandom();
         for (int i = 0; i < RANDOM_ITERATIONS; ++i) {
@@ -83,7 +83,7 @@ public class ContinuousElevationModelTest__Global {
 
     @Test
     public void slopeAtReturnsCorrectInterpolatedSlope() {
-        DiscreteElevationModel dDEM = new ConstantSlopeDEM(EXT_100_100);
+        DiscreteElevationModel dDEM = new ConstantSlopeDEM__Global(EXT_100_100);
         ContinuousElevationModel cDEM = new ContinuousElevationModel(dDEM);
         Random rng = new Random();
         double expectedSlope = Math.acos(1 / Math.sqrt(3));
@@ -97,7 +97,7 @@ public class ContinuousElevationModelTest__Global {
     @Test
     public void slopeAtStaysWithinBoundsOnRandomTerrain() {
         int maxElevation = 1000;
-        DiscreteElevationModel dDEM = new RandomElevationDEM(EXT_13_13, maxElevation);
+        DiscreteElevationModel dDEM = new RandomElevationDEM__Global(EXT_13_13, maxElevation);
         ContinuousElevationModel cDEM = new ContinuousElevationModel(dDEM);
         Random rng = newRandom();
         for (int i = 0; i < RANDOM_ITERATIONS; ++i) {
@@ -179,11 +179,11 @@ public class ContinuousElevationModelTest__Global {
 	}
 }
 
-class RandomElevationDEM implements DiscreteElevationModel {
+class RandomElevationDEM__Global implements DiscreteElevationModel {
     private final Interval2D extent;
     private final double[][] elevations;
 
-    public RandomElevationDEM(Interval2D extent, int maxElevation) {
+    public RandomElevationDEM__Global(Interval2D extent, int maxElevation) {
         this.extent = extent;
         this.elevations = randomElevations(extent.iX().size(), extent.iY().size(), maxElevation);
     }
@@ -270,13 +270,13 @@ class TestElevationModelLinearHeight__Global implements DiscreteElevationModel {
 }
 
 
-class ConstantSlopeDEM implements DiscreteElevationModel {
+class ConstantSlopeDEM__Global implements DiscreteElevationModel {
     public final static double INTER_SAMPLE_DISTANCE =
             2d * Math.PI * 6_371_000d / (3600d * 360d);
 
     private final Interval2D extent;
 
-    public ConstantSlopeDEM(Interval2D extent) {
+    public ConstantSlopeDEM__Global(Interval2D extent) {
         this.extent = extent;
     }
 

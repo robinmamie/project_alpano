@@ -45,16 +45,16 @@ public class CompositeDiscreteElevationModelTest__Global {
     @SuppressWarnings("resource")
     @Test(expected = IllegalArgumentException.class)
     public void unionFailsIfExtentsNotUnionable() {
-        ConstantElevationDEM dem1 = new ConstantElevationDEM(ext1, 0);
-        ConstantElevationDEM dem2 = new ConstantElevationDEM(ext3, 0);
+        ConstantElevationDEM__Prof dem1 = new ConstantElevationDEM__Prof(ext1, 0);
+        ConstantElevationDEM__Prof dem2 = new ConstantElevationDEM__Prof(ext3, 0);
         dem1.union(dem2);
     }
 
     @SuppressWarnings("resource")
     @Test
     public void extentOfUnionIsUnionOfExtent() {
-        ConstantElevationDEM dem1 = new ConstantElevationDEM(ext1, 0);
-        ConstantElevationDEM dem2 = new ConstantElevationDEM(ext2, 0);
+        ConstantElevationDEM__Prof dem1 = new ConstantElevationDEM__Prof(ext1, 0);
+        ConstantElevationDEM__Prof dem2 = new ConstantElevationDEM__Prof(ext2, 0);
         DiscreteElevationModel dem12 = dem1.union(dem2);
         assertEquals(ext12, dem12.extent());
     }
@@ -62,8 +62,8 @@ public class CompositeDiscreteElevationModelTest__Global {
     @SuppressWarnings("resource")
     @Test(expected = IllegalArgumentException.class)
     public void elevationSampleFailsWhenOutsideOfExtent() {
-        ConstantElevationDEM dem1 = new ConstantElevationDEM(ext1, 0);
-        ConstantElevationDEM dem2 = new ConstantElevationDEM(ext2, 0);
+        ConstantElevationDEM__Prof dem1 = new ConstantElevationDEM__Prof(ext1, 0);
+        ConstantElevationDEM__Prof dem2 = new ConstantElevationDEM__Prof(ext2, 0);
         DiscreteElevationModel dem12 = dem1.union(dem2);
         dem12.elevationSample(0, 200_001);
     }
@@ -71,8 +71,8 @@ public class CompositeDiscreteElevationModelTest__Global {
     @SuppressWarnings("resource")
     @Test
     public void elevationSampleWorksOnBothSubDEMs() {
-        ConstantElevationDEM dem1 = new ConstantElevationDEM(ext1, 1);
-        ConstantElevationDEM dem2 = new ConstantElevationDEM(ext2, 2);
+        ConstantElevationDEM__Prof dem1 = new ConstantElevationDEM__Prof(ext1, 1);
+        ConstantElevationDEM__Prof dem2 = new ConstantElevationDEM__Prof(ext2, 2);
         DiscreteElevationModel dem12 = dem1.union(dem2);
         assertEquals(1, dem12.elevationSample(-100_000, 0), 0);
         assertEquals(1, dem12.elevationSample(100_000, 0), 0);
@@ -87,8 +87,8 @@ public class CompositeDiscreteElevationModelTest__Global {
     @SuppressWarnings("resource")
     @Test
     public void closeClosesBothSubDEMs() throws Exception {
-        ConstantElevationDEM dem1 = new ConstantElevationDEM(ext1, 0);
-        ConstantElevationDEM dem2 = new ConstantElevationDEM(ext2, 0);
+        ConstantElevationDEM__Prof dem1 = new ConstantElevationDEM__Prof(ext1, 0);
+        ConstantElevationDEM__Prof dem2 = new ConstantElevationDEM__Prof(ext2, 0);
         DiscreteElevationModel dem12 = dem1.union(dem2);
         dem12.close();
         assertTrue(dem1.isClosed);

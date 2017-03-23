@@ -10,7 +10,6 @@ import org.junit.runners.Suite.SuiteClasses;
     , Week2TestSuite__Prof.class
     , Week3TestSuite__Prof.class
     , Week4TestSuite__Prof.class
-    , Week5TestSuite__Global.class
     })
 
-public class GlobalTestSuite__Global {}
+public class GlobalTestSuite__Prof {}
