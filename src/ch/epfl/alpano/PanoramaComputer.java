@@ -2,7 +2,6 @@ package ch.epfl.alpano;
 
 import static ch.epfl.alpano.Math2.firstIntervalContainingRoot;
 import static ch.epfl.alpano.Math2.improveRoot;
-import static ch.epfl.alpano.Math2.sq;
 import static ch.epfl.alpano.Distance.EARTH_RADIUS;
 import static java.lang.Math.cos;
 import static java.lang.Math.tan;
@@ -53,24 +52,21 @@ public final class PanoramaComputer {
      */
     public Panorama computePanorama(PanoramaParameters parameters) {
         Panorama.Builder pb = new Panorama.Builder(parameters);
-        ElevationProfile profile;
-        double angle, dist, max = parameters.maxDistance(),
-                obsEl = parameters.observerElevation();
-        int width = parameters.width(), heightM = parameters.height() - 1;
-        DoubleUnaryOperator f;
-        GeoPoint obsPos = parameters.observerPosition(), point;
-        for (int x = 0; x < width; ++x) {
-            profile = new ElevationProfile(dem, obsPos,
-                    parameters.azimuthForX(x), max);
-            dist = 0;
-            for (int y = heightM; y >= 0; --y) {
-                angle = parameters.altitudeForY(y);
-                f = rayToGroundDistance(profile, obsEl, tan(angle));
-                dist = firstIntervalContainingRoot(f, dist, max, limit);
+        for (int x = 0; x < parameters.width(); ++x) {
+            ElevationProfile profile = new ElevationProfile(dem,
+                    parameters.observerPosition(), parameters.azimuthForX(x),
+                    parameters.maxDistance());
+            double dist = 0;
+            for (int y = parameters.height() - 1; y >= 0; --y) {
+                double angle = parameters.altitudeForY(y);
+                DoubleUnaryOperator f = rayToGroundDistance(profile,
+                        parameters.observerElevation(), tan(angle));
+                dist = firstIntervalContainingRoot(f, dist,
+                        parameters.maxDistance(), limit);
                 if (dist == Double.POSITIVE_INFINITY)
                     break;
                 dist = improveRoot(f, dist, dist + limit, epsilon);
-                point = profile.positionAt(dist);
+                GeoPoint point = profile.positionAt(dist);
                 pb.setDistanceAt(x, y, (float) (dist / cos(angle)))
                         .setLongitudeAt(x, y, (float) point.longitude())
                         .setLatitudeAt(x, y, (float) point.latitude())
