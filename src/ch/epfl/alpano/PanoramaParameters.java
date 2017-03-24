@@ -15,6 +15,8 @@ import static ch.epfl.alpano.Math2.angularDistance;
  */
 public final class PanoramaParameters {
 
+    private static final double epsilon = 1e-10;
+    
     private final GeoPoint observerPosition;
     private final int observerElevation;
     private final double centerAzimuth;
@@ -189,7 +191,7 @@ public final class PanoramaParameters {
      */
     public double xForAzimuth(double a) {
         double dist = angularDistance(centerAzimuth(), a);
-        checkArgument(Math.abs(dist) <= horizontalFieldOfView() / 2.0 + 1e-10,
+        checkArgument(Math.abs(dist) <= horizontalFieldOfView() / 2.0 + epsilon,
                 "The given azimuth is not defined in the panorama.");
         return centerPixelHor() + dist / delta();
     }
@@ -225,7 +227,7 @@ public final class PanoramaParameters {
      *             du panorma.
      */
     public double yForAltitude(double a) {
-        checkArgument(a <= verticalFieldOfView() / 2.0 + 1e-10,
+        checkArgument(a <= verticalFieldOfView() / 2.0 + epsilon,
                 "The given altitude is not defined in the panorama.");
         return centerPixelVer() - a / delta();
     }
