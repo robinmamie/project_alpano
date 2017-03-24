@@ -21,10 +21,10 @@ import ch.epfl.alpano.dem.ElevationProfile;
  */
 public final class PanoramaComputer {
 
-    private static final double k = 0.13;
-    private static final double factor = (1.0 - k) / (2 * EARTH_RADIUS);
-    private static final double limit = 64.0;
-    private static final double epsilon = 4.0;
+    private static final double K = 0.13;
+    private static final double FACTOR = (1.0 - K) / (2 * EARTH_RADIUS);
+    private static final double LIMIT = 64.0;
+    private static final double EPSILON = 4.0;
 
     private final ContinuousElevationModel dem;
 
@@ -62,10 +62,10 @@ public final class PanoramaComputer {
                 DoubleUnaryOperator f = rayToGroundDistance(profile,
                         parameters.observerElevation(), tan(angle));
                 dist = firstIntervalContainingRoot(f, dist,
-                        parameters.maxDistance(), limit);
+                        parameters.maxDistance(), LIMIT);
                 if (dist == Double.POSITIVE_INFINITY)
                     break;
-                dist = improveRoot(f, dist, dist + limit, epsilon);
+                dist = improveRoot(f, dist, dist + LIMIT, EPSILON);
                 GeoPoint point = profile.positionAt(dist);
                 pb.setDistanceAt(x, y, (float) (dist / cos(angle)))
                         .setLongitudeAt(x, y, (float) point.longitude())
@@ -94,7 +94,7 @@ public final class PanoramaComputer {
      */
     public static DoubleUnaryOperator rayToGroundDistance(
             ElevationProfile profile, double ray0, double raySlope) {
-        return x -> ray0 + x * (raySlope + factor * x) - profile.elevationAt(x);
+        return x -> ray0 + x * (raySlope + FACTOR * x) - profile.elevationAt(x);
     }
 
 }

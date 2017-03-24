@@ -1,11 +1,12 @@
 package ch.epfl.alpano;
 
-import static java.util.Objects.requireNonNull;
-import static ch.epfl.alpano.Preconditions.checkArgument;
-import static ch.epfl.alpano.Azimuth.isCanonical;
 import static ch.epfl.alpano.Azimuth.canonicalize;
+import static ch.epfl.alpano.Azimuth.isCanonical;
 import static ch.epfl.alpano.Math2.PI2;
 import static ch.epfl.alpano.Math2.angularDistance;
+import static ch.epfl.alpano.Preconditions.checkArgument;
+import static java.lang.Math.abs;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Définit les paramètres utiles à la création d'un panorama. Classe immuable.
@@ -16,7 +17,7 @@ import static ch.epfl.alpano.Math2.angularDistance;
 public final class PanoramaParameters {
 
     private static final double epsilon = 1e-10;
-    
+
     private final GeoPoint observerPosition;
     private final int observerElevation;
     private final double centerAzimuth;
@@ -46,7 +47,7 @@ public final class PanoramaParameters {
      * @throws IllegalArgumentException
      *             si l'une des conditions précitées n'est pas remplie.
      * @throws NullPointerException
-     *             si la position ou l'altitude de l'observateur sont null.
+     *             si la position l'observateur est null.
      */
     public PanoramaParameters(GeoPoint observerPosition, int observerElevation,
             double centerAzimuth, double horizontalFieldOfView, int maxDistance,
@@ -191,7 +192,7 @@ public final class PanoramaParameters {
      */
     public double xForAzimuth(double a) {
         double dist = angularDistance(centerAzimuth(), a);
-        checkArgument(Math.abs(dist) <= horizontalFieldOfView() / 2.0 + epsilon,
+        checkArgument(abs(dist) <= horizontalFieldOfView() / 2.0 + epsilon,
                 "The given azimuth is not defined in the panorama.");
         return centerPixelHor() + dist / delta();
     }
@@ -227,7 +228,7 @@ public final class PanoramaParameters {
      *             du panorma.
      */
     public double yForAltitude(double a) {
-        checkArgument(a <= verticalFieldOfView() / 2.0 + epsilon,
+        checkArgument(abs(a) <= verticalFieldOfView() / 2.0 + epsilon,
                 "The given altitude is not defined in the panorama.");
         return centerPixelVer() - a / delta();
     }
