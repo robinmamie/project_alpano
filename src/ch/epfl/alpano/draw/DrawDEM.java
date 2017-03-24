@@ -1,4 +1,4 @@
-package ch.epfl.alpano.dem;
+package ch.epfl.alpano.draw;
 
 import static java.awt.image.BufferedImage.TYPE_INT_RGB;
 import static java.lang.Math.PI;
@@ -15,6 +15,8 @@ import javax.imageio.ImageIO;
 import ch.epfl.alpano.GeoPoint;
 import ch.epfl.alpano.Interval1D;
 import ch.epfl.alpano.Interval2D;
+import ch.epfl.alpano.dem.ContinuousElevationModel;
+import ch.epfl.alpano.dem.DiscreteElevationModel;
 
 /**
  * Dessine un MNT test.

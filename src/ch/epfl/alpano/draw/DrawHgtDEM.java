@@ -1,4 +1,4 @@
-package ch.epfl.alpano.dem;
+package ch.epfl.alpano.draw;
 
 import static java.awt.image.BufferedImage.TYPE_INT_RGB;
 import static java.lang.Math.max;
@@ -11,6 +11,9 @@ import java.io.File;
 import javax.imageio.ImageIO;
 
 import ch.epfl.alpano.GeoPoint;
+import ch.epfl.alpano.dem.ContinuousElevationModel;
+import ch.epfl.alpano.dem.DiscreteElevationModel;
+import ch.epfl.alpano.dem.HgtDiscreteElevationModel;
 
 /**
  * Dessine un HgtDEM.
