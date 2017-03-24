@@ -2,7 +2,6 @@ package ch.epfl.alpano;
 
 import static ch.epfl.alpano.Math2.firstIntervalContainingRoot;
 import static ch.epfl.alpano.Math2.improveRoot;
-import static ch.epfl.alpano.Math2.sq;
 import static ch.epfl.alpano.Distance.EARTH_RADIUS;
 import static java.lang.Math.cos;
 import static java.lang.Math.tan;
@@ -22,10 +21,10 @@ import ch.epfl.alpano.dem.ElevationProfile;
  */
 public final class PanoramaComputer {
 
-    private static final double k = 0.13;
-    private static final double factor = (1.0 - k) / (2 * EARTH_RADIUS);
-    private static final double limit = 64.0;
-    private static final double epsilon = 4.0;
+    private static final double K = 0.13;
+    private static final double FACTOR = (1.0 - K) / (2 * EARTH_RADIUS);
+    private static final double LIMIT = 64.0;
+    private static final double EPSILON = 4.0;
 
     private final ContinuousElevationModel dem;
 
@@ -49,32 +48,30 @@ public final class PanoramaComputer {
      * @param parameters
      *            Les paramètres qui définissent le Panorama à construire.
      * 
-     * @return Le Panorama à l'aide des paramètres passés en argument.
+     * @return Le Panorama créé à l'aide des paramètres passés en argument.
      */
     public Panorama computePanorama(PanoramaParameters parameters) {
         Panorama.Builder pb = new Panorama.Builder(parameters);
-        double angle;
         for (int x = 0; x < parameters.width(); ++x) {
             ElevationProfile profile = new ElevationProfile(dem,
                     parameters.observerPosition(), parameters.azimuthForX(x),
                     parameters.maxDistance());
-            double[] val = new double[parameters.height() + 1];
+            double dist = 0;
             for (int y = parameters.height() - 1; y >= 0; --y) {
-                angle = parameters.altitudeForY(y);
+                double angle = parameters.altitudeForY(y);
                 DoubleUnaryOperator f = rayToGroundDistance(profile,
-                        parameters.observerElevation(), angle);
-                val[y] = firstIntervalContainingRoot(f, val[y + 1],
-                        parameters.maxDistance(), limit);
-                if (val[y] == Double.POSITIVE_INFINITY)
+                        parameters.observerElevation(), tan(angle));
+                dist = firstIntervalContainingRoot(f, dist,
+                        parameters.maxDistance(), LIMIT);
+                if (dist == Double.POSITIVE_INFINITY)
                     break;
-                val[y] = improveRoot(f, val[y], val[y] + limit, epsilon);
-                GeoPoint point = profile.positionAt(val[y]);
-                pb.setDistanceAt(x, y, (float) (val[y] / cos(angle)))
+                dist = improveRoot(f, dist, dist + LIMIT, EPSILON);
+                GeoPoint point = profile.positionAt(dist);
+                pb.setDistanceAt(x, y, (float) (dist / cos(angle)))
                         .setLongitudeAt(x, y, (float) point.longitude())
                         .setLatitudeAt(x, y, (float) point.latitude())
-                        .setElevationAt(x, y,
-                                (float) profile.elevationAt(val[y]))
-                        .setSlopeAt(x, y, (float) profile.slopeAt(val[y]));
+                        .setElevationAt(x, y, (float) profile.elevationAt(dist))
+                        .setSlopeAt(x, y, (float) profile.slopeAt(dist));
             }
         }
         return pb.build();
@@ -97,8 +94,7 @@ public final class PanoramaComputer {
      */
     public static DoubleUnaryOperator rayToGroundDistance(
             ElevationProfile profile, double ray0, double raySlope) {
-        return x -> ray0 + x * tan(raySlope) - profile.elevationAt(x)
-                + factor * sq(x);
+        return x -> ray0 + x * (raySlope + FACTOR * x) - profile.elevationAt(x);
     }
 
 }

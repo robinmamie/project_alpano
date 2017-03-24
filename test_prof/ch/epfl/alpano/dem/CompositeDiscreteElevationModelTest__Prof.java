@@ -13,7 +13,7 @@ import org.junit.Test;
 import ch.epfl.alpano.Interval1D;
 import ch.epfl.alpano.Interval2D;
 
-public class CompositeDiscreteElevationModelTest {
+public class CompositeDiscreteElevationModelTest__Prof {
     private final static Interval2D ext1 = new Interval2D(
             new Interval1D(-100_000, 100_000),
             new Interval1D(0, 100_000));
@@ -96,12 +96,12 @@ public class CompositeDiscreteElevationModelTest {
     }
 }
 
-class ConstantElevationDEM implements DiscreteElevationModel {
+class ConstantElevationDEM__Prof implements DiscreteElevationModel {
     private final Interval2D extent;
     private final double elevation;
     boolean isClosed = false;
 
-    public ConstantElevationDEM(Interval2D extent, double elevation) {
+    public ConstantElevationDEM__Prof(Interval2D extent, double elevation) {
         this.extent = extent;
         this.elevation = elevation;
     }

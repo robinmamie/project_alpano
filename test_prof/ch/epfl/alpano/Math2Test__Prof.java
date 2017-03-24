@@ -25,7 +25,7 @@ import java.util.function.DoubleUnaryOperator;
 
 import org.junit.Test;
 
-public class Math2Test {
+public class Math2Test__Prof {
     @Test
     public void sqSquaresRandomValues() {
         Random rng = newRandom();

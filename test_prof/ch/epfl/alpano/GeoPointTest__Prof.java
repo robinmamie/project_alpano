@@ -1,4 +1,4 @@
-package ch.epfl.alpano.testM;
+package ch.epfl.alpano;
 
 import static java.lang.Math.toDegrees;
 import static java.lang.Math.toRadians;
@@ -8,7 +8,7 @@ import org.junit.Test;
 
 import ch.epfl.alpano.GeoPoint;
 
-public class GeoPointTest {
+public class GeoPointTest__Prof {
     private static GeoPoint CORNAVIN = new GeoPoint(toRadians(6.14308), toRadians(46.21023));
     private static GeoPoint M1_EPFL = new GeoPoint(toRadians(6.56599), toRadians(46.52224));
     private static GeoPoint FEDERAL_PALACE = new GeoPoint(toRadians(7.44428), toRadians(46.94652));

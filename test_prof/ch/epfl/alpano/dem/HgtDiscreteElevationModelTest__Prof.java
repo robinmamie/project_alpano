@@ -25,7 +25,7 @@ import org.junit.Test;
 import ch.epfl.alpano.Interval1D;
 import ch.epfl.alpano.Interval2D;
 
-public class HgtDiscreteElevationModelTest {
+public class HgtDiscreteElevationModelTest__Prof {
     private final static long HGT_FILE_SIZE = 3601L * 3601L * 2L;
     private static Path FAKE_HGT_DIR, FAKE_HGT_FILE;
 

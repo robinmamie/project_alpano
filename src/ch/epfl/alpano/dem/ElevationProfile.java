@@ -47,7 +47,8 @@ public final class ElevationProfile {
      * 
      * @throws IllegalArgumentException
      *             si les restrictions décrites ne sont pas remplies
-     * @thorws NullPointerException si elevation ou origin sont null.
+     * @throws NullPointerException
+     *             si elevation ou origin sont null.
      */
     public ElevationProfile(ContinuousElevationModel elevation, GeoPoint origin,
             double azimuth, double length) {
@@ -55,8 +56,7 @@ public final class ElevationProfile {
         this.cem = requireNonNull(elevation, "The given CEM is null.");
         requireNonNull(origin, "The given origin is null.");
 
-        checkArgument(0 < length,
-                "The given length isn't strictly positive.");
+        checkArgument(0 < length, "The given length isn't strictly positive.");
         this.length = length;
 
         checkArgument(isCanonical(azimuth),
@@ -109,6 +109,8 @@ public final class ElevationProfile {
         double div = scalb(x, -12);
         int v = (int) div;
         double s = div % 1;
+        if(v == values.size()-1)
+            return values.get(values.size()-1);
         GeoPoint fstP = values.get(v);
         GeoPoint sndP = values.get(v + 1);
         double lon = lerp(fstP.longitude(), sndP.longitude(), s);

@@ -1,4 +1,4 @@
-package ch.epfl.alpano.testM;
+package ch.epfl.alpano;
 
 import static ch.epfl.test.ObjectTest.hashCodeIsCompatibleWithEquals;
 import static ch.epfl.test.TestRandomizer.RANDOM_ITERATIONS;
@@ -14,7 +14,7 @@ import org.junit.Test;
 import ch.epfl.alpano.Interval1D;
 import ch.epfl.alpano.Interval2D;
 
-public class Interval2DTest {
+public class Interval2DTest__Prof {
     private static Interval2D newInterval2D(int x1, int x2, int y1, int y2) {
         return new Interval2D(new Interval1D(x1, x2), new Interval1D(y1, y2));
     }

@@ -264,7 +264,7 @@ public final class Panorama {
          *            L'index horizontal.
          * @param y
          *            L'index vertical.
-         * @param longitude
+         * @param latitude
          *            La latitude qui va redéfinir le point.
          * 
          * @return L'instance actualisée du Builder.
@@ -287,7 +287,7 @@ public final class Panorama {
          *            L'index horizontal.
          * @param y
          *            L'index vertical.
-         * @param longitude
+         * @param elevation
          *            L'élévation qui va redéfinir le point.
          * 
          * @return L'instance actualisée du Builder.
@@ -310,7 +310,7 @@ public final class Panorama {
          *            L'index horizontal.
          * @param y
          *            L'index vertical.
-         * @param longitude
+         * @param slope
          *            La pente qui va redéfinir le point.
          * 
          * @return L'instance actualisée du Builder.

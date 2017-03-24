@@ -15,7 +15,7 @@ import ch.epfl.alpano.GeoPoint;
 import ch.epfl.alpano.Interval1D;
 import ch.epfl.alpano.Interval2D;
 
-public class ContinuousElevationModelTest {
+public class ContinuousElevationModelTest__Prof {
     private final static Interval2D EXT_100_100 = new Interval2D(
             new Interval1D(0, 100),
             new Interval1D(0, 100));
@@ -31,7 +31,7 @@ public class ContinuousElevationModelTest {
 
     @Test
     public void elevationAtReturns0OutsideOfExtent() {
-        DiscreteElevationModel dDEM = new ConstantElevationDEM(EXT_100_100, 1000);
+        DiscreteElevationModel dDEM = new ConstantElevationDEM__Prof(EXT_100_100, 1000);
         ContinuousElevationModel cDEM = new ContinuousElevationModel(dDEM);
         assertEquals(0, cDEM.elevationAt(pointForSampleIndex(101, 0)), 0);
     }
@@ -39,7 +39,7 @@ public class ContinuousElevationModelTest {
     @Test
     public void elevationAtReturnsCorrectElevationInsideExtent() {
         double elevation = 1000;
-        DiscreteElevationModel dDEM = new ConstantElevationDEM(EXT_100_100, elevation);
+        DiscreteElevationModel dDEM = new ConstantElevationDEM__Prof(EXT_100_100, elevation);
         ContinuousElevationModel cDEM = new ContinuousElevationModel(dDEM);
         Random rng = newRandom();
         for (int i = 0; i < RANDOM_ITERATIONS; ++i) {
@@ -50,7 +50,7 @@ public class ContinuousElevationModelTest {
 
     @Test
     public void elevationAtInterpolatesJustOutsideExtent() {
-        DiscreteElevationModel dDEM = new ConstantElevationDEM(EXT_100_100, 1000);
+        DiscreteElevationModel dDEM = new ConstantElevationDEM__Prof(EXT_100_100, 1000);
         ContinuousElevationModel cDEM = new ContinuousElevationModel(dDEM);
         assertEquals(500, cDEM.elevationAt(pointForSampleIndex(100.5, 10)), 1e-10);
     }

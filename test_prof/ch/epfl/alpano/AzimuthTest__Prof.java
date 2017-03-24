@@ -24,7 +24,7 @@ import java.util.Random;
 
 import org.junit.Test;
 
-public class AzimuthTest {
+public class AzimuthTest__Prof {
     @Test
     public void isCanonicalIsTrueFor0() {
         assertTrue(isCanonical(0));

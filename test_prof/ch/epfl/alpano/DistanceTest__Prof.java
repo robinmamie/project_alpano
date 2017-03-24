@@ -10,7 +10,7 @@ import java.util.Random;
 
 import org.junit.Test;
 
-public class DistanceTest {
+public class DistanceTest__Prof {
     private static double EARTH_CIRCUMFERENCE = 40_030_174; // rounded to nearest integer
 
     @Test

@@ -10,7 +10,7 @@ import ch.epfl.alpano.GeoPoint;
 import ch.epfl.alpano.Interval1D;
 import ch.epfl.alpano.Interval2D;
 
-public class ElevationProfileTest {
+public class ElevationProfileTest__Prof {
     @Test(expected = NullPointerException.class)
     public void constructorFailsWhenElevationModelIsNull() {
         new ElevationProfile(null, new GeoPoint(0,0), 0, 100);
