@@ -65,8 +65,8 @@ public final class Summit {
 
     @Override
     public String toString() {
-        return new StringBuilder(name).append(" ").append(position).append(" ")
-                .append(elevation).toString();
+        return new StringBuilder(name()).append(" ").append(position())
+                .append(" ").append(elevation()).toString();
     }
 
 }

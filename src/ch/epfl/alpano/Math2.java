@@ -172,9 +172,8 @@ public interface Math2 {
             double epsilon) {
         checkArgument(f.applyAsDouble(x1) * f.applyAsDouble(x2) < 0,
                 "The interval does not contain a root.");
-        double mid;
         while (x2 - x1 > epsilon) {
-            mid = (x1 + x2) / 2.0;
+            double mid = (x1 + x2) / 2.0;
             if (f.applyAsDouble(x1) * f.applyAsDouble(mid) < 0)
                 x2 = mid;
             else

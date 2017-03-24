@@ -20,9 +20,9 @@ import ch.epfl.alpano.Interval2D;
 public final class HgtDiscreteElevationModel implements DiscreteElevationModel {
 
     private static final int SIDE = SAMPLES_PER_DEGREE + 1;
-    private final ShortBuffer source;
 
-    private final Interval2D ext;
+    private final ShortBuffer source;
+    private final Interval2D extent;
 
     /**
      * Construit un MNT discret qui prend ses valeurs, des altitudes, dans un
@@ -103,7 +103,7 @@ public final class HgtDiscreteElevationModel implements DiscreteElevationModel {
         int latIndex = (ns == 'N' ? 1 : -1) * lat * SAMPLES_PER_DEGREE;
         Interval1D longi = new Interval1D(lonIndex, lonIndex + SIDE - 1);
         Interval1D latit = new Interval1D(latIndex, latIndex + SIDE - 1);
-        this.ext = new Interval2D(longi, latit);
+        this.extent = new Interval2D(longi, latit);
     }
 
     @Override
@@ -112,7 +112,7 @@ public final class HgtDiscreteElevationModel implements DiscreteElevationModel {
 
     @Override
     public Interval2D extent() {
-        return ext;
+        return extent;
     }
 
     @Override

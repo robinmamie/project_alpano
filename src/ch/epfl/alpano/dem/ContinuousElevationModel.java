@@ -13,7 +13,6 @@ import static java.util.Objects.requireNonNull;
 import java.util.function.BiFunction;
 
 import ch.epfl.alpano.GeoPoint;
-import ch.epfl.alpano.Interval2D;
 
 /**
  * Représente un MNT continu. Classe immuable.
@@ -24,19 +23,14 @@ import ch.epfl.alpano.Interval2D;
 public final class ContinuousElevationModel {
 
     /**
-     * MNT discret utilisé.
-     */
-    private final DiscreteElevationModel dem;
-
-    /**
-     * Étendue du MNT utilisé.
-     */
-    private final Interval2D extent;
-
-    /**
      * Distance prise en compte pour le calcul de la pente
      */
     private static final double D = toMeters(1 / SAMPLES_PER_RADIAN);
+
+    /**
+     * MNT discret utilisé.
+     */
+    private final DiscreteElevationModel dem;
 
     /**
      * Construit un MNT continu à partir d'un MNT discret.
@@ -49,12 +43,6 @@ public final class ContinuousElevationModel {
      */
     public ContinuousElevationModel(DiscreteElevationModel dem) {
         this.dem = requireNonNull(dem, "The given DEM is null.");
-
-        /*
-         * Sauvegarde directement l'étendue du MNT afin de gagner en vitesse
-         * d'exécution.
-         */
-        this.extent = dem.extent();
     }
 
     /**
@@ -69,7 +57,7 @@ public final class ContinuousElevationModel {
      *         en-dehors de son champ de définition.
      */
     private double elevationAtIndex(int x, int y) {
-        return extent.contains(x, y) ? dem.elevationSample(x, y) : 0;
+        return dem.extent().contains(x, y) ? dem.elevationSample(x, y) : 0;
     }
 
     /**

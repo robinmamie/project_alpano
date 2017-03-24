@@ -4,8 +4,8 @@ import static ch.epfl.alpano.Azimuth.isCanonical;
 import static ch.epfl.alpano.Azimuth.toMath;
 import static ch.epfl.alpano.Distance.toRadians;
 import static ch.epfl.alpano.Math2.lerp;
+import static ch.epfl.alpano.Math2.angularDistance;
 import static ch.epfl.alpano.Preconditions.checkArgument;
-import static java.lang.Math.PI;
 import static java.lang.Math.asin;
 import static java.lang.Math.cos;
 import static java.lang.Math.scalb;
@@ -25,10 +25,12 @@ import ch.epfl.alpano.GeoPoint;
  */
 public final class ElevationProfile {
 
-    private final ArrayList<GeoPoint> values;
+    private final static int STEP = 4096;
+
     private final ContinuousElevationModel cem;
     private final double length;
-    private final int step = 4096;
+
+    private final ArrayList<GeoPoint> values;
 
     /**
      * Construit un profil altimétrique.
@@ -65,7 +67,7 @@ public final class ElevationProfile {
 
         this.values = new ArrayList<>();
 
-        for (int i = 0; i < length + step; i += step)
+        for (int i = 0; i < length + STEP; i += STEP)
             values.add(newPoint(origin, azimuth, toRadians(i)));
     }
 
@@ -84,8 +86,8 @@ public final class ElevationProfile {
     private GeoPoint newPoint(GeoPoint p, double a, double x) {
         double lat = asin(sin(p.latitude()) * cos(x)
                 + cos(p.latitude()) * sin(x) * cos(a));
-        double lon = ((p.longitude() - asin(sin(a) * sin(x) / cos(lat)) + PI)
-                % (2 * PI)) - PI;
+        double lon = angularDistance(asin(sin(a) * sin(x) / cos(lat)),
+                p.longitude());
 
         return new GeoPoint(lon, lat);
     }
@@ -108,9 +110,9 @@ public final class ElevationProfile {
                 "The position is not defined in the ElevationProfile.");
         double div = scalb(x, -12);
         int v = (int) div;
+        if (v == values.size() - 1)
+            return values.get(values.size() - 1);
         double s = div % 1;
-        if(v == values.size()-1)
-            return values.get(values.size()-1);
         GeoPoint fstP = values.get(v);
         GeoPoint sndP = values.get(v + 1);
         double lon = lerp(fstP.longitude(), sndP.longitude(), s);

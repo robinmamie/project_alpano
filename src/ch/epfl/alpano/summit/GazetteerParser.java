@@ -20,12 +20,14 @@ import ch.epfl.alpano.GeoPoint;
  */
 public final class GazetteerParser {
 
+    private static final int NAME_POSITION = 6;
+    
     private GazetteerParser() {
     }
 
     private static String getName(String[] line) {
         StringBuilder sb = new StringBuilder();
-        for (int i = 6; i < line.length; ++i) {
+        for (int i = NAME_POSITION; i < line.length; ++i) {
             sb.append(line[i]);
             if (i + 1 < line.length)
                 sb.append(" ");
@@ -37,8 +39,8 @@ public final class GazetteerParser {
         String[] hmsS = degrees.split(":");
         double[] hms = { Integer.parseInt(hmsS[0]), Integer.parseInt(hmsS[1]),
                 Integer.parseInt(hmsS[2]) };
-        double minSec = (hms[1] + hms[2] / 60.0) / 60.0;
-        hms[0] += (hms[0] >= 0 ? 1 : -1) * minSec;
+        double fractional = (hms[1] + hms[2] / 60.0) / 60.0;
+        hms[0] += (degrees.charAt(0) == '-' ? -1 : 1) * fractional;
         return Math.toRadians(hms[0]);
     }
 
@@ -60,9 +62,9 @@ public final class GazetteerParser {
      */
     public static List<Summit> readSummitsFrom(File file) throws IOException {
         List<Summit> summits = new ArrayList<>();
-        String s;
         try (BufferedReader b = new BufferedReader(
                 new InputStreamReader(new FileInputStream(file)))) {
+            String s;
             while ((s = b.readLine()) != null) {
                 // Seperates the line in blocks
                 // Cuts where there is one or more whitespace
