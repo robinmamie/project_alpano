@@ -211,6 +211,11 @@ public final class Panorama {
                         "Panorama Builder already built.");
         }
 
+        private void checkIndex(int x, int y, String m) {
+            if (!parameters.isValidSampleIndex(x, y))
+                throw new IndexOutOfBoundsException(m);
+        }
+
         /**
          * Redéfinit la distance du point <i>(x,y)</i> du Panorama par rapport à
          * l'obervateur.
@@ -227,9 +232,12 @@ public final class Panorama {
          * @throws IllegalStateException
          *             si un Panorama a déjà été construit à l'aide de ce
          *             Builder.
+         * @throws IndexOutOfBoundsException
+         *             si le point n'est pas défini dans le Panorama.
          */
         public Builder setDistanceAt(int x, int y, float distance) {
             checkIfBuilt();
+            checkIndex(x, y, "Index not valid for this distance.");
             this.distance[parameters.linearSampleIndex(x, y)] = distance;
             return this;
         }
@@ -249,9 +257,12 @@ public final class Panorama {
          * @throws IllegalStateException
          *             si un Panorama a déjà été construit à l'aide de ce
          *             Builder.
+         * @throws IndexOutOfBoundsException
+         *             si le point n'est pas défini dans le Panorama.
          */
         public Builder setLongitudeAt(int x, int y, float longitude) {
             checkIfBuilt();
+            checkIndex(x, y, "Index not valid for this longitude.");
             this.longitude[parameters.linearSampleIndex(x, y)] = longitude;
             return this;
 
@@ -272,9 +283,12 @@ public final class Panorama {
          * @throws IllegalStateException
          *             si un Panorama a déjà été construit à l'aide de ce
          *             Builder.
+         * @throws IndexOutOfBoundsException
+         *             si le point n'est pas défini dans le Panorama.
          */
         public Builder setLatitudeAt(int x, int y, float latitude) {
             checkIfBuilt();
+            checkIndex(x, y, "Index not valid for this latitude.");
             this.latitude[parameters.linearSampleIndex(x, y)] = latitude;
             return this;
 
@@ -295,9 +309,12 @@ public final class Panorama {
          * @throws IllegalStateException
          *             si un Panorama a déjà été construit à l'aide de ce
          *             Builder.
+         * @throws IndexOutOfBoundsException
+         *             si le point n'est pas défini dans le Panorama.
          */
         public Builder setElevationAt(int x, int y, float elevation) {
             checkIfBuilt();
+            checkIndex(x, y, "Index not valid for this elevation.");
             this.elevation[parameters.linearSampleIndex(x, y)] = elevation;
             return this;
 
@@ -318,9 +335,12 @@ public final class Panorama {
          * @throws IllegalStateException
          *             si un Panorama a déjà été construit à l'aide de ce
          *             Builder.
+         * @throws IndexOutOfBoundsException
+         *             si le point n'est pas défini dans le Panorama.
          */
         public Builder setSlopeAt(int x, int y, float slope) {
             checkIfBuilt();
+            checkIndex(x, y, "Index not valid for this slope.");
             this.slope[parameters.linearSampleIndex(x, y)] = slope;
             return this;
         }
