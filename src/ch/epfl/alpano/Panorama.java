@@ -3,6 +3,8 @@ package ch.epfl.alpano;
 import static java.util.Objects.requireNonNull;
 
 import java.util.Arrays;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 
 /**
  * Classe contenant toutes les informations utiles à la représentation graphique
@@ -41,9 +43,10 @@ public final class Panorama {
         return parameters;
     }
 
-    private void checkIndex(int x, int y, String m) {
+    private float getParameter(int x, int y, float[] parameter) {
         if (!parameters.isValidSampleIndex(x, y))
-            throw new IndexOutOfBoundsException(m);
+            throw new IndexOutOfBoundsException();
+        return parameter[parameters.linearSampleIndex(x, y)];
     }
 
     /**
@@ -63,8 +66,7 @@ public final class Panorama {
      *             si le point n'est pas défini dans le Panorama.
      */
     public float distanceAt(int x, int y) {
-        checkIndex(x, y, "Index not valid for this distance.");
-        return distance[parameters().linearSampleIndex(x, y)];
+        return getParameter(x, y, distance);
     }
 
     /**
@@ -105,8 +107,7 @@ public final class Panorama {
      *             si le point n'est pas défini dans le Panorama.
      */
     public float longitudeAt(int x, int y) {
-        checkIndex(x, y, "Index not valid for this longitude.");
-        return longitude[parameters().linearSampleIndex(x, y)];
+        return getParameter(x, y, longitude);
     }
 
     /**
@@ -125,8 +126,7 @@ public final class Panorama {
      *             si le point n'est pas défini dans le Panorama.
      */
     public float latitudeAt(int x, int y) {
-        checkIndex(x, y, "Index not valid for this latitude.");
-        return latitude[parameters().linearSampleIndex(x, y)];
+        return getParameter(x, y, latitude);
     }
 
     /**
@@ -145,8 +145,7 @@ public final class Panorama {
      *             si le point n'est pas défini dans le Panorama.
      */
     public float elevationAt(int x, int y) {
-        checkIndex(x, y, "Index not valid for this altitude.");
-        return elevation[parameters().linearSampleIndex(x, y)];
+        return getParameter(x, y, elevation);
     }
 
     /**
@@ -164,8 +163,7 @@ public final class Panorama {
      *             si le point n'est pas défini dans le Panorama.
      */
     public float slopeAt(int x, int y) {
-        checkIndex(x, y, "Index not valid for this slope.");
-        return slope[parameters().linearSampleIndex(x, y)];
+        return getParameter(x, y, slope);
     }
 
     /**
@@ -205,15 +203,15 @@ public final class Panorama {
             this.built = false;
         }
 
-        private void checkIfBuilt() {
+        private Builder setParameter(int x, int y, float[] parameter,
+                float value) {
             if (built)
                 throw new IllegalStateException(
                         "Panorama Builder already built.");
-        }
-
-        private void checkIndex(int x, int y, String m) {
             if (!parameters.isValidSampleIndex(x, y))
-                throw new IndexOutOfBoundsException(m);
+                throw new IndexOutOfBoundsException();
+            parameter[parameters.linearSampleIndex(x, y)] = value;
+            return this;
         }
 
         /**
@@ -236,10 +234,7 @@ public final class Panorama {
          *             si le point n'est pas défini dans le Panorama.
          */
         public Builder setDistanceAt(int x, int y, float distance) {
-            checkIfBuilt();
-            checkIndex(x, y, "Index not valid for this distance.");
-            this.distance[parameters.linearSampleIndex(x, y)] = distance;
-            return this;
+            return setParameter(x, y, this.distance, distance);
         }
 
         /**
@@ -261,11 +256,7 @@ public final class Panorama {
          *             si le point n'est pas défini dans le Panorama.
          */
         public Builder setLongitudeAt(int x, int y, float longitude) {
-            checkIfBuilt();
-            checkIndex(x, y, "Index not valid for this longitude.");
-            this.longitude[parameters.linearSampleIndex(x, y)] = longitude;
-            return this;
-
+            return setParameter(x, y, this.longitude, longitude);
         }
 
         /**
@@ -287,11 +278,7 @@ public final class Panorama {
          *             si le point n'est pas défini dans le Panorama.
          */
         public Builder setLatitudeAt(int x, int y, float latitude) {
-            checkIfBuilt();
-            checkIndex(x, y, "Index not valid for this latitude.");
-            this.latitude[parameters.linearSampleIndex(x, y)] = latitude;
-            return this;
-
+            return setParameter(x, y, this.latitude, latitude);
         }
 
         /**
@@ -313,11 +300,7 @@ public final class Panorama {
          *             si le point n'est pas défini dans le Panorama.
          */
         public Builder setElevationAt(int x, int y, float elevation) {
-            checkIfBuilt();
-            checkIndex(x, y, "Index not valid for this elevation.");
-            this.elevation[parameters.linearSampleIndex(x, y)] = elevation;
-            return this;
-
+            return setParameter(x, y, this.elevation, elevation);
         }
 
         /**
@@ -339,10 +322,7 @@ public final class Panorama {
          *             si le point n'est pas défini dans le Panorama.
          */
         public Builder setSlopeAt(int x, int y, float slope) {
-            checkIfBuilt();
-            checkIndex(x, y, "Index not valid for this slope.");
-            this.slope[parameters.linearSampleIndex(x, y)] = slope;
-            return this;
+            return setParameter(x, y, this.slope, slope);
         }
 
         /**
@@ -355,7 +335,9 @@ public final class Panorama {
          *             Builder.
          */
         public Panorama build() {
-            checkIfBuilt();
+            if (built)
+                throw new IllegalStateException(
+                        "Panorama Builder already built.");
             this.built = true;
             return new Panorama(parameters, distance, longitude, latitude,
                     elevation, slope);
