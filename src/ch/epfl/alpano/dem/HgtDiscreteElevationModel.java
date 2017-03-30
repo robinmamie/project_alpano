@@ -41,10 +41,8 @@ public final class HgtDiscreteElevationModel implements DiscreteElevationModel {
 
         final String n = file.getName();
 
-        // On vérifie si le nom du fichier est valide.
-        final String fni = "The file name is invalid: it ";
-
-        checkArgument(n.length() == 11, fni + "is too short or too long.");
+        checkArgument(n.length() == 11,
+                "The file name is invalid: it is too short or too long.");
 
         // On vérifie si la taille du fichier est adéquate.
         final long l = file.length();
@@ -56,13 +54,13 @@ public final class HgtDiscreteElevationModel implements DiscreteElevationModel {
         final char ew = n.charAt(3);
 
         checkArgument(ns == 'N' || ns == 'S',
-                fni + "isn't defined for North or South.");
+                "The file name is invalid: it isn't defined for North or South.");
 
         checkArgument(ew == 'E' || ew == 'W',
-                fni + "isn't defined for East or West.");
+                "The file name is invalid: it isn't defined for East or West.");
 
         checkArgument(n.substring(7, 11).equals(".hgt"),
-                fni + "doesn't end with the extension \".hgt\".");
+                "The file name is invalid: it doesn't end with the extension \".hgt\".");
 
         final int lat, lon;
         try {
@@ -70,22 +68,26 @@ public final class HgtDiscreteElevationModel implements DiscreteElevationModel {
             lon = Integer.parseInt(n.substring(4, 7));
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException(
-                    fni + "does not contain numbers at the right places.");
+                    "The file name is invalid: it does not contain numbers at the right places.");
         }
 
-        checkArgument(0 <= lat, fni + "cannot have a negative latitude.");
+        checkArgument(0 <= lat,
+                "The file name is invalid: it cannot have a negative latitude.");
 
-        checkArgument(0 <= lon, fni + "cannot have a negative longitude.");
+        checkArgument(0 <= lon,
+                "The file name is invalid: it cannot have a negative longitude.");
 
         checkArgument(ns != 'N' || lat < 90,
-                fni + "cannot have this northern latitude.");
+                "The file name is invalid: it cannot have this northern latitude.");
 
-        checkArgument(lat <= 90, fni + "cannot have this latitude.");
+        checkArgument(lat <= 90,
+                "The file name is invalid: it cannot have this latitude.");
 
         checkArgument(ew != 'E' || lon < 180,
-                fni + "cannot have this eastern longitude.");
+                "The file name is invalid: it cannot have this eastern longitude.");
 
-        checkArgument(lon <= 180, fni + "cannot have this longitude.");
+        checkArgument(lon <= 180,
+                "The file name is invalid: it cannot have this longitude.");
 
         // On extrait les points du fichiers pour les enregistrer
         // dans un ShortBuffer.
