@@ -3,8 +3,6 @@ package ch.epfl.alpano;
 import static java.util.Objects.requireNonNull;
 
 import java.util.Arrays;
-import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
 
 /**
  * Classe contenant toutes les informations utiles à la représentation graphique
