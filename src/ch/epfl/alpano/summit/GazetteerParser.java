@@ -21,12 +21,14 @@ import ch.epfl.alpano.GeoPoint;
 public final class GazetteerParser {
 
     private static final int NAME_POSITION = 6;
-    
+
     private GazetteerParser() {
     }
 
-    private static String getName(String[] line) {
+    private static String getName(String[] line) throws IOException {
         StringBuilder sb = new StringBuilder();
+        if (line.length <= NAME_POSITION)
+            throw new IOException();
         for (int i = NAME_POSITION; i < line.length; ++i) {
             sb.append(line[i]);
             if (i + 1 < line.length)
@@ -35,7 +37,8 @@ public final class GazetteerParser {
         return sb.toString();
     }
 
-    private static double hmsToRadians(String degrees) {
+    private static double hmsToRadians(String degrees)
+            throws NumberFormatException {
         String[] hmsS = degrees.split(":");
         double[] hms = { Integer.parseInt(hmsS[0]), Integer.parseInt(hmsS[1]),
                 Integer.parseInt(hmsS[2]) };
@@ -76,7 +79,9 @@ public final class GazetteerParser {
 
                 summits.add(new Summit(summit, point, elevation));
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
+            throw new IOException(e.getMessage());
+        } catch (NumberFormatException e) {
             throw new IOException(e.getMessage());
         }
 

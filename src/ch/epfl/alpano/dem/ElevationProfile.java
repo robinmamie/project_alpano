@@ -30,7 +30,7 @@ public final class ElevationProfile {
     private final ContinuousElevationModel cem;
     private final double length;
 
-    private final ArrayList<GeoPoint> values;
+    private final ArrayList<GeoPoint> pointsCalculated;
 
     /**
      * Construit un profil altimétrique.
@@ -65,10 +65,10 @@ public final class ElevationProfile {
                 "The given azimuth is not in canonical form.");
         azimuth = toMath(azimuth);
 
-        this.values = new ArrayList<>();
+        this.pointsCalculated = new ArrayList<>();
 
         for (int i = 0; i < length + STEP; i += STEP)
-            values.add(newPoint(origin, azimuth, toRadians(i)));
+            pointsCalculated.add(newPoint(origin, azimuth, toRadians(i)));
     }
 
     /**
@@ -110,11 +110,11 @@ public final class ElevationProfile {
                 "The position is not defined in the ElevationProfile.");
         double div = scalb(x, -12);
         int v = (int) div;
-        if (v == values.size() - 1)
-            return values.get(values.size() - 1);
+        if (v == pointsCalculated.size() - 1)
+            return pointsCalculated.get(pointsCalculated.size() - 1);
         double s = div % 1;
-        GeoPoint fstP = values.get(v);
-        GeoPoint sndP = values.get(v + 1);
+        GeoPoint fstP = pointsCalculated.get(v);
+        GeoPoint sndP = pointsCalculated.get(v + 1);
         double lon = lerp(fstP.longitude(), sndP.longitude(), s);
         double lat = lerp(fstP.latitude(), sndP.latitude(), s);
 

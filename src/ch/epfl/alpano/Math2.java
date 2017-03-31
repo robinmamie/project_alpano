@@ -4,6 +4,7 @@ import static ch.epfl.alpano.Preconditions.checkArgument;
 import static java.lang.Math.PI;
 import static java.lang.Math.floor;
 import static java.lang.Math.sin;
+import static java.lang.Double.POSITIVE_INFINITY;
 
 import java.util.function.DoubleUnaryOperator;
 
@@ -147,7 +148,7 @@ public interface Math2 {
                 return minX;
             minX += dX;
         }
-        return Double.POSITIVE_INFINITY;
+        return POSITIVE_INFINITY;
     }
 
     /**

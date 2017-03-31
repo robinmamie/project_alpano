@@ -1,6 +1,7 @@
 package ch.epfl.alpano;
 
 import static java.util.Objects.requireNonNull;
+import static java.lang.Float.POSITIVE_INFINITY;
 
 import java.util.Arrays;
 
@@ -187,7 +188,8 @@ public final class Panorama {
          *             si le PanoramaParameters passé en argument est null.
          */
         public Builder(PanoramaParameters parameters) {
-            this.parameters = requireNonNull(parameters);
+            this.parameters = requireNonNull(parameters,
+                    "The given parameters are null.");
             final int size = parameters.width() * parameters.height();
 
             this.distance = new float[size];
@@ -196,7 +198,7 @@ public final class Panorama {
             this.elevation = new float[size];
             this.slope = new float[size];
 
-            Arrays.fill(this.distance, Float.POSITIVE_INFINITY);
+            Arrays.fill(this.distance, POSITIVE_INFINITY);
 
             this.built = false;
         }
@@ -205,7 +207,7 @@ public final class Panorama {
                 float value) {
             if (built)
                 throw new IllegalStateException(
-                        "Panorama Builder already built.");
+                        "The Panorama Builder was already built, cannot add elements.");
             if (!parameters.isValidSampleIndex(x, y))
                 throw new IndexOutOfBoundsException();
             parameter[parameters.linearSampleIndex(x, y)] = value;
@@ -335,7 +337,7 @@ public final class Panorama {
         public Panorama build() {
             if (built)
                 throw new IllegalStateException(
-                        "Panorama Builder already built.");
+                        "The Panorama Builder was already built.");
             this.built = true;
             return new Panorama(parameters, distance, longitude, latitude,
                     elevation, slope);

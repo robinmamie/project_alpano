@@ -31,8 +31,8 @@ public final class Summit {
      *             si le nom ou la position sont null
      */
     public Summit(String name, GeoPoint position, int elevation) {
-        this.name = requireNonNull(name);
-        this.position = requireNonNull(position);
+        this.name = requireNonNull(name, "The given name is null.");
+        this.position = requireNonNull(position, "The given position is null.");
         this.elevation = elevation;
     }
 

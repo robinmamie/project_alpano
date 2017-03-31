@@ -25,6 +25,8 @@ import java.util.Locale;
  */
 public final class GeoPoint {
 
+    private static final double HALF_PI = PI / 2;
+
     /**
      * La longitude du point en radians, entre -Pi et Pi compris
      */
@@ -47,7 +49,7 @@ public final class GeoPoint {
     public GeoPoint(double longitude, double latitude) {
         checkArgument(-PI <= longitude && longitude <= PI,
                 "The given longitude is not defined between -Pi and Pi.");
-        checkArgument(-PI / 2 <= latitude && latitude <= PI / 2,
+        checkArgument(-HALF_PI <= latitude && latitude <= HALF_PI,
                 "The given latitude is not defined between -Pi/2 and Pi/2.");
 
         this.longitude = longitude;

@@ -105,16 +105,16 @@ public interface Azimuth {
                 "The given azimuth is not in canonical form.");
 
         StringBuilder answer = new StringBuilder();
-        final double distance = 3 * PI / 8;
+        final double fieldSize = 3 * PI / 8;
 
-        if (abs(angularDistance(azimuth, 0)) < distance)
+        if (abs(angularDistance(azimuth, 0)) < fieldSize)
             answer.append(n);
-        else if (abs(angularDistance(azimuth, PI)) < distance)
+        else if (abs(angularDistance(azimuth, PI)) < fieldSize)
             answer.append(s);
 
-        if (abs(angularDistance(azimuth, PI / 2)) < distance)
+        if (abs(angularDistance(azimuth, PI / 2)) < fieldSize)
             answer.append(e);
-        else if (abs(angularDistance(azimuth, 3 * PI / 2)) < distance)
+        else if (abs(angularDistance(azimuth, 3 * PI / 2)) < fieldSize)
             answer.append(w);
 
         return answer.toString();

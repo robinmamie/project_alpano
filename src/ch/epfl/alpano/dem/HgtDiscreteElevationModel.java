@@ -100,12 +100,13 @@ public final class HgtDiscreteElevationModel implements DiscreteElevationModel {
         }
 
         // On enregistre l'étendue du MNT pour ne pas devoir le recalculer
-        // à chaque fois que extent() est demandé.
+        // à chaque fois que extent() est demandé. Toutes les informations
+        // nécessaires ont été calculée dans ce constructeur.
         int lonIndex = (ew == 'E' ? 1 : -1) * lon * SAMPLES_PER_DEGREE;
         int latIndex = (ns == 'N' ? 1 : -1) * lat * SAMPLES_PER_DEGREE;
-        Interval1D longi = new Interval1D(lonIndex, lonIndex + SIDE - 1);
+        Interval1D longitude = new Interval1D(lonIndex, lonIndex + SIDE - 1);
         Interval1D latit = new Interval1D(latIndex, latIndex + SIDE - 1);
-        this.extent = new Interval2D(longi, latit);
+        this.extent = new Interval2D(longitude, latit);
     }
 
     @Override
