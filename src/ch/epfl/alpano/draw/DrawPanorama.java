@@ -57,7 +57,7 @@ final class DrawPanorama {
             ImageIO.write(i, "png", new File("niesen.png"));
         }
         long stop = System.nanoTime();
-        System.out.printf("DrawPanorama took %.3f ms%n", (stop-start)*1e-6);
+        System.out.printf("DrawPanorama took %.3f ms.%n", (stop-start)*1e-6);
     }
 
     private static int gray(double v) {
