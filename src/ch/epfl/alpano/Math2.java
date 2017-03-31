@@ -171,11 +171,11 @@ public interface Math2 {
      */
     static double improveRoot(DoubleUnaryOperator f, double x1, double x2,
             double epsilon) {
-        checkArgument(f.applyAsDouble(x1) * f.applyAsDouble(x2) < 0,
+        checkArgument(f.applyAsDouble(x1) * f.applyAsDouble(x2) <= 0,
                 "The interval does not contain a root.");
         while (x2 - x1 > epsilon) {
             double mid = (x1 + x2) / 2.0;
-            if (f.applyAsDouble(x1) * f.applyAsDouble(mid) < 0)
+            if (f.applyAsDouble(x1) * f.applyAsDouble(mid) <= 0)
                 x2 = mid;
             else
                 x1 = mid;
