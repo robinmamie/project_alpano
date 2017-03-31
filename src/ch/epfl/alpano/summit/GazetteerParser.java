@@ -1,5 +1,7 @@
 package ch.epfl.alpano.summit;
 
+import static java.nio.charset.StandardCharsets.US_ASCII;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -66,7 +68,7 @@ public final class GazetteerParser {
     public static List<Summit> readSummitsFrom(File file) throws IOException {
         List<Summit> summits = new ArrayList<>();
         try (BufferedReader b = new BufferedReader(
-                new InputStreamReader(new FileInputStream(file)))) {
+                new InputStreamReader(new FileInputStream(file), US_ASCII))) {
             String s;
             while ((s = b.readLine()) != null) {
                 // Seperates the line in blocks
