@@ -13,7 +13,7 @@ public interface Distance {
     /**
      * Rayon de la Terre, en mètres.
      */
-    double EARTH_RADIUS = 6_371_000.0;
+    double EARTH_RADIUS = 6_371_000;
 
     /**
      * Transforme une distance terrestre en mètres en radians, selon le rayon de

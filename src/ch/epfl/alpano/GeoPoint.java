@@ -1,16 +1,18 @@
 package ch.epfl.alpano;
 
-import static ch.epfl.alpano.Preconditions.checkArgument;
-import static ch.epfl.alpano.Math2.haversin;
-import static ch.epfl.alpano.Distance.toMeters;
 import static ch.epfl.alpano.Azimuth.canonicalize;
 import static ch.epfl.alpano.Azimuth.fromMath;
+import static ch.epfl.alpano.Distance.toMeters;
+import static ch.epfl.alpano.Math2.haversin;
+import static ch.epfl.alpano.Preconditions.checkArgument;
 import static java.lang.Math.PI;
-import static java.lang.Math.sin;
-import static java.lang.Math.cos;
 import static java.lang.Math.asin;
-import static java.lang.Math.sqrt;
 import static java.lang.Math.atan2;
+import static java.lang.Math.cos;
+import static java.lang.Math.sin;
+import static java.lang.Math.sqrt;
+import static java.lang.Math.toDegrees;
+import static java.lang.String.format;
 
 import java.util.Locale;
 
@@ -22,6 +24,8 @@ import java.util.Locale;
  * @author Maxence Jouve (269716)
  */
 public final class GeoPoint {
+
+    private static final double HALF_PI = PI / 2;
 
     /**
      * La longitude du point en radians, entre -Pi et Pi compris
@@ -45,7 +49,7 @@ public final class GeoPoint {
     public GeoPoint(double longitude, double latitude) {
         checkArgument(-PI <= longitude && longitude <= PI,
                 "The given longitude is not defined between -Pi and Pi.");
-        checkArgument(-PI / 2 <= latitude && latitude <= PI / 2,
+        checkArgument(-HALF_PI <= latitude && latitude <= HALF_PI,
                 "The given latitude is not defined between -Pi/2 and Pi/2.");
 
         this.longitude = longitude;
@@ -107,8 +111,8 @@ public final class GeoPoint {
     @Override
     public String toString() {
         Locale l = null;
-        return String.format(l, "(%.4f,%.4f)", Math.toDegrees(longitude()),
-                Math.toDegrees(latitude()));
+        return format(l, "(%.4f,%.4f)", toDegrees(longitude()),
+                toDegrees(latitude()));
     }
 
 }

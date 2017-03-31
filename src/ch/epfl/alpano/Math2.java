@@ -4,6 +4,7 @@ import static ch.epfl.alpano.Preconditions.checkArgument;
 import static java.lang.Math.PI;
 import static java.lang.Math.floor;
 import static java.lang.Math.sin;
+import static java.lang.Double.POSITIVE_INFINITY;
 
 import java.util.function.DoubleUnaryOperator;
 
@@ -147,7 +148,7 @@ public interface Math2 {
                 return minX;
             minX += dX;
         }
-        return Double.POSITIVE_INFINITY;
+        return POSITIVE_INFINITY;
     }
 
     /**
@@ -170,12 +171,11 @@ public interface Math2 {
      */
     static double improveRoot(DoubleUnaryOperator f, double x1, double x2,
             double epsilon) {
-        checkArgument(f.applyAsDouble(x1) * f.applyAsDouble(x2) < 0,
+        checkArgument(f.applyAsDouble(x1) * f.applyAsDouble(x2) <= 0,
                 "The interval does not contain a root.");
-        double mid;
         while (x2 - x1 > epsilon) {
-            mid = (x1 + x2) / 2.0;
-            if (f.applyAsDouble(x1) * f.applyAsDouble(mid) < 0)
+            double mid = (x1 + x2) / 2.0;
+            if (f.applyAsDouble(x1) * f.applyAsDouble(mid) <= 0)
                 x2 = mid;
             else
                 x1 = mid;

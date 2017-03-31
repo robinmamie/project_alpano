@@ -1,4 +1,4 @@
-package ch.epfl.alpano;
+package ch.epfl.alpano.draw;
 
 import static java.awt.image.BufferedImage.TYPE_INT_RGB;
 import static java.lang.Math.max;
@@ -10,6 +10,10 @@ import java.io.File;
 
 import javax.imageio.ImageIO;
 
+import ch.epfl.alpano.GeoPoint;
+import ch.epfl.alpano.Panorama;
+import ch.epfl.alpano.PanoramaComputer;
+import ch.epfl.alpano.PanoramaParameters;
 import ch.epfl.alpano.dem.ContinuousElevationModel;
 import ch.epfl.alpano.dem.DiscreteElevationModel;
 import ch.epfl.alpano.dem.HgtDiscreteElevationModel;
@@ -53,7 +57,7 @@ final class DrawPanorama {
             ImageIO.write(i, "png", new File("niesen.png"));
         }
         long stop = System.nanoTime();
-        System.out.printf("DrawPanorama took %.3f ms%n", (stop-start)*1e-6);
+        System.out.printf("DrawPanorama took %.3f ms.%n", (stop-start)*1e-6);
     }
 
     private static int gray(double v) {

@@ -1,0 +1,10 @@
+Compile:
+
+javac -d bin -cp src src/ch/epfl/alpano/draw/DrawPanorama.java
+
+- Do not forget to create bin before compiling!
+
+
+Execute:
+
+java -cp bin ch.epfl.alpano.draw.DrawPanorama

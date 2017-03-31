@@ -20,7 +20,8 @@ public interface Preconditions {
      *             si la condition passée en argument <i>n'est pas remplie</i>.
      */
     static void checkArgument(boolean b) {
-        checkArgument(b, "");
+        if (!b)
+            throw new IllegalArgumentException();
     }
 
     /**

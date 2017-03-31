@@ -22,16 +22,6 @@ final class CompositeDiscreteElevationModel implements DiscreteElevationModel {
     private final DiscreteElevationModel dem2;
 
     /**
-     * L'étendue du premier MNT.
-     */
-    private final Interval2D ext1;
-
-    /**
-     * L'étendue du second MNT.
-     */
-    private final Interval2D ext2;
-
-    /**
      * Construit un CompositeDiscreteElevationModel, composé par l'union de deux
      * autres MNT.
      * 
@@ -47,11 +37,6 @@ final class CompositeDiscreteElevationModel implements DiscreteElevationModel {
             DiscreteElevationModel dem2) {
         this.dem1 = requireNonNull(dem1, "The first given DEM is null.");
         this.dem2 = requireNonNull(dem2, "The second given DEM is null.");
-
-        // Sauvegarde directement les étendues des MNT afin
-        // de gagner en vitesse d'exécution.
-        this.ext1 = dem1.extent();
-        this.ext2 = dem2.extent();
     }
 
     @Override
@@ -62,15 +47,15 @@ final class CompositeDiscreteElevationModel implements DiscreteElevationModel {
 
     @Override
     public Interval2D extent() {
-        return ext1.union(ext2);
+        return dem1.extent().union(dem2.extent());
     }
 
     @Override
     public double elevationSample(int x, int y) {
-        if (ext1.contains(x, y))
+        if (dem1.extent().contains(x, y))
             return dem1.elevationSample(x, y);
 
-        if (ext2.contains(x, y))
+        if (dem2.extent().contains(x, y))
             return dem2.elevationSample(x, y);
 
         throw new IllegalArgumentException(
