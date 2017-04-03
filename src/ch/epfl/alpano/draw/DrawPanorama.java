@@ -18,6 +18,12 @@ import ch.epfl.alpano.dem.ContinuousElevationModel;
 import ch.epfl.alpano.dem.DiscreteElevationModel;
 import ch.epfl.alpano.dem.HgtDiscreteElevationModel;
 
+/**
+ * Dessine un panorama test.
+ *
+ * @author Robin Mamie (257234)
+ * @author Maxence Jouve (269716)
+ */
 final class DrawPanorama {
     final static File HGT_FILE = new File("N46E007.hgt");
 

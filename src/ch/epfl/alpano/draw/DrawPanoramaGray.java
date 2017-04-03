@@ -19,6 +19,12 @@ import ch.epfl.alpano.gui.PanoramaRenderer;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 
+/**
+ * Dessine un panorama en niveaux de gris.
+ *
+ * @author Robin Mamie (257234)
+ * @author Maxence Jouve (269716)
+ */
 final class DrawPanoramaGray {
     final static File HGT_FILE = new File("N46E007.hgt");
 

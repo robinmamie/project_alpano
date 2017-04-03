@@ -1,11 +1,9 @@
 package ch.epfl.alpano.draw;
 
-import static java.lang.Math.toRadians;
 import static java.lang.Math.PI;
+import static java.lang.Math.toRadians;
 
 import java.io.File;
-import java.util.function.BiFunction;
-import java.util.function.DoubleUnaryOperator;
 
 import javax.imageio.ImageIO;
 
@@ -22,6 +20,12 @@ import ch.epfl.alpano.gui.PanoramaRenderer;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 
+/**
+ * Dessine un panorama en couleurs.
+ *
+ * @author Robin Mamie (257234)
+ * @author Maxence Jouve (269716)
+ */
 final class DrawPanoramaColor {
     final static File HGT_FILE = new File("N46E007.hgt");
 
@@ -48,6 +52,7 @@ final class DrawPanoramaColor {
 
             ChannelPainter distance = p::distanceAt;
             ChannelPainter slope = p::slopeAt;
+            
             ChannelPainter h = distance.div(100_000).cycle().mul(360);
             ChannelPainter s = distance.div(200_000).clamp().invert();
             ChannelPainter b = slope.mul(2).div((float) PI).invert().mul(0.7f)
