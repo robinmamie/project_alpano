@@ -16,6 +16,7 @@ public interface Preconditions {
      * @param b
      *            Précondition spécifique. Lance une erreur si elle <i>n'est pas
      *            remplie</i>.
+     *            
      * @throws IllegalArgumentException
      *             si la condition passée en argument <i>n'est pas remplie</i>.
      */
@@ -35,6 +36,7 @@ public interface Preconditions {
      * @param message
      *            Message d'erreur à afficher si la précondition n'est pas
      *            remplie.
+     *            
      * @throws IllegalArgumentException
      *             si la condition passée en argument <i>n'est pas remplie</i>.
      */

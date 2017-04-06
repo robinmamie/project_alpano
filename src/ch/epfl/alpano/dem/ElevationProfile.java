@@ -28,6 +28,7 @@ public final class ElevationProfile {
     private final static int STEP = 4096;
 
     private final ContinuousElevationModel cem;
+
     private final double length;
 
     private final ArrayList<GeoPoint> pointsCalculated;
@@ -86,10 +87,8 @@ public final class ElevationProfile {
     private GeoPoint newPoint(GeoPoint p, double a, double x) {
         double lat = asin(sin(p.latitude()) * cos(x)
                 + cos(p.latitude()) * sin(x) * cos(a));
-        double lon = angularDistance(asin(sin(a) * sin(x) / cos(lat)),
-                p.longitude());
-
-        return new GeoPoint(lon, lat);
+        return new GeoPoint(angularDistance(asin(sin(a) * sin(x) / cos(lat)),
+                p.longitude()), lat);
     }
 
     /**
@@ -111,14 +110,13 @@ public final class ElevationProfile {
         double div = scalb(x, -12);
         int v = (int) div;
         if (v == pointsCalculated.size() - 1)
-            return pointsCalculated.get(pointsCalculated.size() - 1);
+            return pointsCalculated.get(v);
         double s = div % 1;
-        GeoPoint fstP = pointsCalculated.get(v);
-        GeoPoint sndP = pointsCalculated.get(v + 1);
-        double lon = lerp(fstP.longitude(), sndP.longitude(), s);
-        double lat = lerp(fstP.latitude(), sndP.latitude(), s);
-
-        return new GeoPoint(lon, lat);
+        return new GeoPoint(
+                lerp(pointsCalculated.get(v).longitude(),
+                        pointsCalculated.get(v + 1).longitude(), s),
+                lerp(pointsCalculated.get(v).latitude(),
+                        pointsCalculated.get(v + 1).latitude(), s));
     }
 
     /**

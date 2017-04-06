@@ -72,10 +72,8 @@ public final class ContinuousElevationModel {
      */
     private double slopeAtIndex(int x, int y) {
         double a = elevationAtIndex(x, y);
-        double b = elevationAtIndex(x + 1, y);
-        double c = elevationAtIndex(x, y + 1);
-
-        return acos(D / sqrt(sq(b - a) + sq(c - a) + sq(D)));
+        return acos(D / sqrt(sq(elevationAtIndex(x + 1, y) - a)
+                + sq(elevationAtIndex(x, y + 1) - a) + sq(D)));
     }
 
     /**
@@ -98,12 +96,9 @@ public final class ContinuousElevationModel {
         int indX = (int) floor(lon);
         int indY = (int) floor(lat);
 
-        double z00 = par.apply(indX, indY);
-        double z10 = par.apply(indX + 1, indY);
-        double z01 = par.apply(indX, indY + 1);
-        double z11 = par.apply(indX + 1, indY + 1);
-
-        return bilerp(z00, z10, z01, z11, lon - indX, lat - indY);
+        return bilerp(par.apply(indX, indY), par.apply(indX + 1, indY),
+                par.apply(indX, indY + 1), par.apply(indX + 1, indY + 1),
+                lon - indX, lat - indY);
     }
 
     /**

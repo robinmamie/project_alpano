@@ -57,7 +57,7 @@ public final class PanoramaParameters {
         this.centerAzimuth = centerAzimuth;
 
         checkArgument(0 < horizontalFieldOfView && horizontalFieldOfView <= PI2,
-                "The horizontal field of view is not defined between 0 (excluded) and 2 Pi (included).");
+                "The given horizontal field of view is not defined between 0 (excluded) and 2 Pi (included).");
         this.horizontalFieldOfView = horizontalFieldOfView;
 
         checkArgument(0 < maxDistance,
@@ -254,10 +254,6 @@ public final class PanoramaParameters {
      *            L'index vertical.
      * 
      * @return L'index linéaire du panorama.
-     * 
-     * @throws IllegalArgumentException
-     *             si les index passés en arguments ne sont pas valides pour le
-     *             panorama.
      */
     protected int linearSampleIndex(int x, int y) {
         assert isValidSampleIndex(x, y);

@@ -39,19 +39,18 @@ public final class HgtDiscreteElevationModel implements DiscreteElevationModel {
 
         checkArgument(file.isFile(), "The file does not exist.");
 
-        final String n = file.getName();
+        String n = file.getName();
 
         checkArgument(n.length() == 11,
                 "The file name is invalid: it is too short or too long.");
 
         // On vérifie si la taille du fichier est adéquate.
-        final long l = file.length();
+        long l = file.length();
 
         checkArgument(l == 2 * SIDE * SIDE,
                 "The file is invalid: it does not comply to byte restrictions.");
 
-        final char ns = n.charAt(0);
-        final char ew = n.charAt(3);
+        char ns = n.charAt(0), ew = n.charAt(3);
 
         checkArgument(ns == 'N' || ns == 'S',
                 "The file name is invalid: it isn't defined for North or South.");
@@ -62,7 +61,7 @@ public final class HgtDiscreteElevationModel implements DiscreteElevationModel {
         checkArgument(n.substring(7, 11).equals(".hgt"),
                 "The file name is invalid: it doesn't end with the extension \".hgt\".");
 
-        final int lat, lon;
+        int lat, lon;
         try {
             lat = Integer.parseInt(n.substring(1, 3));
             lon = Integer.parseInt(n.substring(4, 7));
@@ -101,7 +100,7 @@ public final class HgtDiscreteElevationModel implements DiscreteElevationModel {
 
         // On enregistre l'étendue du MNT pour ne pas devoir le recalculer
         // à chaque fois que extent() est demandé. Toutes les informations
-        // nécessaires ont été calculée dans ce constructeur.
+        // nécessaires ont été calculées dans ce constructeur.
         int lonIndex = (ew == 'E' ? 1 : -1) * lon * SAMPLES_PER_DEGREE;
         int latIndex = (ns == 'N' ? 1 : -1) * lat * SAMPLES_PER_DEGREE;
         Interval1D longitude = new Interval1D(lonIndex, lonIndex + SIDE - 1);

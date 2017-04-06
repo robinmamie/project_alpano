@@ -147,16 +147,9 @@ public final class Interval1D {
 
     @Override
     public boolean equals(Object thatO) {
-        if (this == thatO)
-            return true;
-
-        if (thatO == null || getClass() != thatO.getClass())
-            return false;
-
-        Interval1D that = (Interval1D) thatO;
-
-        return this.includedFrom() == that.includedFrom()
-                && this.includedTo() == that.includedTo();
+        return thatO instanceof Interval1D
+                && this.includedFrom() == ((Interval1D) thatO).includedFrom()
+                && this.includedTo() == ((Interval1D) thatO).includedTo();
     }
 
     @Override

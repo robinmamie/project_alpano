@@ -147,15 +147,9 @@ public final class Interval2D {
 
     @Override
     public boolean equals(Object thatO) {
-        if (this == thatO)
-            return true;
-
-        if (thatO == null || getClass() != thatO.getClass())
-            return false;
-
-        Interval2D that = (Interval2D) thatO;
-
-        return this.iX().equals(that.iX()) && this.iY().equals(that.iY());
+        return thatO instanceof Interval2D
+                && this.iX().equals(((Interval2D) thatO).iX())
+                && this.iY().equals(((Interval2D) thatO).iY());
     }
 
     @Override

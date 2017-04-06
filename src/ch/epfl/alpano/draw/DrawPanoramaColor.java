@@ -67,7 +67,7 @@ final class DrawPanoramaColor {
                     new File("niesen-shaded.png"));
         }
         long stop = System.nanoTime();
-        System.out.printf("DrawPanoramaNew took %.3f ms.%n",
+        System.out.printf("DrawPanoramaColor took %.3f ms.%n",
                 (stop - start) * 1e-6);
     }
 }
