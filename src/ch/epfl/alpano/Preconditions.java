@@ -10,13 +10,13 @@ package ch.epfl.alpano;
 public interface Preconditions {
 
     /**
-     * Lance une IllegalArgumentException sans message spécifique lorsque
-     * l'argument est false.
+     * Lance une IllegalArgumentException sans message spécifique lorsque la
+     * valeur passée en argument n'est pas vérifiée.
      * 
      * @param b
      *            Précondition spécifique. Lance une erreur si elle <i>n'est pas
      *            remplie</i>.
-     *            
+     * 
      * @throws IllegalArgumentException
      *             si la condition passée en argument <i>n'est pas remplie</i>.
      */
@@ -27,7 +27,7 @@ public interface Preconditions {
 
     /**
      * Lance une IllegalArgumentException lorsque la valeur passée en argument
-     * est false. L'exception est accompagnée par un texte défini par
+     * n'est pas vérifiée. L'exception est accompagnée par un texte défini par
      * l'utilisateur.
      * 
      * @param b
@@ -36,7 +36,7 @@ public interface Preconditions {
      * @param message
      *            Message d'erreur à afficher si la précondition n'est pas
      *            remplie.
-     *            
+     * 
      * @throws IllegalArgumentException
      *             si la condition passée en argument <i>n'est pas remplie</i>.
      */

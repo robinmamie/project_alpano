@@ -92,10 +92,9 @@ public final class ContinuousElevationModel {
             BiFunction<Integer, Integer, Double> par) {
         double lon = sampleIndex(p.longitude());
         double lat = sampleIndex(p.latitude());
-
         int indX = (int) floor(lon);
         int indY = (int) floor(lat);
-
+        
         return bilerp(par.apply(indX, indY), par.apply(indX + 1, indY),
                 par.apply(indX, indY + 1), par.apply(indX + 1, indY + 1),
                 lon - indX, lat - indY);

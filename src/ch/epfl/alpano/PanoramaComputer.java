@@ -22,11 +22,29 @@ import ch.epfl.alpano.dem.ElevationProfile;
  */
 public final class PanoramaComputer {
 
+    /**
+     * Le coefficient de réfraction.
+     */
     private static final double K = 0.13;
+
+    /**
+     * Le facteur utilisé pour le calcul de la réfraction atmosphérique.
+     */
     private static final double FACTOR = (1.0 - K) / (2 * EARTH_RADIUS);
+
+    /**
+     * Premier intervalle utilisé afin de trouver une racine à la fonction.
+     */
     private static final double INTERVAL = 64.0;
+
+    /**
+     * Second intervalle utilisé afin d'affiner la recherche de la racine.
+     */
     private static final double EPSILON = 4.0;
 
+    /**
+     * MNT continu passé au constructeur.
+     */
     private final ContinuousElevationModel dem;
 
     /**

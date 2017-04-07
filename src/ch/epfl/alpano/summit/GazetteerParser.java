@@ -24,15 +24,33 @@ import ch.epfl.alpano.GeoPoint;
  */
 public final class GazetteerParser {
 
+    /**
+     * Selon le split() effectué dans readSummitsFrom, le nom du sommet commence
+     * à cet index.
+     */
     private static final int NAME_POSITION = 6;
 
+    /**
+     * Constructeur privé, car la classe est non instanciable.
+     */
     private GazetteerParser() {
     }
 
+    /**
+     * Récupère le nom du sommet.
+     * 
+     * @param line
+     *            La ligne extraite du fichier.
+     * 
+     * @return Le nom du sommet.
+     * 
+     * @throws IOException
+     *             si le format de la ligne est invalide.
+     */
     private static String getName(String[] line) throws IOException {
-        StringBuilder sb = new StringBuilder();
         if (line.length <= NAME_POSITION)
             throw new IOException();
+        StringBuilder sb = new StringBuilder();
         for (int i = NAME_POSITION; i < line.length; ++i) {
             sb.append(line[i]);
             if (i != line.length - 1)
@@ -41,8 +59,22 @@ public final class GazetteerParser {
         return sb.toString();
     }
 
+    /**
+     * Retourne la valeur en radians de l'angle donné en argument.
+     * 
+     * @param degrees
+     *            String représentant l'angle sous le format "xxx:xx:xx"
+     * 
+     * @return L'angle en radians.
+     * 
+     * @throws NumberFormatException
+     *             si au moins une partie de l'angle n'est pas composée de
+     *             nombres.
+     * @throws ArrayIndexOutOfBoundsException
+     *             si l'angle est composé de moins de 3 valeurs.
+     */
     private static double hmsToRadians(String degrees)
-            throws NumberFormatException {
+            throws NumberFormatException, ArrayIndexOutOfBoundsException {
         String[] hmsS = degrees.split(":");
         double[] hms = { parseInt(hmsS[0]), parseInt(hmsS[1]),
                 parseInt(hmsS[2]) };
@@ -51,8 +83,25 @@ public final class GazetteerParser {
         return toRadians(hms[0]);
     }
 
+    /**
+     * Créée un point à partir de la longitude et la latitude passées en
+     * argument.
+     * 
+     * @param lon
+     *            La longitude du point.
+     * @param lat
+     *            La latitude du point.
+     * 
+     * @return Le point géographique associé aux valeurs passées en argument.
+     * 
+     * @throws NumberFormatException
+     *             si au moins une partie de l'un des deux angles n'est pas
+     *             composée de nombres.
+     * @throws ArrayIndexOutOfBoundsException
+     *             si l'un des deux angles est composé de moins de 3 valeurs.
+     */
     private static GeoPoint getPoint(String lon, String lat)
-            throws NumberFormatException {
+            throws NumberFormatException, ArrayIndexOutOfBoundsException {
         return new GeoPoint(hmsToRadians(lon), hmsToRadians(lat));
     }
 
@@ -81,9 +130,12 @@ public final class GazetteerParser {
                         parseInt(elements[2])));
             }
         } catch (NumberFormatException e) {
-            throw new IOException(e.getMessage());
+            throw new IOException(
+                    "One of the angles given is not formed of letters.");
+        } catch (ArrayIndexOutOfBoundsException e) {
+            throw new IOException("One of the angles given is too short.");
         }
 
-        return unmodifiableList(new ArrayList<>(summits));
+        return unmodifiableList(summits);
     }
 }

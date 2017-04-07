@@ -1,11 +1,12 @@
 package ch.epfl.alpano.dem;
 
-import ch.epfl.alpano.Interval2D;
 import static java.util.Objects.requireNonNull;
+
+import ch.epfl.alpano.Interval2D;
 
 /**
  * Représente l'union de deux MNT discrets. Classe immuable.
- *
+ * 
  * @author Robin Mamie (257234)
  * @author Maxence Jouve (269716)
  */

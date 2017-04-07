@@ -25,6 +25,9 @@ import java.util.Locale;
  */
 public final class GeoPoint {
 
+    /**
+     * Évite quelques divisions.
+     */
     private static final double HALF_PI = PI / 2;
 
     /**

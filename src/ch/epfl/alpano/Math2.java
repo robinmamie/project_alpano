@@ -83,8 +83,8 @@ public interface Math2 {
      * @param y1
      *            Second point de l'interpolation.
      * @param x
-     *            Paramètre de l'interpolatio. 0 retourne le premier argument et
-     *            1 le second.
+     *            Paramètre de l'interpolation. 0 retourne le premier argument
+     *            et 1 le second.
      * 
      * @return La valeur désignée par x sur la droite interpolé à l'aide les
      *         deux premiers arguments.

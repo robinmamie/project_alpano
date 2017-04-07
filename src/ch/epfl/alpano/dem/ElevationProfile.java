@@ -3,8 +3,8 @@ package ch.epfl.alpano.dem;
 import static ch.epfl.alpano.Azimuth.isCanonical;
 import static ch.epfl.alpano.Azimuth.toMath;
 import static ch.epfl.alpano.Distance.toRadians;
-import static ch.epfl.alpano.Math2.lerp;
 import static ch.epfl.alpano.Math2.angularDistance;
+import static ch.epfl.alpano.Math2.lerp;
 import static ch.epfl.alpano.Preconditions.checkArgument;
 import static java.lang.Math.asin;
 import static java.lang.Math.cos;
@@ -13,6 +13,7 @@ import static java.lang.Math.sin;
 import static java.util.Objects.requireNonNull;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import ch.epfl.alpano.GeoPoint;
 
@@ -25,13 +26,25 @@ import ch.epfl.alpano.GeoPoint;
  */
 public final class ElevationProfile {
 
+    /**
+     * La distance entre le calcul de chaque point de l'ElevationProfile.
+     */
     private final static int STEP = 4096;
 
+    /**
+     * Le MNT conmtinu associé à l'ElevationProfile.
+     */
     private final ContinuousElevationModel cem;
 
+    /**
+     * La longueur de l'ElevationProfile.
+     */
     private final double length;
 
-    private final ArrayList<GeoPoint> pointsCalculated;
+    /**
+     * Les points calculés dans le constructeur.
+     */
+    private final List<GeoPoint> pointsCalculated;
 
     /**
      * Construit un profil altimétrique.
@@ -49,7 +62,8 @@ public final class ElevationProfile {
      *            mètres).
      * 
      * @throws IllegalArgumentException
-     *             si les restrictions décrites ne sont pas remplies
+     *             si les conditions décrites pour les arguments ne sont pas
+     *             remplies
      * @throws NullPointerException
      *             si elevation ou origin sont null.
      */
@@ -134,7 +148,7 @@ public final class ElevationProfile {
      */
     public double elevationAt(double x) {
         checkArgument(0 <= x && x <= length,
-                "The position not defined in the ElevationProfile.");
+                "The position is not defined in the ElevationProfile.");
         return cem.elevationAt(positionAt(x));
     }
 
@@ -153,7 +167,7 @@ public final class ElevationProfile {
      */
     public double slopeAt(double x) {
         checkArgument(0 <= x && x <= length,
-                "The position not defined in the ElevationProfile.");
+                "The position is not defined in the ElevationProfile.");
         return cem.slopeAt(positionAt(x));
     }
 

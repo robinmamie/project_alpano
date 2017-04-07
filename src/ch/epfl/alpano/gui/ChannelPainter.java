@@ -28,7 +28,7 @@ public interface ChannelPainter {
      * 
      * @return La valeur (float) du peintre de canal aux index <i>(x,y)</i>.
      */
-    abstract float valueAt(int x, int y);
+    float valueAt(int x, int y);
 
     static ChannelPainter maxDistanceToNeighbors(Panorama p) {
         return (x, y) -> max(

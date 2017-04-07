@@ -16,11 +16,11 @@ public interface Distance {
     double EARTH_RADIUS = 6_371_000;
 
     /**
-     * Transforme une distance terrestre en mètres en radians, selon le rayon de
-     * la Terre. Suit automatiquement un grand cercle.
+     * Transforme une distance terrestre exprimée en mètres en radians, selon le
+     * rayon de la Terre. Suit automatiquement un grand cercle.
      * 
      * @param distanceInMeters
-     *            Distance terrestre en mètres.
+     *            La distance terrestre en mètres.
      * 
      * @return Le nombre de radians correspondant à la distance en mètres donnée
      *         en paramètre.
@@ -31,10 +31,10 @@ public interface Distance {
 
     /**
      * Transforme les radians déterminant une distance inscrite dans un grand
-     * cercle en mètres.
+     * cercle sur la surface de la Terre en mètres.
      * 
      * @param distanceInRadians
-     *            Distance terrestre en radians.
+     *            La distance terrestre en radians.
      * 
      * @return La distance en mètres correspondant au nombre de radians donné en
      *         paramètre.
