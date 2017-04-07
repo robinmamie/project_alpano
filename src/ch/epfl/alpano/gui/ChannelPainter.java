@@ -43,7 +43,7 @@ public interface ChannelPainter {
      * @param n
      *            La valeur à additionner.
      * 
-     * @return Le peintre de canal additionné avec l'argument <i>n</i>.
+     * @return Un nouveau peintre de canal additionné avec l'argument <i>n</i>.
      */
     default ChannelPainter add(float n) {
         return (x, y) -> valueAt(x, y) + n;
@@ -55,7 +55,7 @@ public interface ChannelPainter {
      * @param n
      *            La valeur à soustraire.
      * 
-     * @return Le peintre de canal soustrait par l'argument <i>n</i>.
+     * @return Un nouveau peintre de canal soustrait par l'argument <i>n</i>.
      */
     default ChannelPainter sub(float n) {
         return (x, y) -> valueAt(x, y) - n;
@@ -67,7 +67,7 @@ public interface ChannelPainter {
      * @param n
      *            La valeur à multiplier.
      * 
-     * @return Le peintre de canal multiplié avec l'argument <i>n</i>.
+     * @return Un nouveau peintre de canal multiplié avec l'argument <i>n</i>.
      */
     default ChannelPainter mul(float n) {
         return (x, y) -> valueAt(x, y) * n;
@@ -79,7 +79,7 @@ public interface ChannelPainter {
      * @param n
      *            La valeur à diviser.
      * 
-     * @return Le peintre de canal divisé par l'argument <i>n</i>.
+     * @return Un nouveau peintre de canal divisé par l'argument <i>n</i>.
      */
     default ChannelPainter div(float n) {
         return (x, y) -> valueAt(x, y) / n;
@@ -91,7 +91,7 @@ public interface ChannelPainter {
      * @param f
      *            Le lambda à appliquer.
      * 
-     * @return Le peintre de canal auquel le peintre de canal a été appliqué.
+     * @return Un nouveau peintre de canal auquel un lambda a été appliqué.
      */
     default ChannelPainter map(DoubleUnaryOperator f) {
         return (x, y) -> (float) f.applyAsDouble(valueAt(x, y));
@@ -100,7 +100,7 @@ public interface ChannelPainter {
     /**
      * "Inverse" le peintre de canal.
      * 
-     * @return La valeur inversée du peintre de canal.
+     * @return Le peintre de canal actualisé - inversé.
      */
     default ChannelPainter invert() {
         return (x, y) -> 1 - valueAt(x, y);
