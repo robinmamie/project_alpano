@@ -39,6 +39,16 @@ final class DrawPanoramaColor {
     final static double HORIZONTAL_FOV = toRadians(60);
     final static int MAX_DISTANCE = 100_000;
 
+    // final static int IMAGE_WIDTH = 5000;
+    // final static int IMAGE_HEIGHT = 2000;
+    //
+    // final static double ORIGIN_LON = toRadians(7.1302);
+    // final static double ORIGIN_LAT = toRadians(46.86575);
+    // final static int ELEVATION = 615;
+    // final static double CENTER_AZIMUTH = toRadians(170);
+    // final static double HORIZONTAL_FOV = toRadians(60);
+    // final static int MAX_DISTANCE = 300_000;
+
     final static PanoramaParameters PARAMS = new PanoramaParameters(
             new GeoPoint(ORIGIN_LON, ORIGIN_LAT), ELEVATION, CENTER_AZIMUTH,
             HORIZONTAL_FOV, MAX_DISTANCE, IMAGE_WIDTH, IMAGE_HEIGHT);
@@ -52,7 +62,7 @@ final class DrawPanoramaColor {
 
             ChannelPainter distance = p::distanceAt;
             ChannelPainter slope = p::slopeAt;
-            
+
             ChannelPainter h = distance.div(100_000).cycle().mul(360);
             ChannelPainter s = distance.div(200_000).clamp().invert();
             ChannelPainter b = slope.mul(2).div((float) PI).invert().mul(0.7f)

@@ -3,6 +3,7 @@ package ch.epfl.alpano;
 import static ch.epfl.alpano.Azimuth.canonicalize;
 import static ch.epfl.alpano.Azimuth.fromMath;
 import static ch.epfl.alpano.Distance.toMeters;
+import static ch.epfl.alpano.Math2.HALF_PI;
 import static ch.epfl.alpano.Math2.haversin;
 import static ch.epfl.alpano.Preconditions.checkArgument;
 import static java.lang.Math.PI;
@@ -24,11 +25,6 @@ import java.util.Locale;
  * @author Maxence Jouve (269716)
  */
 public final class GeoPoint {
-
-    /**
-     * Évite quelques divisions.
-     */
-    private static final double HALF_PI = PI / 2;
 
     /**
      * La longitude du point en radians, entre -Pi et Pi compris

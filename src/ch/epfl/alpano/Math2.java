@@ -22,6 +22,21 @@ public interface Math2 {
      * La valeur 2*Pi.
      */
     double PI2 = 2 * PI;
+    
+    /**
+     * La valeur Pi/2.
+     */
+    double HALF_PI = PI / 2;
+    
+    /**
+     * La valeur 3*Pi/2.
+     */
+    double THREE_HALF_PI = 3 * PI / 2;
+    
+    /**
+     * La valeur 3*Pi/8.
+     */
+    double THREE_EIGHTH_PI = 3 * PI / 8;
 
     /**
      * Calcule le carré d'un nombre à l'aide d'une multiplication.
