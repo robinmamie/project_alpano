@@ -8,14 +8,11 @@ import static javax.imageio.ImageIO.write;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.Time;
 
 import ch.epfl.alpano.Panorama;
 import ch.epfl.alpano.PanoramaComputer;
-import ch.epfl.alpano.PanoramaParameters;
 import ch.epfl.alpano.dem.ContinuousElevationModel;
 import ch.epfl.alpano.dem.DiscreteElevationModel;
-import ch.epfl.alpano.dem.HgtDiscreteElevationModel;
 import ch.epfl.alpano.dem.SuperHgtDiscreteElevationModel;
 import ch.epfl.alpano.gui.ChannelPainter;
 import ch.epfl.alpano.gui.ImagePainter;
@@ -23,7 +20,7 @@ import ch.epfl.alpano.gui.PanoramaRenderer;
 import javafx.scene.image.Image;
 
 /**
- * Dessine un panorama en couleurs.
+ * Dessine plusieurs panoramas en couleurs.
  *
  * @author Robin Mamie (257234)
  * @author Maxence Jouve (269716)
@@ -40,26 +37,26 @@ final class DrawUserPanoramaColor {
         DiscreteElevationModel dDEM = new SuperHgtDiscreteElevationModel();
         PanoramaComputer p = new PanoramaComputer(
                 new ContinuousElevationModel(dDEM));
-        System.out.printf("PanoramaComputer loaded after %.3f ms.%n", getMS());
+        System.out.printf("PanoramaComputer loaded after %.3f s.%n", getSec());
         outputImage(p.computePanorama(NIESEN.panoramaParameters()),
                 "niesen-user.png");
-        System.out.printf("Niesen drawn after %.3f ms.%n", getMS());
+        System.out.printf("Niesen drawn after %.3f s.%n", getSec());
         outputImage(p.computePanorama(JURA.panoramaParameters()),
                 "jura-user.png");
-        System.out.printf("Jura drawn after %.3f ms.%n", getMS());
+        System.out.printf("Jura drawn after %.3f s.%n", getSec());
         outputImage(p.computePanorama(RACINE.panoramaParameters()),
                 "racine-user.png");
-        System.out.printf("Racine drawn after %.3f ms.%n", getMS());
+        System.out.printf("Racine drawn after %.3f s.%n", getSec());
         outputImage(p.computePanorama(FINSTER.panoramaParameters()),
                 "finsteraarhorn-user.png");
-        System.out.printf("Finsteraarhorn drawn after %.3f ms.%n", getMS());
+        System.out.printf("Finsteraarhorn drawn after %.3f s.%n", getSec());
         outputImage(p.computePanorama(SAUVABELIN.panoramaParameters()),
                 "sauvabelin-user.png");
-        System.out.printf("Sauvabelin drawn after %.3f ms.%n", getMS());
+        System.out.printf("Sauvabelin drawn after %.3f s.%n", getSec());
         outputImage(p.computePanorama(PELICAN.panoramaParameters()),
                 "pelican-user.png");
-        System.out.printf("Pelican drawn after %.3f ms, programm finished.%n",
-                getMS());
+        System.out.printf("Pelican drawn after %.3f s, programm finished.%n",
+                getSec());
     }
 
     private static void outputImage(Panorama p, String name)
@@ -79,7 +76,7 @@ final class DrawUserPanoramaColor {
         write(fromFXImage(i, null), "png", new File(name));
     }
 
-    private static double getMS() {
-        return (System.nanoTime() - START) * 1e-6;
+    private static double getSec() {
+        return (System.nanoTime() - START) * 1e-9;
     }
 }

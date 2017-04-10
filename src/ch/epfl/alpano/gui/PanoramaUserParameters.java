@@ -7,7 +7,7 @@ import static java.util.Collections.unmodifiableMap;
 
 import java.util.EnumMap;
 import java.util.Map;
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 import ch.epfl.alpano.GeoPoint;
 import ch.epfl.alpano.PanoramaParameters;
@@ -187,13 +187,13 @@ public final class PanoramaUserParameters {
      * 
      * @return La paramètres du Panorama.
      */
-    private PanoramaParameters panoramaParametersSet(Supplier<Integer> s) {
+    private PanoramaParameters panoramaParametersSet(Function<Integer, Integer> s) {
         return new PanoramaParameters(
                 new GeoPoint(toRadians(observerLongitude() / 10_000.),
                         toRadians(observerLatitude() / 10_000.)),
                 observerElevation(), toRadians(centerAzimuth()),
                 toRadians(horizontalFieldOfView()), 1_000 * maxDistance(),
-                (int) scalb(width(), s.get()), (int) scalb(height(), s.get()));
+                s.apply(width()), s.apply(height()));
     }
 
     /**
@@ -204,7 +204,7 @@ public final class PanoramaUserParameters {
      *         suréchantillonage.
      */
     public PanoramaParameters panoramaParameters() {
-        return panoramaParametersSet(() -> superSamplingExponent());
+        return panoramaParametersSet(x -> (int) scalb(x, superSamplingExponent()));
     }
 
     /**
@@ -215,7 +215,7 @@ public final class PanoramaUserParameters {
      *         de suréchantillonage.
      */
     public PanoramaParameters panoramaDisplayParamters() {
-        return panoramaParametersSet(() -> 0);
+        return panoramaParametersSet(x -> x);
     }
 
     @Override
