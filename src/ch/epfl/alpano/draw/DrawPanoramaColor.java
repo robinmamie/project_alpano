@@ -55,27 +55,25 @@ final class DrawPanoramaColor {
 
     public static void main(String[] as) throws Exception {
         long start = System.nanoTime();
-        try (DiscreteElevationModel dDEM = new HgtDiscreteElevationModel(
-                HGT_FILE)) {
-            ContinuousElevationModel cDEM = new ContinuousElevationModel(dDEM);
-            Panorama p = new PanoramaComputer(cDEM).computePanorama(PARAMS);
+        DiscreteElevationModel dDEM = new HgtDiscreteElevationModel(HGT_FILE);
+        ContinuousElevationModel cDEM = new ContinuousElevationModel(dDEM);
+        Panorama p = new PanoramaComputer(cDEM).computePanorama(PARAMS);
 
-            ChannelPainter distance = p::distanceAt;
-            ChannelPainter slope = p::slopeAt;
+        ChannelPainter distance = p::distanceAt;
+        ChannelPainter slope = p::slopeAt;
 
-            ChannelPainter h = distance.div(100_000).cycle().mul(360);
-            ChannelPainter s = distance.div(200_000).clamp().invert();
-            ChannelPainter b = slope.mul(2).div((float) PI).invert().mul(0.7f)
-                    .add(0.3f);
-            ChannelPainter o = distance
-                    .map(d -> d == Float.POSITIVE_INFINITY ? 0 : 1);
+        ChannelPainter h = distance.div(100_000).cycle().mul(360);
+        ChannelPainter s = distance.div(200_000).clamp().invert();
+        ChannelPainter b = slope.mul(2).div((float) PI).invert().mul(0.7f)
+                .add(0.3f);
+        ChannelPainter o = distance
+                .map(d -> d == Float.POSITIVE_INFINITY ? 0 : 1);
 
-            ImagePainter l = ImagePainter.hsb(h, s, b, o);
+        ImagePainter l = ImagePainter.hsb(h, s, b, o);
 
-            Image i = PanoramaRenderer.renderPanorama(p, l);
-            ImageIO.write(SwingFXUtils.fromFXImage(i, null), "png",
-                    new File("niesen-shaded.png"));
-        }
+        Image i = PanoramaRenderer.renderPanorama(p, l);
+        ImageIO.write(SwingFXUtils.fromFXImage(i, null), "png",
+                new File("niesen-shaded.png"));
         long stop = System.nanoTime();
         System.out.printf("DrawPanoramaColor took %.3f ms.%n",
                 (stop - start) * 1e-6);

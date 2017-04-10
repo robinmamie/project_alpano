@@ -25,7 +25,7 @@ import ch.epfl.alpano.dem.DiscreteElevationModel;
  * @author Maxence Jouve (269716)
  */
 public final class DrawDEM {
-    @SuppressWarnings("resource")
+    
     public static void main(String[] args) throws IOException {
 
         long startTime = System.nanoTime();

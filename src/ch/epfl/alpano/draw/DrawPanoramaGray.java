@@ -44,24 +44,23 @@ final class DrawPanoramaGray {
 
     public static void main(String[] as) throws Exception {
         long start = System.nanoTime();
-        try (DiscreteElevationModel dDEM = new HgtDiscreteElevationModel(
-                HGT_FILE)) {
-            ContinuousElevationModel cDEM = new ContinuousElevationModel(dDEM);
-            Panorama p = new PanoramaComputer(cDEM).computePanorama(PARAMS);
+        DiscreteElevationModel dDEM = new HgtDiscreteElevationModel(HGT_FILE);
+        ContinuousElevationModel cDEM = new ContinuousElevationModel(dDEM);
+        Panorama p = new PanoramaComputer(cDEM).computePanorama(PARAMS);
 
-            ChannelPainter gray = ChannelPainter.maxDistanceToNeighbors(p)
-                    .sub(500).div(4500).clamp().invert();
+        ChannelPainter gray = ChannelPainter.maxDistanceToNeighbors(p).sub(500)
+                .div(4500).clamp().invert();
 
-            ChannelPainter distance = p::distanceAt;
-            ChannelPainter opacity = distance
-                    .map(d -> d == Float.POSITIVE_INFINITY ? 0 : 1);
+        ChannelPainter distance = p::distanceAt;
+        ChannelPainter opacity = distance
+                .map(d -> d == Float.POSITIVE_INFINITY ? 0 : 1);
 
-            ImagePainter l = ImagePainter.gray(gray, opacity);
+        ImagePainter l = ImagePainter.gray(gray, opacity);
 
-            Image i = PanoramaRenderer.renderPanorama(p, l);
-            ImageIO.write(SwingFXUtils.fromFXImage(i, null), "png",
-                    new File("niesen-profile.png"));
-        }
+        Image i = PanoramaRenderer.renderPanorama(p, l);
+        ImageIO.write(SwingFXUtils.fromFXImage(i, null), "png",
+                new File("niesen-profile.png"));
+
         long stop = System.nanoTime();
         System.out.printf("DrawPanoramaGray took %.3f ms.%n",
                 (stop - start) * 1e-6);

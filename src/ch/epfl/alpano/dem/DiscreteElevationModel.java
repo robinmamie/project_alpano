@@ -10,7 +10,7 @@ import static java.lang.Math.toDegrees;
  * @author Robin Mamie (257234)
  * @author Maxence Jouve (269716)
  */
-public interface DiscreteElevationModel extends AutoCloseable {
+public interface DiscreteElevationModel {
 
     /**
      * Le nombre d'échantillons par degré d'un MNT discret.

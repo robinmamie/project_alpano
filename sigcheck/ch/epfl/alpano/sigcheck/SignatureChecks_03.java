@@ -15,7 +15,7 @@ final class SignatureChecks_03 {
         int v = 0;
         a = d.elevationSample(v, v);
         d = d.union(d);
-        d.close();
+        // d.close();
         return d.toString() + e;
     }
 
