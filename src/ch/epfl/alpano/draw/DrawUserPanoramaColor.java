@@ -55,7 +55,16 @@ final class DrawUserPanoramaColor {
         System.out.printf("Sauvabelin drawn after %.3f s.%n", getSec());
         outputImage(p.computePanorama(PELICAN.panoramaParameters()),
                 "pelican-user.png");
-        System.out.printf("Pelican drawn after %.3f s, programm finished.%n",
+        System.out.printf("Pelican drawn after %.3f s.%n", getSec());
+        outputImage(p.computePanorama(COURTEPIN.panoramaParameters()),
+                "courtepin-user.png");
+        System.out.printf("Courtepin drawn after %.3f s.%n", getSec());
+        outputImage(p.computePanorama(SEEDORF.panoramaParameters()),
+                "seedorf-user.png");
+        System.out.printf("Seedorf drawn after %.3f s.%n", getSec());
+        outputImage(p.computePanorama(ZIMMERWALD.panoramaParameters()),
+                "zimmerwald-user.png");
+        System.out.printf("Zimmerwald drawn after %.3f s, programm finished.%n",
                 getSec());
     }
 

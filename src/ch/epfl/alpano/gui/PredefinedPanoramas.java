@@ -73,4 +73,16 @@ public interface PredefinedPanoramas {
     static PanoramaUserParameters PELICAN = new PanoramaUserParameters(6_5728,
             46_5132, 380, 135, 60, MAX_DISTANCE, WIDTH, HEIGHT,
             SUPER_SAMPLING_EX);
+
+    static PanoramaUserParameters SEEDORF = new PanoramaUserParameters(8_6158,
+            46_8788, 455, 80, 180, MAX_DISTANCE, WIDTH, HEIGHT,
+            SUPER_SAMPLING_EX);
+
+    static PanoramaUserParameters COURTEPIN = new PanoramaUserParameters(7_1302,
+            46_8658, 615, 185, 30, MAX_DISTANCE, WIDTH, HEIGHT,
+            SUPER_SAMPLING_EX);
+
+    static PanoramaUserParameters ZIMMERWALD = new PanoramaUserParameters(
+            7_4787, 46_8860, 840, 150, 90, MAX_DISTANCE, WIDTH, HEIGHT,
+            SUPER_SAMPLING_EX);
 }
