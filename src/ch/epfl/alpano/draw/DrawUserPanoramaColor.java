@@ -1,6 +1,14 @@
 package ch.epfl.alpano.draw;
 
-import static ch.epfl.alpano.gui.PredefinedPanoramas.*;
+import static ch.epfl.alpano.gui.PredefinedPanoramas.COURTEPIN;
+import static ch.epfl.alpano.gui.PredefinedPanoramas.FINSTER;
+import static ch.epfl.alpano.gui.PredefinedPanoramas.JURA;
+import static ch.epfl.alpano.gui.PredefinedPanoramas.NIESEN;
+import static ch.epfl.alpano.gui.PredefinedPanoramas.PELICAN;
+import static ch.epfl.alpano.gui.PredefinedPanoramas.RACINE;
+import static ch.epfl.alpano.gui.PredefinedPanoramas.SAUVABELIN;
+import static ch.epfl.alpano.gui.PredefinedPanoramas.SEEDORF;
+import static ch.epfl.alpano.gui.PredefinedPanoramas.ZIMMERWALD;
 import static java.lang.Float.POSITIVE_INFINITY;
 import static java.lang.Math.PI;
 import static javafx.embed.swing.SwingFXUtils.fromFXImage;
@@ -35,6 +43,8 @@ final class DrawUserPanoramaColor {
 
     public static void main(String[] as) throws IOException {
         DiscreteElevationModel dDEM = new SuperHgtDiscreteElevationModel();
+        // DiscreteElevationModel dDEM = new
+        // HgtDiscreteElevationModel(HGT_FILE_46_7);
         PanoramaComputer p = new PanoramaComputer(
                 new ContinuousElevationModel(dDEM));
         System.out.printf("PanoramaComputer loaded after %.3f s.%n", getSec());
