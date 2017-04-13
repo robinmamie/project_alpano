@@ -1,13 +1,13 @@
 package ch.epfl.alpano.gui;
 
 import static ch.epfl.alpano.gui.UserParameter.*;
-import static java.lang.Math.scalb;
 import static java.lang.Math.toRadians;
+import static java.lang.Math.scalb;
 import static java.util.Collections.unmodifiableMap;
 
 import java.util.EnumMap;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.function.ToIntFunction;
 
 import ch.epfl.alpano.GeoPoint;
 import ch.epfl.alpano.PanoramaParameters;
@@ -102,8 +102,8 @@ public final class PanoramaUserParameters {
      * 
      * @return La longitude de l'observateur.
      */
-    public int observerLongitude() {
-        return get(OBSERVER_LONGITUDE);
+    public double observerLongitude() {
+        return toRadians(get(OBSERVER_LONGITUDE) / 10_000.);
     }
 
     /**
@@ -111,8 +111,8 @@ public final class PanoramaUserParameters {
      * 
      * @return La latitude de l'observateur.
      */
-    public int observerLatitude() {
-        return get(OBSERVER_LATITUDE);
+    public double observerLatitude() {
+        return toRadians(get(OBSERVER_LATITUDE) / 10_000.);
     }
 
     /**
@@ -129,8 +129,8 @@ public final class PanoramaUserParameters {
      * 
      * @return L'azimut central.
      */
-    public int centerAzimuth() {
-        return get(CENTER_AZIMUTH);
+    public double centerAzimuth() {
+        return toRadians(get(CENTER_AZIMUTH));
     }
 
     /**
@@ -138,8 +138,8 @@ public final class PanoramaUserParameters {
      * 
      * @return Le champ de vue horizontal.
      */
-    public int horizontalFieldOfView() {
-        return get(HORIZONTAL_FIELD_OF_VIEW);
+    public double horizontalFieldOfView() {
+        return toRadians(get(HORIZONTAL_FIELD_OF_VIEW));
     }
 
     /**
@@ -148,7 +148,7 @@ public final class PanoramaUserParameters {
      * @return La distance maximale.
      */
     public int maxDistance() {
-        return get(MAX_DISTANCE);
+        return get(MAX_DISTANCE) * 1_000;
     }
 
     /**
@@ -187,13 +187,12 @@ public final class PanoramaUserParameters {
      * 
      * @return La paramètres du Panorama.
      */
-    private PanoramaParameters panoramaParametersSet(Function<Integer, Integer> s) {
+    private PanoramaParameters panoramaParametersSet(ToIntFunction<Integer> s) {
         return new PanoramaParameters(
-                new GeoPoint(toRadians(observerLongitude() / 10_000.),
-                        toRadians(observerLatitude() / 10_000.)),
-                observerElevation(), toRadians(centerAzimuth()),
-                toRadians(horizontalFieldOfView()), 1_000 * maxDistance(),
-                s.apply(width()), s.apply(height()));
+                new GeoPoint(observerLongitude(), observerLatitude()),
+                observerElevation(), centerAzimuth(), horizontalFieldOfView(),
+                maxDistance(), s.applyAsInt((width())),
+                s.applyAsInt((height())));
     }
 
     /**
@@ -204,7 +203,8 @@ public final class PanoramaUserParameters {
      *         suréchantillonage.
      */
     public PanoramaParameters panoramaParameters() {
-        return panoramaParametersSet(x -> (int) scalb(x, superSamplingExponent()));
+        return panoramaParametersSet(
+                x -> (int) scalb(x, superSamplingExponent()));
     }
 
     /**
