@@ -4,12 +4,12 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
-import ch.epfl.alpano.PanoramaParametersTest__Prof;
+import ch.epfl.alpano.PanoramaParametersTest;
 
 
 @RunWith(Suite.class)
 @SuiteClasses({
-                PanoramaParametersTest__Prof.class})
+                PanoramaParametersTest.class})
 
 public class Week5TestSuite {
 
