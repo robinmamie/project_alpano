@@ -1,6 +1,7 @@
 package ch.epfl.alpano.gui;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -85,8 +86,10 @@ public final class Labelizer {
     public List<Node> labels(PanoramaParameters parameters) {
 
         List<Summit> visible = visibleSummits(parameters);
-        List<Summit> toLabel = new ArrayList<>();
         List<Node> nodes = new ArrayList<>();
+        BitSet positions = new BitSet(parameters.width());
+        positions.flip(0, 20);
+        positions.flip(positions.size() - 21, positions.size());
 
         int labelPlace = -1;
 
@@ -94,31 +97,24 @@ public final class Labelizer {
             int xIndex = values.get(s)[0];
             int yIndex = values.get(s)[1];
             if (yIndex > 170) {
-                if (labelPlace == -1)
-                    labelPlace = yIndex - 22;
-                if (19 <= xIndex && xIndex < parameters.width() - 19) {
-                    boolean toAdd = true;
-                    for (Summit l : toLabel)
-                        if (Math.abs(values.get(l)[0] - xIndex) < 20)
-                            toAdd = false;
-                    if (toAdd) {
-                        toLabel.add(s);
-                        Text t = new Text(
-                                s.name() + " (" + s.elevation() + " m)");
-                        t.getTransforms().addAll(new Translate(xIndex, yIndex),
-                                new Rotate(30, 0, 0));
-                        nodes.add(t);
-                        Line l = new Line();
-                        l.setStartX(xIndex);
-                        l.setStartY(labelPlace);
-                        l.setEndX(xIndex);
-                        l.setEndY(yIndex);
-                        nodes.add(l);
-                    }
+                if (!positions.get(xIndex)
+                        && positions.nextSetBit(xIndex) - xIndex >= 20) {
+                    if (labelPlace == -1)
+                        labelPlace = yIndex - 22;
+                    Text t = new Text(s.name() + " (" + s.elevation() + " m)");
+                    t.getTransforms().addAll(new Translate(xIndex, yIndex),
+                            new Rotate(30, 0, 0));
+                    nodes.add(t);
+                    Line l = new Line();
+                    l.setStartX(xIndex);
+                    l.setStartY(labelPlace + 2);
+                    l.setEndX(xIndex);
+                    l.setEndY(yIndex);
+                    nodes.add(l);
                 }
             }
         }
-
+        
         return nodes;
     }
 

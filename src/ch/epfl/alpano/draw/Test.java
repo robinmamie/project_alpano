@@ -16,10 +16,6 @@ public class Test {
     public static void main(String[] args) throws IOException {
         long start = System.nanoTime();
         List<Summit> l = GazetteerParser.readSummitsFrom(new File("alps.txt"));
-        new Labelizer(
-                new ContinuousElevationModel(
-                        new SuperHgtDiscreteElevationModel()),
-                l).labels(PredefinedPanoramas.NIESEN.panoramaParameters());
         long stop = System.nanoTime();
         System.out.printf("%nThe test file took %.3f ms to run.%n",
                 (stop - start) * 1e-6);
