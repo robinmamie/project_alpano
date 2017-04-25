@@ -29,6 +29,11 @@ public final class PanoramaParameters {
     private final int observerElevation, maxDistance, width, height;
     private final double centerAzimuth, horizontalFieldOfView;
 
+    private final double verticalFieldOfView;
+    private final double delta;
+    private final double centerHorizontalPixel;
+    private final double centerVerticalPixel;
+
     /**
      * Construit les paramètres utiles au Panorama.
      * 
@@ -77,6 +82,13 @@ public final class PanoramaParameters {
 
         checkArgument(0 < height, "The given height is not stricly positive.");
         this.height = height;
+
+        this.verticalFieldOfView = (horizontalFieldOfView() * (height() - 1))
+                / (width() - 1);
+        
+        this.delta = horizontalFieldOfView() / (width() - 1);
+        this.centerHorizontalPixel = (width() - 1) / 2.0;
+        this.centerVerticalPixel = (height() - 1) / 2.0;
     }
 
     /**
@@ -121,7 +133,7 @@ public final class PanoramaParameters {
      * @return Le champ de vue vertical du Panorama.
      */
     public double verticalFieldOfView() {
-        return (horizontalFieldOfView() * (height() - 1)) / (width() - 1);
+        return verticalFieldOfView;
     }
 
     /**
@@ -157,7 +169,7 @@ public final class PanoramaParameters {
      * @return La valeur de conversion pixel - angle.
      */
     private double delta() {
-        return horizontalFieldOfView() / (width() - 1);
+        return delta;
     }
 
     /**
@@ -166,7 +178,7 @@ public final class PanoramaParameters {
      * @return L'index horizontal central.
      */
     private double centerHorizontalPixel() {
-        return (width() - 1) / 2.0;
+        return centerHorizontalPixel;
     }
 
     /**
@@ -175,7 +187,7 @@ public final class PanoramaParameters {
      * @return L'index vertical central.
      */
     private double centerVerticalPixel() {
-        return (height() - 1) / 2.0;
+        return centerVerticalPixel;
     }
 
     /**

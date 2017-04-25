@@ -90,8 +90,8 @@ public final class PanoramaComputer {
                 pb.setDistanceAt(x, y, (float) (dist / cos(angle)))
                         .setLongitudeAt(x, y, (float) point.longitude())
                         .setLatitudeAt(x, y, (float) point.latitude())
-                        .setElevationAt(x, y, (float) profile.elevationAt(dist))
-                        .setSlopeAt(x, y, (float) profile.slopeAt(dist));
+                        .setElevationAt(x, y, (float) dem.elevationAt(point))
+                        .setSlopeAt(x, y, (float) dem.slopeAt(point));
             }
         }
         return pb.build();

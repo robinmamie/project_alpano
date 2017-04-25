@@ -413,8 +413,14 @@ public final class Panorama {
                 throw new IllegalStateException(
                         "The Panorama Builder was already built.");
             this.built = true;
-            return new Panorama(parameters, distance, longitude, latitude,
+            Panorama p = new Panorama(parameters, distance, longitude, latitude,
                     elevation, slope);
+            distance = null;
+            longitude = null;
+            latitude = null;
+            elevation = null;
+            slope = null;
+            return p;
         }
 
     }

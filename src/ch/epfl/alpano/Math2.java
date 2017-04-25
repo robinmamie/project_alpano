@@ -22,17 +22,17 @@ public interface Math2 {
      * La valeur 2*Pi.
      */
     double PI2 = 2 * PI;
-    
+
     /**
      * La valeur Pi/2.
      */
     double HALF_PI = PI / 2;
-    
+
     /**
      * La valeur 3*Pi/2.
      */
     double THREE_HALF_PI = 3 * PI / 2;
-    
+
     /**
      * La valeur 3*Pi/8.
      */
@@ -155,9 +155,14 @@ public interface Math2 {
      *         lequel la fonction contient une racine ou
      *         Double.POSITIVE_INFINITY si l'intervalle ne contient pas de
      *         racine.
+     * 
+     * @throws IllegalArgumentException
+     *             si la borne supérieure est inférieure à la borne inférieure
+     *             ou si le pas <i>dX</i> n'est pas strictement positif.
      */
     static double firstIntervalContainingRoot(DoubleUnaryOperator f,
             double minX, double maxX, double dX) {
+        checkArgument(minX <= maxX && 0 < dX);
         while (minX <= maxX - dX) {
             if (f.applyAsDouble(minX) * f.applyAsDouble(minX + dX) <= 0)
                 return minX;

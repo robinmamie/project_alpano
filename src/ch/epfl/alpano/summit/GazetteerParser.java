@@ -25,12 +25,6 @@ import ch.epfl.alpano.GeoPoint;
 public final class GazetteerParser {
 
     /**
-     * Selon le split() effectué dans readSummitsFrom, le nom du sommet commence
-     * à cet index.
-     */
-    private static final int NAME_POSITION = 6;
-
-    /**
      * Constructeur privé, car la classe est non instanciable.
      */
     private GazetteerParser() {
@@ -47,16 +41,8 @@ public final class GazetteerParser {
      * @throws IOException
      *             si le format de la ligne est invalide.
      */
-    private static String getName(String[] line) throws IOException {
-        if (line.length <= NAME_POSITION)
-            throw new IOException();
-        StringBuilder sb = new StringBuilder();
-        for (int i = NAME_POSITION; i < line.length; ++i) {
-            sb.append(line[i]);
-            if (i != line.length - 1)
-                sb.append(" ");
-        }
-        return sb.toString();
+    private static String getName(String line) throws IOException {
+        return line.substring(36);
     }
 
     /**
@@ -125,7 +111,7 @@ public final class GazetteerParser {
             String s;
             while ((s = b.readLine()) != null) {
                 String[] elements = s.trim().split("\\s+");
-                summits.add(new Summit(getName(elements),
+                summits.add(new Summit(getName(s),
                         getPoint(elements[0], elements[1]),
                         parseInt(elements[2])));
             }

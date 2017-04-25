@@ -21,6 +21,11 @@ final class CompositeDiscreteElevationModel implements DiscreteElevationModel {
      * Le second MNT.
      */
     private final DiscreteElevationModel dem2;
+    
+    /**
+     * Étendue des MNT
+     */
+    private final Interval2D extent;
 
     /**
      * Construit un CompositeDiscreteElevationModel, composé par l'union de deux
@@ -38,11 +43,12 @@ final class CompositeDiscreteElevationModel implements DiscreteElevationModel {
             DiscreteElevationModel dem2) {
         this.dem1 = requireNonNull(dem1, "The first given DEM is null.");
         this.dem2 = requireNonNull(dem2, "The second given DEM is null.");
+        this.extent = dem1.extent().union(dem2.extent());
     }
 
     @Override
     public Interval2D extent() {
-        return dem1.extent().union(dem2.extent());
+        return extent;
     }
 
     @Override
