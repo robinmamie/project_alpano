@@ -1,6 +1,8 @@
 package ch.epfl.alpano.gui;
 
-import java.util.ArrayList;
+import static ch.epfl.alpano.Preconditions.checkArgument;
+import static java.util.Arrays.asList;
+
 import java.util.List;
 
 import javafx.util.StringConverter;
@@ -23,22 +25,18 @@ public final class LabeledListStringConverter extends StringConverter<Integer> {
      *            Les valeurs prédéfinies de chaînes de caractères.
      */
     public LabeledListStringConverter(String... values) {
-        this.values = new ArrayList<>();
-        for (String s : values)
-            this.values.add(s);
+        this.values = asList(values);
     }
 
     @Override
     public Integer fromString(String arg0) {
-        if (!values.contains(arg0))
-            throw new IllegalArgumentException("Invalid input string.");
+        checkArgument(values.contains(arg0), "Invalid input string.");
         return values.indexOf(arg0);
     }
 
     @Override
     public String toString(Integer arg0) {
-        if (arg0 < 0 || values.size() <= arg0)
-            throw new IllegalArgumentException("Invalid index.");
+        checkArgument(0 <= arg0 && arg0 < values.size(), "Invalid index.");
         return values.get(arg0);
     }
 

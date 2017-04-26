@@ -60,7 +60,7 @@ final class DrawUserPanoramaColor {
         System.out.printf("Racine drawn in %.3f s.%n", getSec());
         outputImage(p.computePanorama(FINSTER.panoramaParameters()),
                 "finsteraarhorn-user.png");
-        System.out.printf("Finsteraarhorn in after %.3f s.%n", getSec());
+        System.out.printf("Finsteraarhorn in %.3f s.%n", getSec());
         outputImage(p.computePanorama(SAUVABELIN.panoramaParameters()),
                 "sauvabelin-user.png");
         System.out.printf("Sauvabelin drawn in %.3f s.%n", getSec());

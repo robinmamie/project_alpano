@@ -9,6 +9,7 @@ import static java.lang.Math.abs;
 import static java.lang.Math.atan2;
 import static java.lang.Math.round;
 import static java.lang.Math.tan;
+import static java.math.RoundingMode.HALF_UP;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -33,7 +34,7 @@ import javafx.scene.transform.Translate;
  * @author Maxence Jouve (269716)
  */
 public final class Labelizer {
-    
+
     private final static int TOLERANCE = 200;
 
     private final ContinuousElevationModel cem;
@@ -135,9 +136,10 @@ public final class Labelizer {
                     && positions.nextSetBit(xIndex) - xIndex >= 20) {
                 if (labelPlace == -1)
                     labelPlace = yIndex - 22;
+                positions.flip(xIndex, xIndex + 20);
                 Text t = new Text(s.name() + " (" + s.elevation() + " m)");
                 t.getTransforms().addAll(new Translate(xIndex, yIndex),
-                        new Rotate(30, 0, 0));
+                        new Rotate(60, 0, 0));
                 nodes.add(t);
                 Line l = new Line();
                 l.setStartX(xIndex);
