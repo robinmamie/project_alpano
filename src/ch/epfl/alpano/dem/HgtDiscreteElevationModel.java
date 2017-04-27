@@ -109,8 +109,8 @@ public final class HgtDiscreteElevationModel implements DiscreteElevationModel {
         int lonIndex = (ew == 'E' ? 1 : -1) * lon * SAMPLES_PER_DEGREE;
         int latIndex = (ns == 'N' ? 1 : -1) * lat * SAMPLES_PER_DEGREE;
         this.extent = new Interval2D(
-                new Interval1D(lonIndex, lonIndex + SIDE - 1),
-                new Interval1D(latIndex, latIndex + SIDE - 1));
+                new Interval1D(lonIndex, lonIndex + SAMPLES_PER_DEGREE),
+                new Interval1D(latIndex, latIndex + SAMPLES_PER_DEGREE));
     }
 
     @Override

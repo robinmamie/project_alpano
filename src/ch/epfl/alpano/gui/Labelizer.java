@@ -9,7 +9,6 @@ import static java.lang.Math.abs;
 import static java.lang.Math.atan2;
 import static java.lang.Math.round;
 import static java.lang.Math.tan;
-import static java.math.RoundingMode.HALF_UP;
 
 import java.util.ArrayList;
 import java.util.BitSet;
