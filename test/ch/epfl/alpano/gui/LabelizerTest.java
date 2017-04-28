@@ -2,6 +2,9 @@ package ch.epfl.alpano.gui;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
+
+import javafx.scene.Node;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -17,12 +20,15 @@ public class LabelizerTest {
 
     @Test
     public void labelizerWorks() throws IOException {
-        new Labelizer(
+        long start = System.nanoTime();
+        List<Node> nodes = new Labelizer(
                 new ContinuousElevationModel(
                         new SuperHgtDiscreteElevationModel()),
                 GazetteerParser.readSummitsFrom(new File("alps.txt")))
-                        .labels(PredefinedPanoramas.NIESEN.panoramaParameters())
-                        .forEach(System.out::println);
+                        .labels(PredefinedPanoramas.NIESEN.panoramaParameters());
+        long stop = System.nanoTime();
+        nodes.forEach(System.out::println);
+        System.out.printf("Took %.3f s to load.", (stop-start)*1e-9);
     }
 
 }

@@ -10,6 +10,7 @@ import static java.lang.Math.abs;
 import static java.lang.Math.atan2;
 import static java.lang.Math.round;
 import static java.lang.Math.tan;
+import static java.util.Collections.unmodifiableList;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -63,6 +64,16 @@ public final class Labelizer {
     private final static int TEXT_ANGLE = 60;
 
     /**
+     * Index du tableau de la map pour l'index x.
+     */
+    private final static int INDEX_X = 0;
+
+    /**
+     * Index du tableau de la map pour l'index y.
+     */
+    private final static int INDEX_Y = 1;
+
+    /**
      * MNT continu.
      */
     private final ContinuousElevationModel cem;
@@ -89,7 +100,7 @@ public final class Labelizer {
      */
     public Labelizer(ContinuousElevationModel cem, List<Summit> summits) {
         this.cem = cem;
-        this.summits = summits;
+        this.summits = unmodifiableList(new ArrayList<>(summits));
         values = new HashMap<Summit, Integer[]>();
     }
 
@@ -106,7 +117,7 @@ public final class Labelizer {
 
         for (Summit s : summits) {
             // 1ère condition, se trouve dans la zone visible
-            
+
             // 1.a: se trouve à une distance possible, i.e. inférieure à
             // maxDistance
             double distance = parameters.observerPosition()
@@ -146,7 +157,8 @@ public final class Labelizer {
             }
         }
         visible.sort((x, y) -> {
-            int higher = compare(values.get(x)[1], values.get(y)[1]);
+            int higher = compare(values.get(x)[INDEX_Y],
+                    values.get(y)[INDEX_Y]);
             return higher == 0 ? compare(y.elevation(), x.elevation()) : higher;
         });
         return visible;
@@ -170,8 +182,8 @@ public final class Labelizer {
         int labelPlace = -1;
 
         for (Summit s : visible) {
-            int xIndex = values.get(s)[0];
-            int yIndex = values.get(s)[1];
+            int xIndex = values.get(s)[INDEX_X];
+            int yIndex = values.get(s)[INDEX_Y];
             if (yIndex > PIXEL_THRESHOLD && !positions.get(xIndex) && positions
                     .get(xIndex, xIndex + PIXELS_NEEDED).isEmpty()) {
                 if (labelPlace == -1)
