@@ -87,7 +87,7 @@ public final class Labelizer {
      * Table associative utilisée pour sauvegarder les coordonées d'un sommet
      * sur l'image.
      */
-    private Map<Summit, Integer[]> values;
+    private final Map<Summit, Integer[]> values;
 
     /**
      * Construit un Labelizer, qui servira à étiquetter les sommets visibles
@@ -156,12 +156,12 @@ public final class Labelizer {
                         (int) round(parameters.yForAltitude(altitude)) });
             }
         }
-        visible.sort((x, y) -> {
-            int higher = compare(values.get(x)[INDEX_Y],
-                    values.get(y)[INDEX_Y]);
-            return higher == 0 ? compare(y.elevation(), x.elevation()) : higher;
+        visible.sort((a, b) -> {
+            int higher = compare(values.get(a)[INDEX_Y],
+                    values.get(b)[INDEX_Y]);
+            return higher == 0 ? compare(b.elevation(), a.elevation()) : higher;
         });
-        return visible;
+        return unmodifiableList(new ArrayList<>(visible));
     }
 
     /**
@@ -179,14 +179,15 @@ public final class Labelizer {
         BitSet positions = new BitSet(parameters.width());
         positions.flip(0, PIXELS_NEEDED);
         positions.flip(positions.size() - PIXELS_NEEDED - 1, positions.size());
-        int labelPlace = -1;
+        int labelPlaceInit = -1;
+        int labelPlace = labelPlaceInit;
 
         for (Summit s : visible) {
             int xIndex = values.get(s)[INDEX_X];
             int yIndex = values.get(s)[INDEX_Y];
             if (yIndex > PIXEL_THRESHOLD && !positions.get(xIndex) && positions
                     .get(xIndex, xIndex + PIXELS_NEEDED).isEmpty()) {
-                if (labelPlace == -1)
+                if (labelPlace == labelPlaceInit)
                     labelPlace = yIndex - PIXELS_NEEDED - PIXELS_ROOM;
                 positions.flip(xIndex, xIndex + PIXELS_NEEDED);
                 Text t = new Text(s.name() + " (" + s.elevation() + " m)");
@@ -197,7 +198,7 @@ public final class Labelizer {
                         yIndex));
             }
         }
-        return nodes;
+        return unmodifiableList(new ArrayList<>(nodes));
     }
 
 }

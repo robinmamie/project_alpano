@@ -1,9 +1,8 @@
 package ch.epfl.alpano;
 
-import static java.util.Objects.requireNonNull;
 import static java.lang.Float.POSITIVE_INFINITY;
-
-import java.util.Arrays;
+import static java.util.Arrays.fill;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Classe contenant toutes les informations utiles à la représentation graphique
@@ -251,7 +250,7 @@ public final class Panorama {
             this.elevation = new float[size];
             this.slope = new float[size];
 
-            Arrays.fill(this.distance, POSITIVE_INFINITY);
+            fill(this.distance, POSITIVE_INFINITY);
 
             this.built = false;
         }
