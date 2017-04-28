@@ -35,7 +35,7 @@ public final class PanoramaComputer {
     /**
      * Premier intervalle utilisé afin de trouver une racine à la fonction.
      */
-    private static final double INTERVAL = 64.0;
+    public static final double INTERVAL = 64.0;
 
     /**
      * Second intervalle utilisé afin d'affiner la recherche de la racine.

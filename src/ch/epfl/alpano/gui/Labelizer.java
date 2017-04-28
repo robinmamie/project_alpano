@@ -2,6 +2,7 @@ package ch.epfl.alpano.gui;
 
 import static ch.epfl.alpano.Math2.angularDistance;
 import static ch.epfl.alpano.Math2.firstIntervalContainingRoot;
+import static ch.epfl.alpano.PanoramaComputer.INTERVAL;
 import static ch.epfl.alpano.PanoramaComputer.rayToGroundDistance;
 import static java.lang.Double.POSITIVE_INFINITY;
 import static java.lang.Integer.compare;
@@ -34,10 +35,47 @@ import javafx.scene.transform.Translate;
  */
 public final class Labelizer {
 
+    /**
+     * Rayon de définition d'un sommet.
+     */
     private final static int TOLERANCE = 200;
 
+    /**
+     * Nombre de pixels requis au minimum pour tracer une ligne, i.e. une ligne
+     * ne sera jamais plus courte que ça.
+     */
+    private final static int PIXELS_NEEDED = 20;
+
+    /**
+     * Espace laissé entre les étiquettes et la ligne.
+     */
+    private final static int PIXELS_ROOM = 2;
+
+    /**
+     * Les étiquettes peuvent être dessinées à partir de ce pixel vertical.
+     * Avant, l'espace laissé n'est pas suffisant.
+     */
+    private final static int PIXEL_THRESHOLD = 170;
+
+    /**
+     * Angle du texte par rapport à l'horizontale.
+     */
+    private final static int TEXT_ANGLE = 60;
+
+    /**
+     * MNT continu.
+     */
     private final ContinuousElevationModel cem;
+
+    /**
+     * Liste des sommets initialisée dans le constructeur.
+     */
     private final List<Summit> summits;
+
+    /**
+     * Table associative utilisée pour sauvegarder les coordonées d'un sommet
+     * sur l'image.
+     */
     private Map<Summit, Integer[]> values;
 
     /**
@@ -67,12 +105,17 @@ public final class Labelizer {
         List<Summit> visible = new ArrayList<>();
 
         for (Summit s : summits) {
-            // Première condition, se trouve dans la zone visible
+            // 1ère condition, se trouve dans la zone visible
+            
+            // 1.a: se trouve à une distance possible, i.e. inférieure à
+            // maxDistance
             double distance = parameters.observerPosition()
                     .distanceTo(s.position());
             if (distance > parameters.maxDistance())
                 continue;
 
+            // 1.b: se trouve à un azimuth possible, i.e. dans le domaine de
+            // définition.
             double azimuth = parameters.observerPosition()
                     .azimuthTo(s.position());
             if (abs(angularDistance(azimuth,
@@ -80,23 +123,23 @@ public final class Labelizer {
                             .horizontalFieldOfView() / 2.)
                 continue;
 
+            // 1.c: se trouve à un angle vertical possible, i.e. ni trop haut,
+            // ni trop bas.
             ElevationProfile profile = new ElevationProfile(cem,
                     parameters.observerPosition(), azimuth, distance);
-
             double altitude = atan2(-rayToGroundDistance(profile,
                     parameters.observerElevation(), 0).applyAsDouble(distance),
                     distance);
             if (abs(altitude) > parameters.verticalFieldOfView() / 2.)
                 continue;
 
-            // Seconde condition, est réellement visible par l'observateur.
-            double cross = firstIntervalContainingRoot(
+            // 2nde condition, est réellement visible par l'observateur, i.e. un
+            // rayon lancé depuis ce dernier atteint le sommet.
+            if (firstIntervalContainingRoot(
                     rayToGroundDistance(profile, parameters.observerElevation(),
                             tan(altitude)),
-                    0, distance - TOLERANCE, 64);
-            if (cross == POSITIVE_INFINITY) {
+                    0, distance - TOLERANCE, INTERVAL) == POSITIVE_INFINITY) {
                 visible.add(s);
-
                 values.put(s, new Integer[] {
                         (int) round(parameters.xForAzimuth(azimuth)),
                         (int) round(parameters.yForAltitude(altitude)) });
@@ -104,9 +147,7 @@ public final class Labelizer {
         }
         visible.sort((x, y) -> {
             int higher = compare(values.get(x)[1], values.get(y)[1]);
-            if (higher == 0)
-                return compare(y.elevation(), x.elevation());
-            return higher;
+            return higher == 0 ? compare(y.elevation(), x.elevation()) : higher;
         });
         return visible;
     }
@@ -124,28 +165,24 @@ public final class Labelizer {
         List<Summit> visible = visibleSummits(parameters);
         List<Node> nodes = new ArrayList<>();
         BitSet positions = new BitSet(parameters.width());
-        positions.flip(0, 20);
-        positions.flip(positions.size() - 21, positions.size());
+        positions.flip(0, PIXELS_NEEDED);
+        positions.flip(positions.size() - PIXELS_NEEDED - 1, positions.size());
         int labelPlace = -1;
 
         for (Summit s : visible) {
             int xIndex = values.get(s)[0];
             int yIndex = values.get(s)[1];
-            if (yIndex > 170 && !positions.get(xIndex)
-                    && positions.nextSetBit(xIndex) - xIndex >= 20) {
+            if (yIndex > PIXEL_THRESHOLD && !positions.get(xIndex) && positions
+                    .get(xIndex, xIndex + PIXELS_NEEDED).isEmpty()) {
                 if (labelPlace == -1)
-                    labelPlace = yIndex - 22;
-                positions.flip(xIndex, xIndex + 20);
+                    labelPlace = yIndex - PIXELS_NEEDED - PIXELS_ROOM;
+                positions.flip(xIndex, xIndex + PIXELS_NEEDED);
                 Text t = new Text(s.name() + " (" + s.elevation() + " m)");
                 t.getTransforms().addAll(new Translate(xIndex, yIndex),
-                        new Rotate(60, 0, 0));
+                        new Rotate(TEXT_ANGLE, 0, 0));
                 nodes.add(t);
-                Line l = new Line();
-                l.setStartX(xIndex);
-                l.setStartY(labelPlace + 2);
-                l.setEndX(xIndex);
-                l.setEndY(yIndex);
-                nodes.add(l);
+                nodes.add(new Line(xIndex, labelPlace + PIXELS_ROOM, xIndex,
+                        yIndex));
             }
         }
         return nodes;

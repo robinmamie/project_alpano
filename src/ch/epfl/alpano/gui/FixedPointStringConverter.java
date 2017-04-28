@@ -15,6 +15,9 @@ import javafx.util.StringConverter;
  */
 public final class FixedPointStringConverter extends StringConverter<Integer> {
 
+    /**
+     * Le nombre de décimales sauvegardées.
+     */
     private final int decimals;
 
     /**

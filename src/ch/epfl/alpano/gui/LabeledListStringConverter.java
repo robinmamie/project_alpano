@@ -15,6 +15,9 @@ import javafx.util.StringConverter;
  */
 public final class LabeledListStringConverter extends StringConverter<Integer> {
 
+    /**
+     * Valeurs possibles définies dans le constructeur.
+     */
     private final List<String> values;
 
     /**
