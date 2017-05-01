@@ -84,7 +84,7 @@ public final class PanoramaUserParameters {
             }
         });
     }
-
+    
     /**
      * Permet d'obtenir la valeur du paramètre demandé.
      * 
@@ -216,6 +216,15 @@ public final class PanoramaUserParameters {
      */
     public PanoramaParameters panoramaDisplayParamters() {
         return panoramaParametersSet(x -> x);
+    }
+    
+    /**
+     * Retourne la table associative utilisée dans la classe.
+     * 
+     * @return La table associative utilisée dans la classe.
+     */
+    Map<UserParameter, Integer> map() {
+        return map;
     }
 
     @Override
