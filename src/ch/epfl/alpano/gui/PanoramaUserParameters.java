@@ -1,9 +1,17 @@
 package ch.epfl.alpano.gui;
 
-import static ch.epfl.alpano.gui.UserParameter.*;
-import static java.lang.Math.toRadians;
-import static java.lang.Math.scalb;
 import static ch.epfl.alpano.Preconditions.checkArgument;
+import static ch.epfl.alpano.gui.UserParameter.CENTER_AZIMUTH;
+import static ch.epfl.alpano.gui.UserParameter.HEIGHT;
+import static ch.epfl.alpano.gui.UserParameter.HORIZONTAL_FIELD_OF_VIEW;
+import static ch.epfl.alpano.gui.UserParameter.MAX_DISTANCE;
+import static ch.epfl.alpano.gui.UserParameter.OBSERVER_ELEVATION;
+import static ch.epfl.alpano.gui.UserParameter.OBSERVER_LATITUDE;
+import static ch.epfl.alpano.gui.UserParameter.OBSERVER_LONGITUDE;
+import static ch.epfl.alpano.gui.UserParameter.SUPER_SAMPLING_EXPONENT;
+import static ch.epfl.alpano.gui.UserParameter.WIDTH;
+import static java.lang.Math.scalb;
+import static java.lang.Math.toRadians;
 import static java.util.Collections.unmodifiableMap;
 
 import java.util.EnumMap;
@@ -12,7 +20,6 @@ import java.util.function.ToIntFunction;
 
 import ch.epfl.alpano.GeoPoint;
 import ch.epfl.alpano.PanoramaParameters;
-import ch.epfl.alpano.Preconditions;
 
 /**
  * Classe immuable permettant de définir les paramètres utilisateurs du
