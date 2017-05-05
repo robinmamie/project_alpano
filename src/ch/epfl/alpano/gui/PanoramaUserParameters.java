@@ -214,7 +214,7 @@ public final class PanoramaUserParameters {
      * @return Les paramètres du Panorama en ne prenant pas en compte l'exposant
      *         de suréchantillonage.
      */
-    public PanoramaParameters panoramaDisplayParamters() {
+    public PanoramaParameters panoramaDisplayParameters() {
         return panoramaParametersSet(x -> x);
     }
     

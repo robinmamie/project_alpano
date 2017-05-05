@@ -161,6 +161,7 @@ public final class Labelizer {
                     values.get(b)[INDEX_Y]);
             return higher == 0 ? compare(b.elevation(), a.elevation()) : higher;
         });
+        System.out.println(visible.size());
         return unmodifiableList(new ArrayList<>(visible));
     }
 

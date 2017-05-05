@@ -42,9 +42,9 @@ public class PanoramaParametersBean implements Serializable {
 
     private void synchronizeParameters() {
         Map<UserParameter, Integer> map = new EnumMap<>(UserParameter.class);
-        properties.forEach((u, x) -> map.put(u, x.get()));
+        properties.forEach((u, p) -> map.put(u, p.get()));
         parameters.set(new PanoramaUserParameters(map));
-        properties.forEach((u, x) -> x.set(parameters.get().get(u)));
+        properties.forEach((u, p) -> p.set(parameters.get().get(u)));
     }
 
     public ReadOnlyObjectProperty<PanoramaUserParameters> parametersProperty() {

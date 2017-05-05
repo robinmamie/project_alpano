@@ -1,5 +1,9 @@
 package ch.epfl.alpano.gui;
 
+import static java.lang.Float.POSITIVE_INFINITY;
+import static java.lang.Math.PI;
+
+import ch.epfl.alpano.Panorama;
 import javafx.scene.paint.Color;
 
 /**
@@ -56,5 +60,16 @@ public interface ImagePainter {
      */
     static ImagePainter gray(ChannelPainter g, ChannelPainter o) {
         return (x, y) -> Color.gray(g.valueAt(x, y), o.valueAt(x, y));
+    }
+    
+    static ImagePainter stdPanorama(Panorama panorama) {
+        ChannelPainter distance = panorama::distanceAt;
+        ChannelPainter slope = panorama::slopeAt;
+        ChannelPainter h = distance.div(100_000).cycle().mul(360);
+        ChannelPainter s = distance.div(200_000).clamp().invert();
+        ChannelPainter b = slope.mul(2).div((float) PI).invert().mul(0.7f)
+                .add(0.3f);
+        ChannelPainter o = distance.map(d -> d == POSITIVE_INFINITY ? 0 : 1);
+        return ImagePainter.hsb(h, s, b, o);
     }
 }
