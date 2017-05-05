@@ -172,25 +172,27 @@ public final class Labelizer {
      * Vérifie toutes les conditions nécessaires pour qu'un sommet soit visible
      * sur le Panorama.
      * 
-     * @param s
+     * @param summit
      *            Un sommet.
      * 
      * @return vrai si le sommet est visible sur le Panorama.
      */
-    private boolean summitIsVisible(Summit s, PanoramaParameters parameters) {
+    private boolean summitIsVisible(Summit summit,
+            PanoramaParameters parameters) {
 
-        double distance = distanceToSummit(s, parameters);
+        double distance = distanceToSummit(summit, parameters);
         if (distance == POSITIVE_INFINITY)
             return false;
 
-        double azimuth = azimuthToSummit(s, parameters);
+        double azimuth = azimuthToSummit(summit, parameters);
         if (azimuth == POSITIVE_INFINITY)
             return false;
 
         ElevationProfile profile = new ElevationProfile(cem,
                 parameters.observerPosition(), azimuth, distance);
 
-        double altitude = altitudeToSummit(s, parameters, profile, distance);
+        double altitude = altitudeToSummit(summit, parameters, profile,
+                distance);
         if (altitude == POSITIVE_INFINITY)
             return false;
 
@@ -200,7 +202,7 @@ public final class Labelizer {
                 0, distance - TOLERANCE, INTERVAL) != POSITIVE_INFINITY)
             return false;
 
-        values.put(s,
+        values.put(summit,
                 new Integer[] { (int) round(parameters.xForAzimuth(azimuth)),
                         (int) round(parameters.yForAltitude(altitude)) });
         return true;
@@ -227,7 +229,7 @@ public final class Labelizer {
             return higher == 0 ? compare(b.elevation(), a.elevation()) : higher;
         });
 
-        return unmodifiableList(new ArrayList<>(visible));
+        return unmodifiableList(visible);
     }
 
     /**
@@ -240,37 +242,36 @@ public final class Labelizer {
      * @return Une liste de nœuds JavaFX.
      */
     public List<Node> labels(PanoramaParameters parameters) {
-        
+
         List<Summit> visible = visibleSummits(parameters);
         List<Node> nodes = new ArrayList<>();
-        
+
         BitSet positions = new BitSet(parameters.width());
         positions.flip(0, PIXELS_NEEDED);
         positions.flip(positions.size() - PIXELS_NEEDED - 1, positions.size());
-        
-        int labelPlaceInit = -1;
-        int labelPlace = labelPlaceInit;
+
+        int labelPlaceInit = -1, labelPlace = labelPlaceInit;
 
         for (Summit s : visible) {
             int x = values.get(s)[INDEX_X], y = values.get(s)[INDEX_Y];
-            
-            if (y > PIXEL_THRESHOLD && !positions.get(x)
+
+            if (y > PIXEL_THRESHOLD
                     && positions.get(x, x + PIXELS_NEEDED).isEmpty()) {
-                
+
                 if (labelPlace == labelPlaceInit)
                     labelPlace = y - PIXELS_NEEDED - PIXELS_ROOM;
-                
+
                 positions.flip(x, x + PIXELS_NEEDED);
-                
+
                 Text t = new Text(s.name() + " (" + s.elevation() + " m)");
                 t.getTransforms().addAll(new Translate(x, y),
                         new Rotate(TEXT_ANGLE, 0, 0));
                 nodes.add(t);
-                
+
                 nodes.add(new Line(x, labelPlace + PIXELS_ROOM, x, y));
             }
         }
-        return unmodifiableList(new ArrayList<>(nodes));
+        return unmodifiableList(nodes);
         // TODO *BONUS* User can give personalised inputs, e.g. cities, list and
         // save
         // them, and then force them to show on the Panorama, e.g. by inputing
