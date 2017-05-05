@@ -24,11 +24,12 @@ public class LabelizerTest {
         List<Node> nodes = new Labelizer(
                 new ContinuousElevationModel(
                         new SuperHgtDiscreteElevationModel()),
-                GazetteerParser.readSummitsFrom(new File("alps.txt")))
-                        .labels(PredefinedPanoramas.NIESEN.panoramaParameters());
+                GazetteerParser.readSummitsFrom(new File("alps.txt"))).labels(
+                        PredefinedPanoramas.NIESEN.panoramaParameters());
         long stop = System.nanoTime();
         nodes.forEach(System.out::println);
-        System.out.printf("Took %.3f s to load.", (stop-start)*1e-9);
+        System.out.printf("Number of summits: %d%n", nodes.size() / 2);
+        System.out.printf("Took %.3f s to load.", (stop - start) * 1e-9);
     }
 
 }
