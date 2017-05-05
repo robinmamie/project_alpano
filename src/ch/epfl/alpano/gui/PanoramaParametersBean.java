@@ -28,9 +28,23 @@ import javafx.beans.property.SimpleObjectProperty;
 @SuppressWarnings("serial")
 public class PanoramaParametersBean implements Serializable {
 
+    /**
+     * Stocke les paramètres utilisateurs du Panorama dans une propriété javafx.
+     */
     private ObjectProperty<PanoramaUserParameters> parameters;
+
+    /**
+     * Stocke une copie de ces paramètres utilisateurs, qui elles peuvent être
+     * modifiées par l'utilisateur de cette classe.
+     */
     private Map<UserParameter, ObjectProperty<Integer>> properties;
 
+    /**
+     * Constructeur du PanoramaParametersBean.
+     * 
+     * @param parameters
+     *            Les paramètres utilisateurs du panorama.
+     */
     public PanoramaParametersBean(PanoramaUserParameters parameters) {
         this.parameters = new SimpleObjectProperty<>(parameters);
         this.properties = new EnumMap<>(UserParameter.class);
@@ -40,6 +54,11 @@ public class PanoramaParametersBean implements Serializable {
                 (b, o, n) -> runLater(this::synchronizeParameters)));
     }
 
+    /**
+     * Permet de synchroniser les deux éléments stockés dans la classe. Elle est
+     * appelée à chaque fois qu'un des éléments de la table associative est
+     * modifié.
+     */
     private void synchronizeParameters() {
         Map<UserParameter, Integer> map = new EnumMap<>(UserParameter.class);
         properties.forEach((u, p) -> map.put(u, p.get()));
@@ -47,6 +66,13 @@ public class PanoramaParametersBean implements Serializable {
         properties.forEach((u, p) -> p.set(parameters.get().get(u)));
     }
 
+    /**
+     * Retourne une copie en lecture seule de la propriété javafx des paramètres
+     * utilisateurs du panorama.
+     * 
+     * @return une copie en lecture seule de la propriété javafx des paramètres
+     *         utilisateurs du panorama.
+     */
     public ReadOnlyObjectProperty<PanoramaUserParameters> parametersProperty() {
         return parameters;
     }
