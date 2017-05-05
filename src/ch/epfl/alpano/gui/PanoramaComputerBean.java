@@ -1,5 +1,6 @@
 package ch.epfl.alpano.gui;
 
+import static ch.epfl.alpano.gui.ImagePainter.stdPanorama;
 import static ch.epfl.alpano.gui.PanoramaRenderer.renderPanorama;
 import static javafx.collections.FXCollections.observableArrayList;
 import static javafx.collections.FXCollections.unmodifiableObservableList;
@@ -45,8 +46,7 @@ public class PanoramaComputerBean implements Serializable {
                 .panoramaDisplayParameters();
         panorama.set(
                 new PanoramaComputer(cem).computePanorama(parametersDisplay));
-        image.set(renderPanorama(panorama.get(),
-                ImagePainter.stdPanorama(panorama.get())));
+        image.set(renderPanorama(panorama.get(), stdPanorama(panorama.get())));
         labels.get()
                 .setAll(new Labelizer(cem, summits).labels(parametersDisplay));
     }
@@ -85,6 +85,6 @@ public class PanoramaComputerBean implements Serializable {
     }
 
     public ObservableList<Node> getLabels() {
-        return labels.get();
+        return unmodifiableObservableList(labels.get());
     }
 }
