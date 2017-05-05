@@ -35,6 +35,8 @@ public final class PanoramaUserParameters {
      */
     private final Map<UserParameter, Integer> map;
 
+    private final int SIZE_USER_PARAMETER = 9;
+
     /**
      * Constructeur primaire de la classe, prend une table associative en
      * argument.
@@ -43,7 +45,8 @@ public final class PanoramaUserParameters {
      *            La table associative des paramètres utilisateur.
      */
     public PanoramaUserParameters(Map<UserParameter, Integer> map) {
-        checkArgument(map.size() == 9, "The given map not valid.");
+        checkArgument(map.size() == SIZE_USER_PARAMETER,
+                "The given map not valid.");
         map = new EnumMap<>(map);
         map.replaceAll(UserParameter::sanitize);
         int limit = (int) (1 + 170 * (map.get(WIDTH) - 1.)
