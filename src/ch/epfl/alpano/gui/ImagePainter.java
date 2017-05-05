@@ -62,6 +62,11 @@ public interface ImagePainter {
         return (x, y) -> Color.gray(g.valueAt(x, y), o.valueAt(x, y));
     }
     
+    /**
+     * TODO complete
+     * @param panorama
+     * @return
+     */
     static ImagePainter stdPanorama(Panorama panorama) {
         ChannelPainter distance = panorama::distanceAt;
         ChannelPainter slope = panorama::slopeAt;

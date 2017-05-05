@@ -74,6 +74,7 @@ public interface PredefinedPanoramas {
             46_5132, 380, 135, 60, MAX_DISTANCE, WIDTH, HEIGHT,
             SUPER_SAMPLING_EX);
 
+    //TODO JAVADOC
     static PanoramaUserParameters SEEDORF = new PanoramaUserParameters(8_6158,
             46_8788, 455, 80, 180, MAX_DISTANCE, WIDTH, HEIGHT,
             SUPER_SAMPLING_EX);

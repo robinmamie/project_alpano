@@ -3,6 +3,7 @@ package ch.epfl.alpano.gui;
 import static ch.epfl.alpano.gui.UserParameter.*;
 import static java.lang.Math.toRadians;
 import static java.lang.Math.scalb;
+import static ch.epfl.alpano.Preconditions.checkArgument;
 import static java.util.Collections.unmodifiableMap;
 
 import java.util.EnumMap;
@@ -11,6 +12,7 @@ import java.util.function.ToIntFunction;
 
 import ch.epfl.alpano.GeoPoint;
 import ch.epfl.alpano.PanoramaParameters;
+import ch.epfl.alpano.Preconditions;
 
 /**
  * Classe immuable permettant de définir les paramètres utilisateurs du
@@ -34,6 +36,7 @@ public final class PanoramaUserParameters {
      *            La table associative des paramètres utilisateur.
      */
     public PanoramaUserParameters(Map<UserParameter, Integer> map) {
+        checkArgument(map.size() == 9, "The given map not valid.");
         map = new EnumMap<>(map);
         map.replaceAll(UserParameter::sanitize);
         int limit = (int) (1 + 170 * (map.get(WIDTH) - 1.)
@@ -84,7 +87,7 @@ public final class PanoramaUserParameters {
             }
         });
     }
-    
+
     /**
      * Permet d'obtenir la valeur du paramètre demandé.
      * 
@@ -102,8 +105,8 @@ public final class PanoramaUserParameters {
      * 
      * @return La longitude de l'observateur.
      */
-    public double observerLongitude() {
-        return toRadians(get(OBSERVER_LONGITUDE) / 10_000.);
+    public int observerLongitude() {
+        return get(OBSERVER_LONGITUDE);
     }
 
     /**
@@ -111,8 +114,8 @@ public final class PanoramaUserParameters {
      * 
      * @return La latitude de l'observateur.
      */
-    public double observerLatitude() {
-        return toRadians(get(OBSERVER_LATITUDE) / 10_000.);
+    public int observerLatitude() {
+        return get(OBSERVER_LATITUDE);
     }
 
     /**
@@ -129,8 +132,8 @@ public final class PanoramaUserParameters {
      * 
      * @return L'azimut central.
      */
-    public double centerAzimuth() {
-        return toRadians(get(CENTER_AZIMUTH));
+    public int centerAzimuth() {
+        return get(CENTER_AZIMUTH);
     }
 
     /**
@@ -138,8 +141,8 @@ public final class PanoramaUserParameters {
      * 
      * @return Le champ de vue horizontal.
      */
-    public double horizontalFieldOfView() {
-        return toRadians(get(HORIZONTAL_FIELD_OF_VIEW));
+    public int horizontalFieldOfView() {
+        return get(HORIZONTAL_FIELD_OF_VIEW);
     }
 
     /**
@@ -148,7 +151,7 @@ public final class PanoramaUserParameters {
      * @return La distance maximale.
      */
     public int maxDistance() {
-        return get(MAX_DISTANCE) * 1_000;
+        return get(MAX_DISTANCE);
     }
 
     /**
@@ -189,10 +192,11 @@ public final class PanoramaUserParameters {
      */
     private PanoramaParameters panoramaParametersSet(ToIntFunction<Integer> s) {
         return new PanoramaParameters(
-                new GeoPoint(observerLongitude(), observerLatitude()),
-                observerElevation(), centerAzimuth(), horizontalFieldOfView(),
-                maxDistance(), s.applyAsInt((width())),
-                s.applyAsInt((height())));
+                new GeoPoint(toRadians(observerLongitude() / 10_000.),
+                        toRadians(observerLatitude() / 10_000.)),
+                observerElevation(), toRadians(centerAzimuth()),
+                toRadians(horizontalFieldOfView()), maxDistance() * 1_000,
+                s.applyAsInt((width())), s.applyAsInt((height())));
     }
 
     /**
@@ -206,6 +210,7 @@ public final class PanoramaUserParameters {
         return panoramaParametersSet(
                 x -> (int) scalb(x, superSamplingExponent()));
     }
+    // TODO: wtf, see step 8, what is what
 
     /**
      * Crée les paramètres du Panorama en ne prenant pas en compte l'exposant de
@@ -217,20 +222,20 @@ public final class PanoramaUserParameters {
     public PanoramaParameters panoramaDisplayParameters() {
         return panoramaParametersSet(x -> x);
     }
-    
+
     /**
      * Retourne la table associative utilisée dans la classe.
      * 
      * @return La table associative utilisée dans la classe.
      */
-    Map<UserParameter, Integer> map() {
+    protected Map<UserParameter, Integer> map() {
         return map;
     }
 
     @Override
     public boolean equals(Object thato) {
         return thato instanceof PanoramaUserParameters
-                && this.map.equals(((PanoramaUserParameters) thato).map);
+                && this.map().equals(((PanoramaUserParameters) thato).map());
     }
 
     @Override
