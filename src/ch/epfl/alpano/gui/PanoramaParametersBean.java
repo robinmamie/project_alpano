@@ -25,8 +25,12 @@ import javafx.beans.property.SimpleObjectProperty;
  * @author Robin Mamie (257234)
  * @author Maxence Jouve (269716)
  */
-@SuppressWarnings("serial")
 public class PanoramaParametersBean implements Serializable {
+
+    /**
+     * Serial ID.
+     */
+    private static final long serialVersionUID = -4507833007392871741L;
 
     /**
      * Stocke les paramètres utilisateurs du Panorama dans une propriété javafx.

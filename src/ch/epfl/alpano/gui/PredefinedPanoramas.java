@@ -74,15 +74,35 @@ public interface PredefinedPanoramas {
             46_5132, 380, 135, 60, MAX_DISTANCE, WIDTH, HEIGHT,
             SUPER_SAMPLING_EX);
 
-    //TODO JAVADOC
+    /**
+     * Crée les paramètres utilisateurs du Panorama des Alpes vues de Seedorf,
+     * canton d'Uri.
+     * 
+     * @return Les paramètres utilisateurs du Panorama des Alpes vues de
+     *         Seedorf, canton d'Uri.
+     */
     static PanoramaUserParameters SEEDORF = new PanoramaUserParameters(8_6158,
             46_8788, 455, 80, 180, MAX_DISTANCE, WIDTH, HEIGHT,
             SUPER_SAMPLING_EX);
 
+    /**
+     * Crée les paramètres utilisateurs du Panorama des Alpes vues de Courtepin,
+     * canton de Fribourg.
+     * 
+     * @return Les paramètres utilisateurs du Panorama des Alpes vues de
+     *         Courtepin, canton de Fribourg.
+     */
     static PanoramaUserParameters COURTEPIN = new PanoramaUserParameters(7_1302,
             46_8658, 615, 185, 30, MAX_DISTANCE, WIDTH, HEIGHT,
             SUPER_SAMPLING_EX);
 
+    /**
+     * Crée les paramètres utilisateurs du Panorama des Alpes bernoises vues de
+     * Zimmerwald, canton de Berne.
+     * 
+     * @return Les paramètres utilisateurs du Panorama des Alpes bernoises vues
+     *         de Zimmerwald, canton de Berne.
+     */
     static PanoramaUserParameters ZIMMERWALD = new PanoramaUserParameters(
             7_4787, 46_8860, 840, 150, 90, MAX_DISTANCE, WIDTH, HEIGHT,
             SUPER_SAMPLING_EX);

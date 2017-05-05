@@ -28,8 +28,12 @@ import javafx.scene.image.Image;
  * @author Robin Mamie (257234)
  * @author Maxence Jouve (269716)
  */
-@SuppressWarnings("serial")
 public class PanoramaComputerBean implements Serializable {
+
+    /**
+     * Serial ID.
+     */
+    private static final long serialVersionUID = 3959178526495134195L;
 
     /**
      * La propriété du Panorama.
@@ -178,7 +182,7 @@ public class PanoramaComputerBean implements Serializable {
      * @return la liste des sommets visibles observables.
      */
     public ObservableList<Node> getLabels() {
+        // TODO: to copy before giving it? Wait for last step.
         return unmodifiableObservableList(labels.get());
-        // TODO: to copy before giving it?
     }
 }

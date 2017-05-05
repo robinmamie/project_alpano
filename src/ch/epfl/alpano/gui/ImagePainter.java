@@ -63,9 +63,11 @@ public interface ImagePainter {
     }
     
     /**
-     * TODO complete
-     * @param panorama
-     * @return
+     * Computes the standard colouring of a Panorama.
+     * 
+     * @param panorama The Panorama which we want to colour.
+     * 
+     * @return The corresponding standard colouring of the given Panorama.
      */
     static ImagePainter stdPanorama(Panorama panorama) {
         ChannelPainter distance = panorama::distanceAt;

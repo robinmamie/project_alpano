@@ -105,6 +105,108 @@ public final class Labelizer {
     }
 
     /**
+     * Calcule la distance entre l'observateur et le sommet.
+     * 
+     * @param s
+     *            Le sommet.
+     * @param parameters
+     *            Les paramètres du Panorama.
+     * 
+     * @return La distance entre l'observateur et le sommet ou POSITIVE_INFINITY
+     *         si le sommet se trouve trop loin.
+     */
+    private double distanceToSummit(Summit s, PanoramaParameters parameters) {
+        double distance = parameters.observerPosition()
+                .distanceTo(s.position());
+        return distance > parameters.maxDistance() ? POSITIVE_INFINITY
+                : distance;
+    }
+
+    /**
+     * Calcule l'azimuth vers le sommet depuis l'observateur.
+     * 
+     * @param s
+     *            Le sommet.
+     * @param parameters
+     *            Les paramètres du Panorama.
+     * 
+     * @return L'azimuth vers le sommet depuis l'observateur ou
+     *         POSITIVE_INFINITY si le sommet n'apparaît pas dans cet angle de
+     *         vue horizontal.
+     */
+    private double azimuthToSummit(Summit s, PanoramaParameters parameters) {
+        double azimuth = parameters.observerPosition().azimuthTo(s.position());
+        return abs(angularDistance(azimuth,
+                parameters.centerAzimuth())) > parameters
+                        .horizontalFieldOfView() / 2. ? POSITIVE_INFINITY
+                                : azimuth;
+    }
+
+    /**
+     * Calcule l'altitude vers le sommet depuis l'observateur.
+     * 
+     * @param s
+     *            Le sommet.
+     * @param parameters
+     *            Les paramètres du Panorama.
+     * @param profile
+     *            Le profil altimétrique dirigé vers le sommet.
+     * @param distance
+     *            La distance entre l'observateur et le sommet.
+     * 
+     * @return L'altitude vers le sommet depuis l'observateur ou
+     *         POSITIVE_INFINITY si le sommet n'apparaît pas dans cet angle de
+     *         vue vertical.
+     */
+    private double altitudeToSummit(Summit s, PanoramaParameters parameters,
+            ElevationProfile profile, double distance) {
+        double altitude = atan2(
+                -rayToGroundDistance(profile, parameters.observerElevation(), 0)
+                        .applyAsDouble(distance),
+                distance);
+        return abs(altitude) > parameters.verticalFieldOfView() / 2.
+                ? POSITIVE_INFINITY : altitude;
+    }
+
+    /**
+     * Vérifie toutes les conditions nécessaires pour qu'un sommet soit visible
+     * sur le Panorama.
+     * 
+     * @param s
+     *            Un sommet.
+     * 
+     * @return vrai si le sommet est visible sur le Panorama.
+     */
+    private boolean summitIsVisible(Summit s, PanoramaParameters parameters) {
+
+        double distance = distanceToSummit(s, parameters);
+        if (distance == POSITIVE_INFINITY)
+            return false;
+
+        double azimuth = azimuthToSummit(s, parameters);
+        if (azimuth == POSITIVE_INFINITY)
+            return false;
+
+        ElevationProfile profile = new ElevationProfile(cem,
+                parameters.observerPosition(), azimuth, distance);
+
+        double altitude = altitudeToSummit(s, parameters, profile, distance);
+        if (altitude == POSITIVE_INFINITY)
+            return false;
+
+        if (firstIntervalContainingRoot(
+                rayToGroundDistance(profile, parameters.observerElevation(),
+                        tan(altitude)),
+                0, distance - TOLERANCE, INTERVAL) != POSITIVE_INFINITY)
+            return false;
+
+        values.put(s,
+                new Integer[] { (int) round(parameters.xForAzimuth(azimuth)),
+                        (int) round(parameters.yForAltitude(altitude)) });
+        return true;
+    }
+
+    /**
      * Calcule tous les sommets visibles depuis un position donnée et les trie.
      * 
      * @param parameters
@@ -115,52 +217,16 @@ public final class Labelizer {
     private List<Summit> visibleSummits(PanoramaParameters parameters) {
         List<Summit> visible = new ArrayList<>();
 
-        for (Summit s : summits) {
-            // 1ère condition, se trouve dans la zone visible
-
-            // 1.a: se trouve à une distance possible, i.e. inférieure à
-            // maxDistance
-            double distance = parameters.observerPosition()
-                    .distanceTo(s.position());
-            if (distance > parameters.maxDistance())
-                continue;
-
-            // 1.b: se trouve à un azimuth possible, i.e. dans le domaine de
-            // définition.
-            double azimuth = parameters.observerPosition()
-                    .azimuthTo(s.position());
-            if (abs(angularDistance(azimuth,
-                    parameters.centerAzimuth())) > parameters
-                            .horizontalFieldOfView() / 2.)
-                continue;
-
-            // 1.c: se trouve à un angle vertical possible, i.e. ni trop haut,
-            // ni trop bas.
-            ElevationProfile profile = new ElevationProfile(cem,
-                    parameters.observerPosition(), azimuth, distance);
-            double altitude = atan2(-rayToGroundDistance(profile,
-                    parameters.observerElevation(), 0).applyAsDouble(distance),
-                    distance);
-            if (abs(altitude) > parameters.verticalFieldOfView() / 2.)
-                continue;
-
-            // 2nde condition, est réellement visible par l'observateur, i.e. un
-            // rayon lancé depuis ce dernier atteint le sommet.
-            if (firstIntervalContainingRoot(
-                    rayToGroundDistance(profile, parameters.observerElevation(),
-                            tan(altitude)),
-                    0, distance - TOLERANCE, INTERVAL) == POSITIVE_INFINITY) {
+        for (Summit s : summits)
+            if (summitIsVisible(s, parameters))
                 visible.add(s);
-                values.put(s, new Integer[] {
-                        (int) round(parameters.xForAzimuth(azimuth)),
-                        (int) round(parameters.yForAltitude(altitude)) });
-            }
-        }
+
         visible.sort((a, b) -> {
             int higher = compare(values.get(a)[INDEX_Y],
                     values.get(b)[INDEX_Y]);
             return higher == 0 ? compare(b.elevation(), a.elevation()) : higher;
         });
+
         return unmodifiableList(new ArrayList<>(visible));
     }
 
@@ -174,31 +240,41 @@ public final class Labelizer {
      * @return Une liste de nœuds JavaFX.
      */
     public List<Node> labels(PanoramaParameters parameters) {
+        
         List<Summit> visible = visibleSummits(parameters);
         List<Node> nodes = new ArrayList<>();
+        
         BitSet positions = new BitSet(parameters.width());
         positions.flip(0, PIXELS_NEEDED);
         positions.flip(positions.size() - PIXELS_NEEDED - 1, positions.size());
+        
         int labelPlaceInit = -1;
         int labelPlace = labelPlaceInit;
 
         for (Summit s : visible) {
-            int xIndex = values.get(s)[INDEX_X];
-            int yIndex = values.get(s)[INDEX_Y];
-            if (yIndex > PIXEL_THRESHOLD && !positions.get(xIndex) && positions
-                    .get(xIndex, xIndex + PIXELS_NEEDED).isEmpty()) {
+            int x = values.get(s)[INDEX_X], y = values.get(s)[INDEX_Y];
+            
+            if (y > PIXEL_THRESHOLD && !positions.get(x)
+                    && positions.get(x, x + PIXELS_NEEDED).isEmpty()) {
+                
                 if (labelPlace == labelPlaceInit)
-                    labelPlace = yIndex - PIXELS_NEEDED - PIXELS_ROOM;
-                positions.flip(xIndex, xIndex + PIXELS_NEEDED);
+                    labelPlace = y - PIXELS_NEEDED - PIXELS_ROOM;
+                
+                positions.flip(x, x + PIXELS_NEEDED);
+                
                 Text t = new Text(s.name() + " (" + s.elevation() + " m)");
-                t.getTransforms().addAll(new Translate(xIndex, yIndex),
+                t.getTransforms().addAll(new Translate(x, y),
                         new Rotate(TEXT_ANGLE, 0, 0));
                 nodes.add(t);
-                nodes.add(new Line(xIndex, labelPlace + PIXELS_ROOM, xIndex,
-                        yIndex));
+                
+                nodes.add(new Line(x, labelPlace + PIXELS_ROOM, x, y));
             }
         }
         return unmodifiableList(new ArrayList<>(nodes));
+        // TODO *BONUS* User can give personalised inputs, e.g. cities, list and
+        // save
+        // them, and then force them to show on the Panorama, e.g. by inputing
+        // an infinite elevation for the "Summit".
     }
 
 }
