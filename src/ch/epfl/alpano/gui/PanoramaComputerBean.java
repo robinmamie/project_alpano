@@ -96,10 +96,8 @@ public class PanoramaComputerBean implements Serializable {
         panorama.set(
                 new PanoramaComputer(cem).computePanorama(parametersDisplay));
         image.set(renderPanorama(panorama.get(), stdPanorama(panorama.get())));
-        System.out.println(parameters.get().superSamplingExponent());
         labels.get().setAll(new Labelizer(cem, summits)
                 .labels(parameters.get().panoramaParameters()));
-        System.out.println(labels.get().size());
     }
 
     /**

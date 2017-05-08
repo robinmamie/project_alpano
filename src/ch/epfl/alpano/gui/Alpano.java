@@ -1,7 +1,17 @@
 package ch.epfl.alpano.gui;
 
+import static ch.epfl.alpano.gui.UserParameter.CENTER_AZIMUTH;
+import static ch.epfl.alpano.gui.UserParameter.HEIGHT;
+import static ch.epfl.alpano.gui.UserParameter.HORIZONTAL_FIELD_OF_VIEW;
+import static ch.epfl.alpano.gui.UserParameter.MAX_DISTANCE;
+import static ch.epfl.alpano.gui.UserParameter.OBSERVER_ELEVATION;
+import static ch.epfl.alpano.gui.UserParameter.OBSERVER_LATITUDE;
+import static ch.epfl.alpano.gui.UserParameter.OBSERVER_LONGITUDE;
+import static ch.epfl.alpano.gui.UserParameter.WIDTH;
+import static java.lang.Math.toDegrees;
+import static java.lang.String.format;
+
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 import java.util.Locale;
@@ -23,6 +33,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
@@ -37,77 +48,138 @@ import javafx.stage.Stage;
 import javafx.util.StringConverter;
 
 public final class Alpano extends Application {
+
+    private final static PanoramaUserParameters PRELOAD = PredefinedPanoramas.PELICAN;
+
+    private ContinuousElevationModel cem;
+    private PanoramaParametersBean parametersB;
+    private PanoramaComputerBean computerB;
+
     public static void main(String[] args) {
-        Application.launch(args);
+        launch(args);
     }
 
     @Override
-    public void start(Stage primaryStage) throws IOException {
+    public void start(Stage primaryStage) throws Exception {
 
-        // Computing the Panorama
-        File alps = new File("alps.txt");
-        List<Summit> summits = GazetteerParser.readSummitsFrom(alps);
+        // *** PANORAMA INITIALIZATION ***
 
-        DiscreteElevationModel dem = new SuperHgtDiscreteElevationModel();
-        ContinuousElevationModel cem = new ContinuousElevationModel(dem);
+        initPanorama();
 
-        PanoramaUserParameters predef = PredefinedPanoramas.RACINE;
-        PanoramaParametersBean parametersB = new PanoramaParametersBean(predef);
-        PanoramaComputerBean computerB = new PanoramaComputerBean(cem, summits);
+        // *** STRUCTRURE ***
+
+        ImageView panoView = new ImageView();
+        TextArea areaInfo = new TextArea();
+        Pane labelsPane = new Pane();
+        StackPane panoGroup = new StackPane(panoView, labelsPane);
+        ScrollPane panoScrollPane = new ScrollPane(panoGroup);
+        Text updateText = new Text();
+        StackPane updateNotice = new StackPane(updateText);
+        StackPane panoPane = new StackPane(panoScrollPane, updateNotice);
+        GridPane paramsGrid = new GridPane();
+        BorderPane root = new BorderPane();
+        Scene scene = new Scene(root);
 
         // *** PANE 1 ***
 
-        // IMAGE
-        ImageView panoView = new ImageView();
+        setPanoView(panoView);
+        setMouseMove(panoView, areaInfo);
+        setMouseClick(panoView);
+        setLabels(labelsPane);
+        setUpdateText(updateText);
+        setUpdateNotice(updateNotice);
+
+        // *** PANE 2 & 3 ***
+
+        setDynamicParameters(paramsGrid, areaInfo);
+        setAreaInfo(areaInfo);
+
+        // *** ROOT ***
+
+        setRoot(root, panoPane, paramsGrid);
+
+        // *** PROGRAMM ***
+
+        primaryStage.setTitle("Alpano");
+        primaryStage.setScene(scene);
+        primaryStage.show();
+    }
+
+    private void initPanorama() throws Exception {
+        File alps = new File("alps.txt");
+        List<Summit> summits = GazetteerParser.readSummitsFrom(alps);
+        
+        /*
+         * List<DiscreteElevationModel> dems = new ArrayList<>(); for (int i =
+         * 45; i <= 47; ++i) for (int j = 6; j <= 10; ++j) dems.add(new
+         * HgtDiscreteElevationModel( new File("N" + i + "E" + format("%03d", j)
+         * + ".hgt")));
+         * 
+         * DiscreteElevationModel dem1 = dems.get(0).union(dems.get(1));
+         * DiscreteElevationModel dem2 = dems.get(2).union(dems.get(3));
+         * DiscreteElevationModel dem3 = dems.get(5).union(dems.get(6));
+         * DiscreteElevationModel dem4 = dems.get(7).union(dems.get(8));
+         * DiscreteElevationModel dem5 = dems.get(10).union(dems.get(11));
+         * DiscreteElevationModel dem6 = dems.get(12).union(dems.get(13));
+         * DiscreteElevationModel dem7 = dems.get(4)
+         * .union(dems.get(9).union(dems.get(14)));
+         * 
+         * DiscreteElevationModel dem = dem1.union(dem2).union(dem3.union(dem4))
+         * .union(dem5.union(dem6)).union(dem7);
+         */
+
+        DiscreteElevationModel dem = new SuperHgtDiscreteElevationModel();
+
+        cem = new ContinuousElevationModel(dem);
+
+        parametersB = new PanoramaParametersBean(PRELOAD);
+        computerB = new PanoramaComputerBean(cem, summits);
+    }
+
+    private void setPanoView(ImageView panoView) {
         panoView.imageProperty().bind(computerB.imageProperty());
         panoView.fitWidthProperty().bind(parametersB.widthProperty());
         panoView.setPreserveRatio(true);
         panoView.setSmooth(true);
-        Text mouseInfo = new Text();
+    }
+
+    private void setMouseMove(ImageView panoView, TextArea areaInfo) {
         panoView.setOnMouseMoved(e -> {
-            int x = (int) e.getX();
-            int y = (int) e.getY();
-            int superSE = 2 * computerB.getParameters().superSamplingExponent();
-            if (superSE > 0) {
-                x *= superSE;
-                y *= superSE;
-            }
-            float longitude = computerB.getPanorama().longitudeAt(x, y);
-            float latitude = computerB.getPanorama().latitudeAt(x, y);
+            int[] index = getIndices(e);
+            int x = index[0], y = index[1];
+
+            String[] lonAndLat = getFormattedLongitudeAndLatitude(x, y);
             float distance = computerB.getPanorama().distanceAt(x, y);
             int altitude = (int) computerB.getPanorama().elevationAt(x, y);
             double azimuth = computerB.getParameters()
                     .panoramaDisplayParameters().azimuthForX(x);
-            double elevation = Math.toDegrees(computerB.getParameters()
-                    .panoramaDisplayParameters().altitudeForY(y));
-            StringBuilder sb = new StringBuilder();
-            sb.append(String.format("Position : %.4f°N %.4fE%n",
-                    Math.toDegrees(latitude), Math.toDegrees(longitude)));
-            sb.append(String.format("Distance : %.1f km%n", distance / 1000.));
-            sb.append(String.format("Altitude : %d m%n", altitude));
-            sb.append(
-                    String.format("Azimut : %.1f° (", Math.toDegrees(azimuth)));
-            sb.append(Azimuth.toOctantString(azimuth, "N", "E", "S", "W"));
-            sb.append(String.format(")  Elévation : %.1f°%n", elevation));
-            mouseInfo.setText(sb.toString());
-        });
+            double elevation = computerB.getParameters()
+                    .panoramaDisplayParameters().altitudeForY(y);
 
+            StringBuilder sb = new StringBuilder();
+            sb.append("Position : ");
+            sb.append(lonAndLat[1]);
+            sb.append("°N ");
+            sb.append(lonAndLat[0]);
+            sb.append("°E\n");
+            sb.append(format("Distance : %.1f km%n", distance / 1000));
+            sb.append(format("Altitude : %d m%n", altitude));
+            sb.append(format("Azimut : %.1f° (", toDegrees(azimuth)));
+            sb.append(Azimuth.toOctantString(azimuth, "N", "E", "S", "W"));
+            sb.append(format(")  Élévation : %.1f°%n", toDegrees(elevation)));
+            areaInfo.setText(sb.toString());
+        });
+    }
+
+    private void setMouseClick(ImageView panoView) {
         panoView.setOnMouseClicked(e -> {
-            int x = (int) e.getX();
-            int y = (int) e.getY();
-            int superSE = 2 * computerB.getParameters().superSamplingExponent();
-            if (superSE > 0) {
-                x *= superSE;
-                y *= superSE;
-            }
-            float longitude = computerB.getPanorama().longitudeAt(x, y);
-            float latitude = computerB.getPanorama().latitudeAt(x, y);
-            String lambda = String.format((Locale) null, "%.4f",
-                    Math.toDegrees(longitude));
-            String phi = String.format((Locale) null, "%.4f",
-                    Math.toDegrees(latitude));
-            String qy = "?mlat=" + phi + "&mlon=" + lambda;
-            String fg = "map=15/" + phi + "/" + lambda;
+            int[] index = getIndices(e);
+            int x = index[0], y = index[1];
+
+            String[] lonAndLat = getFormattedLongitudeAndLatitude(x, y);
+
+            String qy = "?mlat=" + lonAndLat[1] + "&mlon=" + lonAndLat[0];
+            String fg = "map=15/" + lonAndLat[1] + "/" + lonAndLat[0];
             URI osmURI;
             try {
                 osmURI = new URI("http", "www.openstreetmap.org", "/", qy, fg);
@@ -116,24 +188,43 @@ public final class Alpano extends Application {
                 e1.printStackTrace();
             }
         });
+    }
 
-        // LABELS
+    private int[] getIndices(MouseEvent e) {
+        int x = (int) e.getX(), y = (int) e.getY();
 
-        Pane labelsPane = new Pane();
+        int superSE = 2 * computerB.getParameters().superSamplingExponent();
+        if (superSE > 0) {
+            x *= superSE;
+            y *= superSE;
+        }
+
+        return new int[] { x, y };
+    }
+
+    private String[] getFormattedLongitudeAndLatitude(int x, int y) {
+        float longitude = computerB.getPanorama().longitudeAt(x, y);
+        float latitude = computerB.getPanorama().latitudeAt(x, y);
+        String lambda = format((Locale) null, "%.4f", toDegrees(longitude));
+        String phi = format((Locale) null, "%.4f", toDegrees(latitude));
+        return new String[] { lambda, phi };
+    }
+
+    private void setLabels(Pane labelsPane) {
         Bindings.bindContent(labelsPane.getChildren(), computerB.getLabels());
         labelsPane.prefWidthProperty().bind(parametersB.widthProperty());
         labelsPane.prefHeightProperty().bind(parametersB.heightProperty());
         labelsPane.setMouseTransparent(true);
+    }
 
-        StackPane panoGroup = new StackPane(panoView, labelsPane);
-        ScrollPane panoScrollPane = new ScrollPane(panoGroup);
-
-        Text updateText = new Text(
+    private void setUpdateText(Text updateText) {
+        updateText.setText(
                 "Les paramètres du panorama ont changé.\nCliquez ici pour mettre le dessin à jour.");
         updateText.setFont(new Font(40));
         updateText.setTextAlignment(TextAlignment.CENTER);
+    }
 
-        StackPane updateNotice = new StackPane(updateText);
+    private void setUpdateNotice(StackPane updateNotice) {
         updateNotice.setBackground(
                 new Background(new BackgroundFill(Color.WHITE, null, null)));
         updateNotice.setOpacity(0.9);
@@ -142,129 +233,87 @@ public final class Alpano extends Application {
                 .isNotEqualTo(computerB.parametersProperty()));
         updateNotice.setOnMouseClicked(e -> computerB
                 .setParameters(parametersB.parametersProperty().get()));
+    }
 
-        StackPane panoPane = new StackPane(panoScrollPane, updateNotice);
+    private void setDynamicParameters(GridPane paramsGrid, TextArea areaInfo) {
 
-        // *** PANE 2 & 3 ***
+        Label latitudeL = new Label("Latitude (°) :");
+        TextField latitudeF = new TextField();
+        setLabelAndField(OBSERVER_LATITUDE, latitudeL, latitudeF, 7, 4);
 
-        // ELEMENTS OF PANELS 2 & 3 (labales, textfield, ...)
+        Label longitudeL = new Label("Longitude (°) :");
+        TextField longitudeF = new TextField();
+        setLabelAndField(OBSERVER_LONGITUDE, longitudeL, longitudeF, 7, 4);
 
-        StringConverter<Integer> fixedPointConv4 = new FixedPointStringConverter(
-                4);
-        StringConverter<Integer> fixedPointConv0 = new FixedPointStringConverter(
-                0);
+        Label elevationL = new Label("Altitude (m) :");
+        TextField elevationF = new TextField();
+        setLabelAndField(OBSERVER_ELEVATION, elevationL, elevationF, 4, 0);
 
-        Label latL = new Label("Latitude (°) :");
-        TextField latF = new TextField();
-        TextFormatter<Integer> latFor = new TextFormatter<>(fixedPointConv4);
-        latFor.valueProperty()
-                .bindBidirectional(parametersB.observerLatitudeProperty());
-        latF.setTextFormatter(latFor);
-        latL.setAlignment(Pos.CENTER_RIGHT);
-        latF.setAlignment(Pos.CENTER_RIGHT);
-        latF.setPrefColumnCount(7);
+        Label azimuthL = new Label("Azimut (°) :");
+        TextField azimuthF = new TextField();
+        setLabelAndField(CENTER_AZIMUTH, azimuthL, azimuthF, 3, 0);
 
-        Label lonL = new Label("Longitude (°) :");
-        TextField lonF = new TextField();
-        TextFormatter<Integer> lonFor = new TextFormatter<>(fixedPointConv4);
-        lonFor.valueProperty()
-                .bindBidirectional(parametersB.observerLongitudeProperty());
-        lonF.setTextFormatter(lonFor);
-        lonL.setAlignment(Pos.CENTER_RIGHT);
-        lonF.setAlignment(Pos.CENTER_RIGHT);
-        lonF.setPrefColumnCount(7);
+        Label fieldOfViewL = new Label("Angle de vue (°) :");
+        TextField fieldOfViewF = new TextField();
+        setLabelAndField(HORIZONTAL_FIELD_OF_VIEW, fieldOfViewL, fieldOfViewF,
+                3, 0);
 
-        Label altL = new Label("Altitude (m) :");
-        TextField altF = new TextField();
-        TextFormatter<Integer> altFor = new TextFormatter<>(fixedPointConv0);
-        altFor.valueProperty()
-                .bindBidirectional(parametersB.observerElevationProperty());
-        altF.setTextFormatter(altFor);
-        altL.setAlignment(Pos.CENTER_RIGHT);
-        altF.setAlignment(Pos.CENTER_RIGHT);
-        altF.setPrefColumnCount(4);
+        Label maxDistanceL = new Label("Visibilité (km) :");
+        TextField maxDistanceF = new TextField();
+        setLabelAndField(MAX_DISTANCE, maxDistanceL, maxDistanceF, 3, 0);
 
-        Label aziL = new Label("Azimut (°) :");
-        TextField aziF = new TextField();
-        TextFormatter<Integer> aziFor = new TextFormatter<>(fixedPointConv0);
-        aziFor.valueProperty()
-                .bindBidirectional(parametersB.centerAzimuthProperty());
-        aziF.setTextFormatter(aziFor);
-        aziL.setAlignment(Pos.CENTER_RIGHT);
-        aziF.setAlignment(Pos.CENTER_RIGHT);
-        aziF.setPrefColumnCount(3);
+        Label widthL = new Label("Largeur (px) :");
+        TextField widthF = new TextField();
+        setLabelAndField(WIDTH, widthL, widthF, 4, 0);
 
-        Label angL = new Label("Angle de vue (°) :");
-        TextField angF = new TextField();
-        TextFormatter<Integer> angFor = new TextFormatter<>(fixedPointConv0);
-        angFor.valueProperty()
-                .bindBidirectional(parametersB.horizontalFieldOfViewProperty());
-        angF.setTextFormatter(angFor);
-        angL.setAlignment(Pos.CENTER_RIGHT);
-        angF.setAlignment(Pos.CENTER_RIGHT);
-        angF.setPrefColumnCount(3);
+        Label heightL = new Label("Hauteur (px) :");
+        TextField heightF = new TextField();
+        setLabelAndField(HEIGHT, heightL, heightF, 4, 0);
 
-        Label visL = new Label("Visibilité (km) :");
-        TextField visF = new TextField();
-        TextFormatter<Integer> visFor = new TextFormatter<>(fixedPointConv0);
-        visFor.valueProperty()
-                .bindBidirectional(parametersB.maxDistanceProperty());
-        visF.setTextFormatter(visFor);
-        visL.setAlignment(Pos.CENTER_RIGHT);
-        visF.setAlignment(Pos.CENTER_RIGHT);
-        visF.setPrefColumnCount(3);
-
-        Label widL = new Label("Largeur (px) :");
-        TextField widF = new TextField();
-        TextFormatter<Integer> widFor = new TextFormatter<>(fixedPointConv0);
-        widFor.valueProperty().bindBidirectional(parametersB.widthProperty());
-        widF.setTextFormatter(widFor);
-        widL.setAlignment(Pos.CENTER_RIGHT);
-        widF.setAlignment(Pos.CENTER_RIGHT);
-        widF.setPrefColumnCount(4);
-
-        Label heiL = new Label("Hauteur (px) :");
-        TextField heiF = new TextField();
-        TextFormatter<Integer> heiFor = new TextFormatter<>(fixedPointConv0);
-        heiFor.valueProperty().bindBidirectional(parametersB.heightProperty());
-        heiF.setTextFormatter(heiFor);
-        heiL.setAlignment(Pos.CENTER_RIGHT);
-        heiF.setAlignment(Pos.CENTER_RIGHT);
-        heiF.setPrefColumnCount(4);
-
-        Label supL = new Label("Suréchantillonage :");
-        ChoiceBox<Integer> supF = new ChoiceBox<>();
-        supF.getItems().addAll(0, 1, 2);
+        Label superSamplingExL = new Label("Suréchantillonage :");
+        ChoiceBox<Integer> superSamplingExF = new ChoiceBox<>();
+        superSamplingExF.getItems().addAll(0, 1, 2);
         StringConverter<Integer> supFor = new LabeledListStringConverter("non",
                 "2×", "4×");
-        supF.valueProperty()
+        superSamplingExF.valueProperty()
                 .bindBidirectional(parametersB.superSamplingExponentProperty());
-        supF.setConverter(supFor);
-        supL.setAlignment(Pos.CENTER_RIGHT);
+        superSamplingExF.setConverter(supFor);
+        superSamplingExL.setAlignment(Pos.CENTER_RIGHT);
 
-        TextArea areaInfo = new TextArea();
-        areaInfo.textProperty().bind(mouseInfo.textProperty());
-        areaInfo.setEditable(false);
-        areaInfo.setPrefRowCount(2);
-
-        GridPane paramsGrid = new GridPane();
-        paramsGrid.addRow(0, latL, latF, lonL, lonF, altL, altF);
-        paramsGrid.addRow(1, aziL, aziF, angL, angF, visL, visF);
-        paramsGrid.addRow(2, widL, widF, heiL, heiF, supL, supF);
+        paramsGrid.addRow(0, latitudeL, latitudeF, longitudeL, longitudeF,
+                elevationL, elevationF);
+        paramsGrid.addRow(1, azimuthL, azimuthF, fieldOfViewL, fieldOfViewF,
+                maxDistanceL, maxDistanceF);
+        paramsGrid.addRow(2, widthL, widthF, heightL, heightF, superSamplingExL,
+                superSamplingExF);
         paramsGrid.add(areaInfo, 6, 0, 1, 3);
 
-        // *** ROOT ***
-        BorderPane root = new BorderPane();
+        // FIXME Spacing between columns and spanning in the window.
+    }
+
+    private void setLabelAndField(UserParameter uP, Label label,
+            TextField field, int i, int j) {
+        TextFormatter<Integer> formatter = new TextFormatter<>(
+                new FixedPointStringConverter(j));
+        formatter.valueProperty()
+                .bindBidirectional(parametersB.getProperty(uP));
+        field.setTextFormatter(formatter);
+        label.setAlignment(Pos.CENTER_RIGHT);
+        field.setAlignment(Pos.CENTER_RIGHT);
+        field.setPrefColumnCount(i);
+    }
+
+    private void setAreaInfo(TextArea areaInfo) {
+        areaInfo.setEditable(false);
+        areaInfo.setPrefRowCount(2);
+    }
+
+    private void setRoot(BorderPane root, StackPane panoPane,
+            GridPane paramsGrid) {
         root.setCenter(panoPane);
         root.setBottom(paramsGrid);
         root.setPrefWidth(1260);
         root.setPrefHeight(700);
-
-        Scene scene = new Scene(root);
-
-        primaryStage.setTitle("Alpano");
-        primaryStage.setScene(scene);
-        primaryStage.show();
     }
 
 }

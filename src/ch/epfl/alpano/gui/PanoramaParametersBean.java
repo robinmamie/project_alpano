@@ -80,6 +80,10 @@ public class PanoramaParametersBean implements Serializable {
     public ReadOnlyObjectProperty<PanoramaUserParameters> parametersProperty() {
         return parameters;
     }
+    
+    public ObjectProperty<Integer> getProperty(UserParameter uP) {
+        return properties.get(uP);
+    }
 
     /**
      * Retourne la propriété de la longitude de l'observateur entière stockée.
