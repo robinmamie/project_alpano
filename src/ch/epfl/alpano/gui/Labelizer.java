@@ -61,7 +61,7 @@ public final class Labelizer {
     /**
      * Angle du texte par rapport à l'horizontale.
      */
-    private final static int TEXT_ANGLE = 60;
+    private final static int TEXT_ANGLE = -60;
 
     /**
      * Index du tableau de la map pour l'index x.
@@ -264,7 +264,7 @@ public final class Labelizer {
                 positions.flip(x, x + PIXELS_NEEDED);
 
                 Text t = new Text(s.name() + " (" + s.elevation() + " m)");
-                t.getTransforms().addAll(new Translate(x, y),
+                t.getTransforms().addAll(new Translate(x, labelPlace),
                         new Rotate(TEXT_ANGLE, 0, 0));
                 nodes.add(t);
 

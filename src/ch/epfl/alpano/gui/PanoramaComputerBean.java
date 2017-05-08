@@ -96,8 +96,10 @@ public class PanoramaComputerBean implements Serializable {
         panorama.set(
                 new PanoramaComputer(cem).computePanorama(parametersDisplay));
         image.set(renderPanorama(panorama.get(), stdPanorama(panorama.get())));
-        labels.get()
-                .setAll(new Labelizer(cem, summits).labels(parametersDisplay));
+        System.out.println(parameters.get().superSamplingExponent());
+        labels.get().setAll(new Labelizer(cem, summits)
+                .labels(parameters.get().panoramaParameters()));
+        System.out.println(labels.get().size());
     }
 
     /**
@@ -182,7 +184,6 @@ public class PanoramaComputerBean implements Serializable {
      * @return la liste des sommets visibles observables.
      */
     public ObservableList<Node> getLabels() {
-        // TODO: to copy before giving it? Wait for last step.
-        return unmodifiableObservableList(labels.get());
+        return labels.get();
     }
 }

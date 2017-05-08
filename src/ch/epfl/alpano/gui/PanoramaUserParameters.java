@@ -216,7 +216,7 @@ public final class PanoramaUserParameters {
      * @return Les paramètres du Panorama en prenant en compte l'exposant de
      *         suréchantillonage.
      */
-    public PanoramaParameters panoramaParameters() {
+    public PanoramaParameters panoramaDisplayParameters() {
         return panoramaParametersSet(
                 x -> (int) scalb(x, superSamplingExponent()));
     }
@@ -229,7 +229,7 @@ public final class PanoramaUserParameters {
      * @return Les paramètres du Panorama en ne prenant pas en compte l'exposant
      *         de suréchantillonage.
      */
-    public PanoramaParameters panoramaDisplayParameters() {
+    public PanoramaParameters panoramaParameters() {
         return panoramaParametersSet(x -> x);
     }
 
