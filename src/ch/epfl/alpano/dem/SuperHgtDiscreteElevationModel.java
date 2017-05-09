@@ -34,12 +34,13 @@ public final class SuperHgtDiscreteElevationModel
     private final Interval2D extent;
 
     public SuperHgtDiscreteElevationModel() {
+        // TODO allow custom import
         sources = new HgtDiscreteElevationModel[AMOUNT];
 
         for (int i = 0; i < AMOUNT; ++i)
             sources[i] = new HgtDiscreteElevationModel(
-                    new File("N" + (BASE_LAT + i / SIZE_HOR) + "E0"
-                            + String.format("%02d", (BASE_LON + (i % SIZE_HOR)))
+                    new File("N" + (BASE_LAT + i / SIZE_HOR) + "E"
+                            + String.format("%03d", (BASE_LON + (i % SIZE_HOR)))
                             + ".hgt"));
 
         int lonIndex = BASE_LON * SAMPLES_PER_DEGREE;

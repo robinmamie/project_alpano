@@ -13,6 +13,8 @@ import static java.lang.String.format;
 
 import java.io.File;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -24,9 +26,13 @@ import ch.epfl.alpano.summit.GazetteerParser;
 import ch.epfl.alpano.summit.Summit;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
+import javafx.geometry.HPos;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
@@ -37,6 +43,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -108,25 +115,6 @@ public final class Alpano extends Application {
     private void initPanorama() throws Exception {
         File alps = new File("alps.txt");
         List<Summit> summits = GazetteerParser.readSummitsFrom(alps);
-        
-        /*
-         * List<DiscreteElevationModel> dems = new ArrayList<>(); for (int i =
-         * 45; i <= 47; ++i) for (int j = 6; j <= 10; ++j) dems.add(new
-         * HgtDiscreteElevationModel( new File("N" + i + "E" + format("%03d", j)
-         * + ".hgt")));
-         * 
-         * DiscreteElevationModel dem1 = dems.get(0).union(dems.get(1));
-         * DiscreteElevationModel dem2 = dems.get(2).union(dems.get(3));
-         * DiscreteElevationModel dem3 = dems.get(5).union(dems.get(6));
-         * DiscreteElevationModel dem4 = dems.get(7).union(dems.get(8));
-         * DiscreteElevationModel dem5 = dems.get(10).union(dems.get(11));
-         * DiscreteElevationModel dem6 = dems.get(12).union(dems.get(13));
-         * DiscreteElevationModel dem7 = dems.get(4)
-         * .union(dems.get(9).union(dems.get(14)));
-         * 
-         * DiscreteElevationModel dem = dem1.union(dem2).union(dem3.union(dem4))
-         * .union(dem5.union(dem6)).union(dem7);
-         */
 
         DiscreteElevationModel dem = new SuperHgtDiscreteElevationModel();
 
@@ -237,40 +225,23 @@ public final class Alpano extends Application {
 
     private void setDynamicParameters(GridPane paramsGrid, TextArea areaInfo) {
 
-        Label latitudeL = new Label("Latitude (°) :");
-        TextField latitudeF = new TextField();
-        setLabelAndField(OBSERVER_LATITUDE, latitudeL, latitudeF, 7, 4);
+        List<Control> labelsAndField = new ArrayList<>();
+        labelsAndField.addAll(
+                setLabelAndField("Latitude (°)", OBSERVER_LATITUDE, 7, 4));
+        labelsAndField.addAll(
+                setLabelAndField("Longitude (°)", OBSERVER_LONGITUDE, 7, 4));
+        labelsAndField.addAll(
+                setLabelAndField("Altitude (m)", OBSERVER_ELEVATION, 4, 0));
+        labelsAndField
+                .addAll(setLabelAndField("Azimut (°)", CENTER_AZIMUTH, 3, 0));
+        labelsAndField.addAll(setLabelAndField("Angle de vue (°)",
+                HORIZONTAL_FIELD_OF_VIEW, 3, 0));
+        labelsAndField.addAll(
+                setLabelAndField("Visibilité (km)", MAX_DISTANCE, 3, 0));
+        labelsAndField.addAll(setLabelAndField("Largeur (px)", WIDTH, 4, 0));
+        labelsAndField.addAll(setLabelAndField("Hauteur (px)", HEIGHT, 4, 0));
 
-        Label longitudeL = new Label("Longitude (°) :");
-        TextField longitudeF = new TextField();
-        setLabelAndField(OBSERVER_LONGITUDE, longitudeL, longitudeF, 7, 4);
-
-        Label elevationL = new Label("Altitude (m) :");
-        TextField elevationF = new TextField();
-        setLabelAndField(OBSERVER_ELEVATION, elevationL, elevationF, 4, 0);
-
-        Label azimuthL = new Label("Azimut (°) :");
-        TextField azimuthF = new TextField();
-        setLabelAndField(CENTER_AZIMUTH, azimuthL, azimuthF, 3, 0);
-
-        Label fieldOfViewL = new Label("Angle de vue (°) :");
-        TextField fieldOfViewF = new TextField();
-        setLabelAndField(HORIZONTAL_FIELD_OF_VIEW, fieldOfViewL, fieldOfViewF,
-                3, 0);
-
-        Label maxDistanceL = new Label("Visibilité (km) :");
-        TextField maxDistanceF = new TextField();
-        setLabelAndField(MAX_DISTANCE, maxDistanceL, maxDistanceF, 3, 0);
-
-        Label widthL = new Label("Largeur (px) :");
-        TextField widthF = new TextField();
-        setLabelAndField(WIDTH, widthL, widthF, 4, 0);
-
-        Label heightL = new Label("Hauteur (px) :");
-        TextField heightF = new TextField();
-        setLabelAndField(HEIGHT, heightL, heightF, 4, 0);
-
-        Label superSamplingExL = new Label("Suréchantillonage :");
+        Label superSamplingExL = new Label("  Suréchantillonage : ");
         ChoiceBox<Integer> superSamplingExF = new ChoiceBox<>();
         superSamplingExF.getItems().addAll(0, 1, 2);
         StringConverter<Integer> supFor = new LabeledListStringConverter("non",
@@ -279,28 +250,46 @@ public final class Alpano extends Application {
                 .bindBidirectional(parametersB.superSamplingExponentProperty());
         superSamplingExF.setConverter(supFor);
         superSamplingExL.setAlignment(Pos.CENTER_RIGHT);
+        labelsAndField.add(superSamplingExL);
+        labelsAndField.add(superSamplingExF);
 
-        paramsGrid.addRow(0, latitudeL, latitudeF, longitudeL, longitudeF,
-                elevationL, elevationF);
-        paramsGrid.addRow(1, azimuthL, azimuthF, fieldOfViewL, fieldOfViewF,
-                maxDistanceL, maxDistanceF);
-        paramsGrid.addRow(2, widthL, widthF, heightL, heightF, superSamplingExL,
-                superSamplingExF);
-        paramsGrid.add(areaInfo, 6, 0, 1, 3);
+        for (int i = 0; i < 18; ++i)
+            paramsGrid.add(labelsAndField.get(i), i % 6, i / 6);
+
+        Button computeElevation = new Button();
+        computeElevation.setText("Auto-altitude");
+        computeElevation
+                .setOnAction(e -> parametersB.observerElevationProperty()
+                        .set((int) cem.elevationAt(parametersB
+                                .parametersProperty().get().panoramaParameters()
+                                .observerPosition()) + 2));
+
+        paramsGrid.add(computeElevation, 6, 0);
+
+        paramsGrid.add(areaInfo, 7, 0, 1, 3);
+
+        ColumnConstraints cc = new ColumnConstraints();
+        cc.setHalignment(HPos.RIGHT);
+        for (int i = 0; i < 6; ++i)
+            paramsGrid.getColumnConstraints().add(cc);
 
         // FIXME Spacing between columns and spanning in the window.
     }
 
-    private void setLabelAndField(UserParameter uP, Label label,
-            TextField field, int i, int j) {
+    private List<Control> setLabelAndField(String name, UserParameter uP, int i,
+            int j) {
+        Label label = new Label("  " + name + " : ");
+        label.setPadding(new Insets(2));
+        TextField field = new TextField();
+        field.setPadding(new Insets(2));
         TextFormatter<Integer> formatter = new TextFormatter<>(
                 new FixedPointStringConverter(j));
         formatter.valueProperty()
                 .bindBidirectional(parametersB.getProperty(uP));
         field.setTextFormatter(formatter);
-        label.setAlignment(Pos.CENTER_RIGHT);
         field.setAlignment(Pos.CENTER_RIGHT);
         field.setPrefColumnCount(i);
+        return Arrays.asList(label, field);
     }
 
     private void setAreaInfo(TextArea areaInfo) {
@@ -312,7 +301,7 @@ public final class Alpano extends Application {
             GridPane paramsGrid) {
         root.setCenter(panoPane);
         root.setBottom(paramsGrid);
-        root.setPrefWidth(1260);
+        root.setPrefWidth(1400);
         root.setPrefHeight(700);
     }
 
