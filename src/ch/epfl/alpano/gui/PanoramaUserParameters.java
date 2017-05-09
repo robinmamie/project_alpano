@@ -14,6 +14,7 @@ import static java.lang.Math.scalb;
 import static java.lang.Math.toRadians;
 import static java.util.Collections.unmodifiableMap;
 
+import java.io.Serializable;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.function.ToIntFunction;
@@ -28,7 +29,12 @@ import ch.epfl.alpano.PanoramaParameters;
  * @author Robin Mamie (257234)
  * @author Maxence Jouve (269716)
  */
-public final class PanoramaUserParameters {
+public final class PanoramaUserParameters implements Serializable {
+
+    /**
+     * Serial ID.
+     */
+    private static final long serialVersionUID = -5211994945756595388L;
 
     /**
      * Table associative des paramètres.
@@ -241,7 +247,7 @@ public final class PanoramaUserParameters {
     protected Map<UserParameter, Integer> map() {
         return map;
     }
-
+    
     @Override
     public boolean equals(Object thato) {
         return thato instanceof PanoramaUserParameters

@@ -179,7 +179,7 @@ public final class Labelizer {
      */
     private boolean summitIsVisible(Summit summit,
             PanoramaParameters parameters) {
-
+        
         double distance = distanceToSummit(summit, parameters);
         if (distance == POSITIVE_INFINITY)
             return false;
@@ -195,11 +195,14 @@ public final class Labelizer {
                 distance);
         if (altitude == POSITIVE_INFINITY)
             return false;
-
-        if (firstIntervalContainingRoot(
+        
+        double distanceUntilGround = firstIntervalContainingRoot(
                 rayToGroundDistance(profile, parameters.observerElevation(),
                         tan(altitude)),
-                0, distance - TOLERANCE, INTERVAL) != POSITIVE_INFINITY)
+                0, distance, INTERVAL);
+
+        if (distanceUntilGround != POSITIVE_INFINITY
+                && distanceUntilGround < distance - TOLERANCE)
             return false;
 
         values.put(summit,
@@ -248,13 +251,13 @@ public final class Labelizer {
 
         BitSet positions = new BitSet(parameters.width());
         positions.flip(0, PIXELS_NEEDED);
-        positions.flip(positions.size() - PIXELS_NEEDED - 1, positions.size());
+        positions.flip(positions.size() - PIXELS_NEEDED, positions.size());
 
         int labelPlaceInit = -1, labelPlace = labelPlaceInit;
 
         for (Summit s : visible) {
             int x = values.get(s)[INDEX_X], y = values.get(s)[INDEX_Y];
-
+            
             if (y > PIXEL_THRESHOLD
                     && positions.get(x, x + PIXELS_NEEDED).isEmpty()) {
 
