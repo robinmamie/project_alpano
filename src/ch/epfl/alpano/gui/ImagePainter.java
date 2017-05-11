@@ -61,11 +61,12 @@ public interface ImagePainter {
     static ImagePainter gray(ChannelPainter g, ChannelPainter o) {
         return (x, y) -> Color.gray(g.valueAt(x, y), o.valueAt(x, y));
     }
-    
+
     /**
      * Computes the standard colouring of a Panorama.
      * 
-     * @param panorama The Panorama which we want to colour.
+     * @param panorama
+     *            The Panorama which we want to colour.
      * 
      * @return The corresponding standard colouring of the given Panorama.
      */
@@ -73,6 +74,18 @@ public interface ImagePainter {
         ChannelPainter distance = panorama::distanceAt;
         ChannelPainter slope = panorama::slopeAt;
         ChannelPainter h = distance.div(100_000).cycle().mul(360);
+        ChannelPainter s = distance.div(200_000).clamp().invert();
+        ChannelPainter b = slope.mul(2).div((float) PI).invert().mul(0.7f)
+                .add(0.3f);
+        ChannelPainter o = distance.map(d -> d == POSITIVE_INFINITY ? 0 : 1);
+        return ImagePainter.hsb(h, s, b, o);
+    }
+
+    static ImagePainter greenBrownPanorama(Panorama panorama) {
+        ChannelPainter distance = panorama::distanceAt;
+        ChannelPainter elevation = panorama::elevationAt;
+        ChannelPainter slope = panorama::slopeAt;
+        ChannelPainter h = elevation.invert().add(4900).div(4600).clamp().mul(125);
         ChannelPainter s = distance.div(200_000).clamp().invert();
         ChannelPainter b = slope.mul(2).div((float) PI).invert().mul(0.7f)
                 .add(0.3f);

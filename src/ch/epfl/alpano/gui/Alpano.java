@@ -43,6 +43,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -53,7 +54,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -91,7 +91,8 @@ public final class Alpano extends Application {
         StackPane panoGroup = new StackPane(panoView, labelsPane);
         ScrollPane panoScrollPane = new ScrollPane(panoGroup);
         Text updateText = new Text();
-        StackPane updateNotice = new StackPane(updateText);
+        ProgressBar computeBar = new ProgressBar();
+        StackPane updateNotice = new StackPane(updateText, computeBar);
         StackPane panoPane = new StackPane(panoScrollPane, updateNotice);
         GridPane paramsGrid = new GridPane();
         BorderPane root = new BorderPane();
@@ -104,6 +105,7 @@ public final class Alpano extends Application {
         setMouseClick(panoView);
         setLabels(labelsPane);
         setUpdateText(updateText);
+        setComputeBar(computeBar);
         setUpdateNotice(updateNotice);
 
         // *** PANE 2 & 3 ***
@@ -231,10 +233,14 @@ public final class Alpano extends Application {
     }
 
     private void setUpdateText(Text updateText) {
-        updateText.setText(
-                "Les paramètres du panorama ont changé.\nCliquez ici pour mettre le dessin à jour.");
+        String notice = "Les paramètres du panorama ont changé.\nCliquez ici pour mettre le dessin à jour.";
+        updateText.setText(notice);
         updateText.setFont(new Font(40));
         updateText.setTextAlignment(TextAlignment.CENTER);
+    }
+
+    private void setComputeBar(ProgressBar computeBar) {
+        computeBar.progressProperty().bind(computerB.statusProperty());
     }
 
     private void setUpdateNotice(StackPane updateNotice) {
@@ -300,74 +306,24 @@ public final class Alpano extends Application {
 
         paramsGrid.add(areaInfo, 7, 0, 1, 3);
 
-        ColumnConstraints cc = new ColumnConstraints();
-        cc.setHalignment(HPos.RIGHT);
-        for (int i = 0; i < 6; ++i)
-            paramsGrid.getColumnConstraints().add(cc);
-
         // FIXME Spacing between columns and spanning in the window.
     }
 
-    private void openLoadWindow(ActionEvent e) {
-        Stage loadStage = new Stage();
-
-        GridPane grid = new GridPane();
-        Scene scene = new Scene(grid);
-
-        File saveFolder = new File("save/");
-        File[] files = saveFolder.listFiles();
-
-        ChoiceBox<File> choices = new ChoiceBox<>();
-        choices.getItems().addAll(files);
-        StringConverter<File> loadConv = new FileStringConverter(
-                saveFolder.getPath());
-        choices.setConverter(loadConv);
-
-        Button loadButton = new Button("Load");
-
-        loadButton.setOnAction(f -> {
-            File load = choices.getValue();
-            PanoramaUserParameters p = null;
-            try (ObjectInputStream in = new ObjectInputStream(
-                    new FileInputStream(load))) {
-                p = (PanoramaUserParameters) in.readObject();
-            } catch (Exception i) {
-                i.printStackTrace();
-                return;
-            }
-            parametersB.observerLongitudeProperty().set(p.observerLongitude());
-            parametersB.observerLatitudeProperty().set(p.observerLatitude());
-            parametersB.observerElevationProperty().set(p.observerElevation());
-            parametersB.centerAzimuthProperty().set(p.centerAzimuth());
-            parametersB.maxDistanceProperty().set(p.maxDistance());
-            parametersB.horizontalFieldOfViewProperty()
-                    .set(p.horizontalFieldOfView());
-            parametersB.widthProperty().set(p.width());
-            parametersB.heightProperty().set(p.height());
-            parametersB.superSamplingExponentProperty()
-                    .set(p.superSamplingExponent());
-            loadStage.close();
-        });
-
-        // for(File f: files)
-
-        Button quitButton = new Button("Annuler");
-        quitButton.setOnAction(f -> loadStage.close());
-
-        grid.setPadding(new Insets(10, 10, 10, 10));
-        grid.setVgap(5);
-        grid.setHgap(5);
-        grid.setPrefWidth(300);
-        grid.setPrefHeight(150);
-
-        grid.add(choices, 0, 0, 2, 1);
-        grid.add(loadButton, 0, 1);
-        grid.add(quitButton, 1, 1);
-
-        loadStage.setTitle("Alpano - Load File");
-        loadStage.setScene(scene);
-        loadStage.show();
-
+    private List<Control> setLabelAndField(String name, UserParameter uP, int i,
+            int j) {
+        Label label = new Label("  " + name + " : ");
+        label.setPadding(new Insets(2));
+        GridPane.setHalignment(label, HPos.RIGHT);
+        TextField field = new TextField();
+        field.setPadding(new Insets(2));
+        TextFormatter<Integer> formatter = new TextFormatter<>(
+                new FixedPointStringConverter(j));
+        formatter.valueProperty()
+                .bindBidirectional(parametersB.getProperty(uP));
+        field.setTextFormatter(formatter);
+        field.setAlignment(Pos.CENTER_RIGHT);
+        field.setPrefColumnCount(i);
+        return Arrays.asList(label, field);
     }
 
     private void openSaveWindow(ActionEvent e) {
@@ -425,23 +381,71 @@ public final class Alpano extends Application {
 
         saveStage.setTitle("Alpano - Save File");
         saveStage.setScene(scene);
+        saveStage.setResizable(false);
         saveStage.show();
     }
 
-    private List<Control> setLabelAndField(String name, UserParameter uP, int i,
-            int j) {
-        Label label = new Label("  " + name + " : ");
-        label.setPadding(new Insets(2));
-        TextField field = new TextField();
-        field.setPadding(new Insets(2));
-        TextFormatter<Integer> formatter = new TextFormatter<>(
-                new FixedPointStringConverter(j));
-        formatter.valueProperty()
-                .bindBidirectional(parametersB.getProperty(uP));
-        field.setTextFormatter(formatter);
-        field.setAlignment(Pos.CENTER_RIGHT);
-        field.setPrefColumnCount(i);
-        return Arrays.asList(label, field);
+    private void openLoadWindow(ActionEvent e) {
+        Stage loadStage = new Stage();
+
+        GridPane grid = new GridPane();
+        Scene scene = new Scene(grid);
+
+        File saveFolder = new File("save/");
+        File[] files = saveFolder.listFiles();
+
+        ChoiceBox<File> choices = new ChoiceBox<>();
+        choices.getItems().addAll(files);
+        StringConverter<File> loadConv = new FileStringConverter(
+                saveFolder.getPath());
+        choices.setConverter(loadConv);
+
+        Button loadButton = new Button("Load");
+
+        loadButton.setOnAction(f -> {
+            File load = choices.getValue();
+            PanoramaUserParameters p = null;
+            try (ObjectInputStream in = new ObjectInputStream(
+                    new FileInputStream(load))) {
+                p = (PanoramaUserParameters) in.readObject();
+            } catch (Exception i) {
+                i.printStackTrace();
+                return;
+            }
+            parametersB.observerLongitudeProperty().set(p.observerLongitude());
+            parametersB.observerLatitudeProperty().set(p.observerLatitude());
+            parametersB.observerElevationProperty().set(p.observerElevation());
+            parametersB.centerAzimuthProperty().set(p.centerAzimuth());
+            parametersB.maxDistanceProperty().set(p.maxDistance());
+            parametersB.horizontalFieldOfViewProperty()
+                    .set(p.horizontalFieldOfView());
+            parametersB.widthProperty().set(p.width());
+            parametersB.heightProperty().set(p.height());
+            parametersB.superSamplingExponentProperty()
+                    .set(p.superSamplingExponent());
+            loadStage.close();
+        });
+
+        // for(File f: files)
+
+        Button quitButton = new Button("Annuler");
+        quitButton.setOnAction(f -> loadStage.close());
+
+        grid.setPadding(new Insets(10, 10, 10, 10));
+        grid.setVgap(5);
+        grid.setHgap(5);
+        grid.setPrefWidth(150);
+        grid.setPrefHeight(75);
+
+        grid.add(choices, 0, 0, 2, 1);
+        grid.add(loadButton, 0, 1);
+        grid.add(quitButton, 1, 1);
+
+        loadStage.setTitle("Alpano - Load File");
+        loadStage.setScene(scene);
+        loadStage.setResizable(false);
+        loadStage.show();
+
     }
 
     private void setAreaInfo(TextArea areaInfo) {

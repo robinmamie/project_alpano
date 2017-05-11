@@ -21,6 +21,9 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.ReadOnlyDoubleProperty;
 
 /**
  * Représente l'état actuel du panorama actuellement affiché à l'écran.
@@ -54,6 +57,8 @@ public class PanoramaComputerBean implements Serializable {
      * La propriété des étiquettes des sommets.
      */
     private final ObjectProperty<ObservableList<Node>> labels;
+    
+    private final DoubleProperty status;
 
     /**
      * La liste des sommets passés au constructeur.
@@ -83,6 +88,7 @@ public class PanoramaComputerBean implements Serializable {
         this.parameters.addListener((b, o, n) -> synchronizeParameters());
         this.image = new SimpleObjectProperty<>(null);
         this.labels = new SimpleObjectProperty<>(observableArrayList());
+        this.status = new SimpleDoubleProperty();
     }
 
     /**
@@ -93,11 +99,15 @@ public class PanoramaComputerBean implements Serializable {
     private void synchronizeParameters() {
         PanoramaParameters parametersDisplay = parameters.get()
                 .panoramaDisplayParameters();
+        PanoramaComputer pc = new PanoramaComputer(cem);
+        status.bind(pc.statusProperty());
         panorama.set(
-                new PanoramaComputer(cem).computePanorama(parametersDisplay));
+                pc.computePanorama(parametersDisplay));
         image.set(renderPanorama(panorama.get(), stdPanorama(panorama.get())));
         labels.get().setAll(new Labelizer(cem, summits)
                 .labels(parameters.get().panoramaParameters()));
+        status.unbind();
+        status.set(0);
     }
 
     /**
@@ -184,4 +194,9 @@ public class PanoramaComputerBean implements Serializable {
     public ObservableList<Node> getLabels() {
         return labels.get();
     }
+    
+    public ReadOnlyDoubleProperty statusProperty() {
+        return status;
+    }
+
 }

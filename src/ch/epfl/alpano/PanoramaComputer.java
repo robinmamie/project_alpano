@@ -3,15 +3,18 @@ package ch.epfl.alpano;
 import static ch.epfl.alpano.Distance.EARTH_RADIUS;
 import static ch.epfl.alpano.Math2.firstIntervalContainingRoot;
 import static ch.epfl.alpano.Math2.improveRoot;
+import static java.lang.Double.POSITIVE_INFINITY;
 import static java.lang.Math.cos;
 import static java.lang.Math.tan;
 import static java.util.Objects.requireNonNull;
-import static java.lang.Double.POSITIVE_INFINITY;
 
 import java.util.function.DoubleUnaryOperator;
 
 import ch.epfl.alpano.dem.ContinuousElevationModel;
 import ch.epfl.alpano.dem.ElevationProfile;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.ReadOnlyDoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 
 /**
  * Classe permettant de calculer un Panorama à l'aide d'un MNT continu. Classe
@@ -41,12 +44,14 @@ public final class PanoramaComputer {
      * Second intervalle utilisé afin d'affiner la recherche de la racine.
      */
     private static final double EPSILON = 4.0;
-
+    
     /**
      * MNT continu passé au constructeur.
      */
     private final ContinuousElevationModel dem;
-
+    
+    private final DoubleProperty status;
+    
     /**
      * Constructeur de la classe PanoramaComputer prenant un MNT continu en
      * argument.
@@ -60,6 +65,7 @@ public final class PanoramaComputer {
     public PanoramaComputer(ContinuousElevationModel dem) {
         this.dem = requireNonNull(dem,
                 "The given ContinuousElevationModel is null.");
+        status = new SimpleDoubleProperty(0d);
     }
 
     /**
@@ -93,6 +99,7 @@ public final class PanoramaComputer {
                         .setElevationAt(x, y, (float) dem.elevationAt(point))
                         .setSlopeAt(x, y, (float) dem.slopeAt(point));
             }
+            status.set((double) x / parameters.width());
         }
         return pb.build();
     }
@@ -115,6 +122,11 @@ public final class PanoramaComputer {
     public static DoubleUnaryOperator rayToGroundDistance(
             ElevationProfile profile, double ray0, double raySlope) {
         return x -> ray0 + x * (raySlope + FACTOR * x) - profile.elevationAt(x);
+    }
+    
+    
+    public ReadOnlyDoubleProperty statusProperty() {
+        return status;
     }
 
 }
