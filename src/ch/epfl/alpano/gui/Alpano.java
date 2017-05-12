@@ -118,12 +118,13 @@ public final class Alpano extends Application {
         ScrollPane panoScrollPane = new ScrollPane(panoGroup);
         Text updateText = new Text();
         ProgressBar computeBar = new ProgressBar();
+        GridPane progressGrid = new GridPane();
         StackPane updateNotice = new StackPane(updateText);
         StackPane panoPane = new StackPane(panoScrollPane, updateNotice);
         GridPane paramsGrid = new GridPane();
         BorderPane root = new BorderPane();
         Scene scene = new Scene(root);
-        
+
         // *** PANE 1 ***
 
         setPanoView(panoView);
@@ -131,7 +132,7 @@ public final class Alpano extends Application {
         setMouseClick(panoView);
         setLabels(labelsPane);
         setUpdateText(updateText);
-        setComputeBar(computeBar);
+        setComputeBar(computeBar, progressGrid);
         setUpdateNotice(updateNotice);
 
         // *** PANE 2 & 3 ***
@@ -141,7 +142,7 @@ public final class Alpano extends Application {
 
         // *** ROOT ***
 
-        setRoot(root, panoPane, paramsGrid, computeBar);
+        setRoot(root, panoPane, paramsGrid, progressGrid);
 
         // *** PROGRAMM ***
 
@@ -253,9 +254,15 @@ public final class Alpano extends Application {
         updateText.setTextAlignment(TextAlignment.CENTER);
     }
 
-    private void setComputeBar(ProgressBar computeBar) {
+    private void setComputeBar(ProgressBar computeBar, GridPane progressGrid) {
         computeBar.progressProperty().bind(COMPUTER_B.statusProperty());
-        //computeBar.progressProperty().addListener((b, o, n) -> System.out.println(n));
+        Text textProgress = new Text("0 %");
+        computeBar.progressProperty().addListener((p, o, n) -> textProgress
+                .setText(format("%.0f %%", n.doubleValue() * 100)));
+        GridPane.setHalignment(textProgress, HPos.CENTER);
+        progressGrid.add(computeBar, 0, 0);
+        progressGrid.add(textProgress, 0, 0);
+        progressGrid.setPadding(new Insets(5));
     }
 
     private void setUpdateNotice(StackPane updateNotice) {
@@ -264,7 +271,7 @@ public final class Alpano extends Application {
         updateNotice.setOpacity(0.9);
 
         updateNotice.visibleProperty().bind(PARAMETERS_B.parametersProperty()
-              .isNotEqualTo(COMPUTER_B.parametersProperty()));
+                .isNotEqualTo(COMPUTER_B.parametersProperty()));
         updateNotice.setOnMouseClicked(e -> COMPUTER_B
                 .setParameters(PARAMETERS_B.parametersProperty().get()));
     }
@@ -287,7 +294,7 @@ public final class Alpano extends Application {
         labelsAndField.addAll(setLabelAndField("Largeur (px)", WIDTH, 4, 0));
         labelsAndField.addAll(setLabelAndField("Hauteur (px)", HEIGHT, 4, 0));
 
-        Label superSamplingExL = new Label("  Suréchantillonage : ");
+        Label superSamplingExL = new Label("Suréchantillonage :");
         ChoiceBox<Integer> superSamplingExF = new ChoiceBox<>();
         superSamplingExF.getItems().addAll(0, 1, 2);
         StringConverter<Integer> supFor = new LabeledListStringConverter("non",
@@ -333,7 +340,7 @@ public final class Alpano extends Application {
 
     private List<Control> setLabelAndField(String name, UserParameter uP,
             int prefColumnCount, int decimals) {
-        Label label = new Label(name + " : ");
+        Label label = new Label(name + " :");
         GridPane.setHalignment(label, HPos.RIGHT);
         TextField field = new TextField();
         TextFormatter<Integer> formatter = new TextFormatter<>(
@@ -386,7 +393,7 @@ public final class Alpano extends Application {
         });
         Button quitButton = new Button("Annuler");
         quitButton.setOnAction(f -> saveStage.close());
-        
+
         GridPane.setHalignment(quitButton, HPos.RIGHT);
 
         grid.setVgap(20);
@@ -398,7 +405,7 @@ public final class Alpano extends Application {
         grid.add(queryF, 0, 1, 2, 1);
         grid.add(saveButton, 0, 2);
         grid.add(quitButton, 1, 2);
-        
+
         grid.setAlignment(Pos.CENTER);
         grid.setPadding(new Insets(20));
 
@@ -464,7 +471,7 @@ public final class Alpano extends Application {
         grid.add(choices, 0, 0, 2, 1);
         grid.add(loadButton, 0, 1);
         grid.add(quitButton, 1, 1);
-        
+
         grid.setAlignment(Pos.CENTER);
         grid.setPadding(new Insets(20));
 
@@ -481,10 +488,10 @@ public final class Alpano extends Application {
     }
 
     private void setRoot(BorderPane root, StackPane panoPane,
-            GridPane paramsGrid, ProgressBar computeBar) {
+            GridPane paramsGrid, GridPane progressGrid) {
         root.setCenter(panoPane);
         root.setBottom(paramsGrid);
-        root.setTop(computeBar);
+        root.setTop(progressGrid);
         root.setPrefWidth(1500);
         root.setPrefHeight(700);
     }
