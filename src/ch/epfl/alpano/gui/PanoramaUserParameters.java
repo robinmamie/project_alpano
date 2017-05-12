@@ -226,7 +226,7 @@ public final class PanoramaUserParameters implements Serializable {
         return panoramaParametersSet(
                 x -> (int) scalb(x, superSamplingExponent()));
     }
-    // TODO: wtf, see step 8, what is what
+    // TODO wtf, see step 8, what is what
 
     /**
      * Crée les paramètres du Panorama en ne prenant pas en compte l'exposant de

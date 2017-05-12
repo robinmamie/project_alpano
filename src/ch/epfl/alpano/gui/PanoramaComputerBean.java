@@ -82,18 +82,16 @@ public class PanoramaComputerBean implements Serializable {
         this.image = new SimpleObjectProperty<>(null);
         this.labels = new SimpleObjectProperty<>(observableArrayList());
         this.status = new SimpleDoubleProperty();
+        status.bind(pc.statusProperty());
         this.parameters.addListener((b, o, n) -> {
             new Thread() {
                 @Override
                 public void run() {
-                    status.bind(pc.statusProperty());
                     PanoramaParameters parametersDisplay = parameters.get()
                             .panoramaDisplayParameters();
                     panorama.set(pc.computePanorama(parametersDisplay));
                     image.set(renderPanorama(panorama.get(),
                             stdPanorama(panorama.get())));
-                    status.unbind();
-                    status.set(0);
                 }
             }.start();
             labels.get().setAll(new Labelizer(cem, summits)

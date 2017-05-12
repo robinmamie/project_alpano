@@ -416,6 +416,10 @@ public final class Alpano extends Application {
     }
 
     private void openLoadWindow(ActionEvent e) {
+        
+        // FIXME don't open if no save
+        // FIXME create folders if don't exist
+        
         Stage loadStage = new Stage();
 
         GridPane grid = new GridPane();
