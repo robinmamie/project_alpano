@@ -29,7 +29,7 @@ import ch.epfl.alpano.Azimuth;
 import ch.epfl.alpano.Panorama;
 import ch.epfl.alpano.dem.ContinuousElevationModel;
 import ch.epfl.alpano.dem.DiscreteElevationModel;
-import ch.epfl.alpano.dem.SuperHgtDiscreteElevationModel;
+import ch.epfl.alpano.dem.HgtDiscreteElevationModel;
 import ch.epfl.alpano.summit.GazetteerParser;
 import ch.epfl.alpano.summit.Summit;
 import javafx.application.Application;
@@ -68,9 +68,39 @@ public final class Alpano extends Application {
 
     private final static PanoramaUserParameters PRELOAD = PredefinedPanoramas.JURA;
 
-    private ContinuousElevationModel cem;
-    private PanoramaParametersBean parametersB;
-    private PanoramaComputerBean computerB;
+    private final static ContinuousElevationModel CEM;
+    private final static PanoramaParametersBean PARAMETERS_B;
+    private final static PanoramaComputerBean COMPUTER_B;
+
+    static {
+        List<Summit> summits;
+        try {
+            summits = GazetteerParser.readSummitsFrom(new File("alps.txt"));
+        } catch (IOException e) {
+            throw new IllegalArgumentException();
+        }
+        DiscreteElevationModel dem = new HgtDiscreteElevationModel(
+                new File("N45E006.hgt")).union(
+                        new HgtDiscreteElevationModel(new File("N45E007.hgt")))
+                        .union(new HgtDiscreteElevationModel(
+                                new File("N45E008.hgt"))
+                                        .union(new HgtDiscreteElevationModel(
+                                                new File("N45E009.hgt"))))
+                        .union(new HgtDiscreteElevationModel(
+                                new File("N46E006.hgt"))
+                                        .union(new HgtDiscreteElevationModel(
+                                                new File("N46E007.hgt")))
+                                        .union(new HgtDiscreteElevationModel(
+                                                new File("N46E008.hgt"))
+                                                        .union(new HgtDiscreteElevationModel(
+                                                                new File(
+                                                                        "N46E009.hgt")))));
+
+        CEM = new ContinuousElevationModel(dem);
+
+        PARAMETERS_B = new PanoramaParametersBean(PRELOAD);
+        COMPUTER_B = new PanoramaComputerBean(CEM, summits);
+    }
 
     public static void main(String[] args) {
         launch(args);
@@ -78,10 +108,6 @@ public final class Alpano extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-
-        // *** PANORAMA INITIALIZATION ***
-
-        initPanorama();
 
         // *** STRUCTRURE ***
 
@@ -92,12 +118,12 @@ public final class Alpano extends Application {
         ScrollPane panoScrollPane = new ScrollPane(panoGroup);
         Text updateText = new Text();
         ProgressBar computeBar = new ProgressBar();
-        StackPane updateNotice = new StackPane(updateText, computeBar);
+        StackPane updateNotice = new StackPane(updateText);
         StackPane panoPane = new StackPane(panoScrollPane, updateNotice);
         GridPane paramsGrid = new GridPane();
         BorderPane root = new BorderPane();
         Scene scene = new Scene(root);
-
+        
         // *** PANE 1 ***
 
         setPanoView(panoView);
@@ -115,7 +141,7 @@ public final class Alpano extends Application {
 
         // *** ROOT ***
 
-        setRoot(root, panoPane, paramsGrid);
+        setRoot(root, panoPane, paramsGrid, computeBar);
 
         // *** PROGRAMM ***
 
@@ -124,21 +150,9 @@ public final class Alpano extends Application {
         primaryStage.show();
     }
 
-    private void initPanorama() throws Exception {
-        File alps = new File("alps.txt");
-        List<Summit> summits = GazetteerParser.readSummitsFrom(alps);
-
-        DiscreteElevationModel dem = new SuperHgtDiscreteElevationModel();
-
-        cem = new ContinuousElevationModel(dem);
-
-        parametersB = new PanoramaParametersBean(PRELOAD);
-        computerB = new PanoramaComputerBean(cem, summits);
-    }
-
     private void setPanoView(ImageView panoView) {
-        panoView.imageProperty().bind(computerB.imageProperty());
-        panoView.fitWidthProperty().bind(parametersB.widthProperty());
+        panoView.imageProperty().bind(COMPUTER_B.imageProperty());
+        panoView.fitWidthProperty().bind(PARAMETERS_B.widthProperty());
         panoView.setPreserveRatio(true);
         panoView.setSmooth(true);
     }
@@ -149,11 +163,11 @@ public final class Alpano extends Application {
             int x = index[0], y = index[1];
 
             String[] lonAndLat = getFormattedLongitudeAndLatitude(x, y);
-            float distance = computerB.getPanorama().distanceAt(x, y);
-            int altitude = (int) computerB.getPanorama().elevationAt(x, y);
-            double azimuth = computerB.getParameters()
+            float distance = COMPUTER_B.getPanorama().distanceAt(x, y);
+            int altitude = (int) COMPUTER_B.getPanorama().elevationAt(x, y);
+            double azimuth = COMPUTER_B.getParameters()
                     .panoramaDisplayParameters().azimuthForX(x);
-            double elevation = computerB.getParameters()
+            double elevation = COMPUTER_B.getParameters()
                     .panoramaDisplayParameters().altitudeForY(y);
 
             StringBuilder sb = new StringBuilder();
@@ -166,7 +180,7 @@ public final class Alpano extends Application {
             sb.append(format("Altitude : %d m%n", altitude));
             sb.append(format("Azimut : %.1f° (", toDegrees(azimuth)));
             sb.append(Azimuth.toOctantString(azimuth, "N", "E", "S", "W"));
-            sb.append(format(")  Élévation : %.1f°%n", toDegrees(elevation)));
+            sb.append(format(")  Élévation : %.1f°", toDegrees(elevation)));
             areaInfo.setText(sb.toString());
         });
     }
@@ -190,17 +204,17 @@ public final class Alpano extends Application {
                     e1.printStackTrace();
                 }
             } else if (e.getButton() == MouseButton.SECONDARY) {
-                Panorama p = computerB.getPanorama();
+                Panorama p = COMPUTER_B.getPanorama();
                 int longitude = (int) (10_000 * toDegrees(p.longitudeAt(x, y)));
                 int latitude = (int) (10_000 * toDegrees(p.latitudeAt(x, y)));
-                int elevation = (int) p.elevationAt(x, y) + 2;
+                int elevation = (int) p.elevationAt(x, y) + 20;
                 int azimuth = (int) toDegrees(Azimuth.canonicalize(
-                        computerB.getParameters().panoramaDisplayParameters()
+                        COMPUTER_B.getParameters().panoramaDisplayParameters()
                                 .azimuthForX(x) + Math.PI));
-                parametersB.observerLongitudeProperty().set(longitude);
-                parametersB.observerLatitudeProperty().set(latitude);
-                parametersB.observerElevationProperty().set(elevation);
-                parametersB.centerAzimuthProperty().set(azimuth);
+                PARAMETERS_B.observerLongitudeProperty().set(longitude);
+                PARAMETERS_B.observerLatitudeProperty().set(latitude);
+                PARAMETERS_B.observerElevationProperty().set(elevation);
+                PARAMETERS_B.centerAzimuthProperty().set(azimuth);
             }
         });
     }
@@ -208,7 +222,7 @@ public final class Alpano extends Application {
     private int[] getIndices(MouseEvent e) {
         int x = (int) e.getX(), y = (int) e.getY();
 
-        int superSE = 2 * computerB.getParameters().superSamplingExponent();
+        int superSE = 2 * COMPUTER_B.getParameters().superSamplingExponent();
         if (superSE > 0) {
             x *= superSE;
             y *= superSE;
@@ -218,17 +232,17 @@ public final class Alpano extends Application {
     }
 
     private String[] getFormattedLongitudeAndLatitude(int x, int y) {
-        float longitude = computerB.getPanorama().longitudeAt(x, y);
-        float latitude = computerB.getPanorama().latitudeAt(x, y);
+        float longitude = COMPUTER_B.getPanorama().longitudeAt(x, y);
+        float latitude = COMPUTER_B.getPanorama().latitudeAt(x, y);
         String lambda = format((Locale) null, "%.4f", toDegrees(longitude));
         String phi = format((Locale) null, "%.4f", toDegrees(latitude));
         return new String[] { lambda, phi };
     }
 
     private void setLabels(Pane labelsPane) {
-        Bindings.bindContent(labelsPane.getChildren(), computerB.getLabels());
-        labelsPane.prefWidthProperty().bind(parametersB.widthProperty());
-        labelsPane.prefHeightProperty().bind(parametersB.heightProperty());
+        Bindings.bindContent(labelsPane.getChildren(), COMPUTER_B.getLabels());
+        labelsPane.prefWidthProperty().bind(PARAMETERS_B.widthProperty());
+        labelsPane.prefHeightProperty().bind(PARAMETERS_B.heightProperty());
         labelsPane.setMouseTransparent(true);
     }
 
@@ -240,7 +254,8 @@ public final class Alpano extends Application {
     }
 
     private void setComputeBar(ProgressBar computeBar) {
-        computeBar.progressProperty().bind(computerB.statusProperty());
+        computeBar.progressProperty().bind(COMPUTER_B.statusProperty());
+        //computeBar.progressProperty().addListener((b, o, n) -> System.out.println(n));
     }
 
     private void setUpdateNotice(StackPane updateNotice) {
@@ -248,10 +263,10 @@ public final class Alpano extends Application {
                 new Background(new BackgroundFill(Color.WHITE, null, null)));
         updateNotice.setOpacity(0.9);
 
-        updateNotice.visibleProperty().bind(parametersB.parametersProperty()
-                .isNotEqualTo(computerB.parametersProperty()));
-        updateNotice.setOnMouseClicked(e -> computerB
-                .setParameters(parametersB.parametersProperty().get()));
+        updateNotice.visibleProperty().bind(PARAMETERS_B.parametersProperty()
+              .isNotEqualTo(COMPUTER_B.parametersProperty()));
+        updateNotice.setOnMouseClicked(e -> COMPUTER_B
+                .setParameters(PARAMETERS_B.parametersProperty().get()));
     }
 
     private void setDynamicParameters(GridPane paramsGrid, TextArea areaInfo) {
@@ -277,8 +292,8 @@ public final class Alpano extends Application {
         superSamplingExF.getItems().addAll(0, 1, 2);
         StringConverter<Integer> supFor = new LabeledListStringConverter("non",
                 "2×", "4×");
-        superSamplingExF.valueProperty()
-                .bindBidirectional(parametersB.superSamplingExponentProperty());
+        superSamplingExF.valueProperty().bindBidirectional(
+                PARAMETERS_B.superSamplingExponentProperty());
         superSamplingExF.setConverter(supFor);
         superSamplingExL.setAlignment(Pos.CENTER_RIGHT);
         labelsAndField.add(superSamplingExL);
@@ -289,45 +304,50 @@ public final class Alpano extends Application {
 
         Button computeElevation = new Button("Auto-altitude");
         computeElevation
-                .setOnAction(e -> parametersB.observerElevationProperty()
-                        .set((int) cem.elevationAt(parametersB
+                .setOnAction(e -> PARAMETERS_B.observerElevationProperty()
+                        .set((int) CEM.elevationAt(PARAMETERS_B
                                 .parametersProperty().get().panoramaParameters()
                                 .observerPosition()) + 2));
+        GridPane.setHalignment(computeElevation, HPos.CENTER);
 
         Button saveImageAndPanorama = new Button("Save");
         saveImageAndPanorama.setOnAction(e -> openSaveWindow(e));
+        GridPane.setFillWidth(saveImageAndPanorama, true);
+        GridPane.setHalignment(saveImageAndPanorama, HPos.CENTER);
 
         Button loadPanorama = new Button("Load");
         loadPanorama.setOnAction(e -> openLoadWindow(e));
+        GridPane.setHalignment(loadPanorama, HPos.CENTER);
+
+        paramsGrid.setHgap(10);
+        paramsGrid.setVgap(8);
+        paramsGrid.setPadding(new Insets(10));
+        paramsGrid.setAlignment(Pos.CENTER);
 
         paramsGrid.add(computeElevation, 6, 0);
         paramsGrid.add(saveImageAndPanorama, 6, 1);
         paramsGrid.add(loadPanorama, 6, 2);
 
         paramsGrid.add(areaInfo, 7, 0, 1, 3);
-
-        // FIXME Spacing between columns and spanning in the window.
     }
 
-    private List<Control> setLabelAndField(String name, UserParameter uP, int i,
-            int j) {
-        Label label = new Label("  " + name + " : ");
-        label.setPadding(new Insets(2));
+    private List<Control> setLabelAndField(String name, UserParameter uP,
+            int prefColumnCount, int decimals) {
+        Label label = new Label(name + " : ");
         GridPane.setHalignment(label, HPos.RIGHT);
         TextField field = new TextField();
-        field.setPadding(new Insets(2));
         TextFormatter<Integer> formatter = new TextFormatter<>(
-                new FixedPointStringConverter(j));
+                new FixedPointStringConverter(decimals));
         formatter.valueProperty()
-                .bindBidirectional(parametersB.getProperty(uP));
+                .bindBidirectional(PARAMETERS_B.getProperty(uP));
         field.setTextFormatter(formatter);
         field.setAlignment(Pos.CENTER_RIGHT);
-        field.setPrefColumnCount(i);
+        field.setPrefColumnCount(prefColumnCount);
         return Arrays.asList(label, field);
     }
 
     private void openSaveWindow(ActionEvent e) {
-        if (computerB.getImage() == null)
+        if (COMPUTER_B.getImage() == null)
             return;
 
         Stage saveStage = new Stage();
@@ -336,7 +356,6 @@ public final class Alpano extends Application {
         Scene scene = new Scene(grid);
 
         Label queryL = new Label("Veuillez entrer le nom de la sauvegarde :");
-        queryL.setPadding(new Insets(5));
         TextField queryF = new TextField();
         queryF.setPromptText("Exemple : mon_super_panorama");
 
@@ -350,7 +369,7 @@ public final class Alpano extends Application {
                 saveFolder.mkdirs();
             if (queryF.getText() != null && !queryF.getText().isEmpty()) {
                 try {
-                    write(fromFXImage(computerB.getImage(), null), "png",
+                    write(fromFXImage(COMPUTER_B.getImage(), null), "png",
                             new File("img/" + queryF.getText() + ".png"));
                 } catch (IOException e1) {
                     e1.printStackTrace();
@@ -358,7 +377,7 @@ public final class Alpano extends Application {
                 try (ObjectOutputStream out = new ObjectOutputStream(
                         new FileOutputStream(
                                 "save/" + queryF.getText() + ".ser"))) {
-                    out.writeObject(computerB.getParameters());
+                    out.writeObject(COMPUTER_B.getParameters());
                 } catch (IOException i) {
                     i.printStackTrace();
                 }
@@ -367,17 +386,21 @@ public final class Alpano extends Application {
         });
         Button quitButton = new Button("Annuler");
         quitButton.setOnAction(f -> saveStage.close());
+        
+        GridPane.setHalignment(quitButton, HPos.RIGHT);
 
-        grid.setPadding(new Insets(10, 10, 10, 10));
-        grid.setVgap(5);
-        grid.setHgap(5);
-        grid.setPrefWidth(300);
+        grid.setVgap(20);
+        grid.setHgap(20);
+        grid.setPrefWidth(350);
         grid.setPrefHeight(150);
 
         grid.add(queryL, 0, 0, 2, 1);
         grid.add(queryF, 0, 1, 2, 1);
-        grid.add(saveButton, 0, 3);
-        grid.add(quitButton, 1, 3);
+        grid.add(saveButton, 0, 2);
+        grid.add(quitButton, 1, 2);
+        
+        grid.setAlignment(Pos.CENTER);
+        grid.setPadding(new Insets(20));
 
         saveStage.setTitle("Alpano - Save File");
         saveStage.setScene(scene);
@@ -395,9 +418,10 @@ public final class Alpano extends Application {
         File[] files = saveFolder.listFiles();
 
         ChoiceBox<File> choices = new ChoiceBox<>();
+        GridPane.setHalignment(choices, HPos.CENTER);
         choices.getItems().addAll(files);
         StringConverter<File> loadConv = new FileStringConverter(
-                saveFolder.getPath());
+                saveFolder.getPath(), 3);
         choices.setConverter(loadConv);
 
         Button loadButton = new Button("Load");
@@ -412,16 +436,16 @@ public final class Alpano extends Application {
                 i.printStackTrace();
                 return;
             }
-            parametersB.observerLongitudeProperty().set(p.observerLongitude());
-            parametersB.observerLatitudeProperty().set(p.observerLatitude());
-            parametersB.observerElevationProperty().set(p.observerElevation());
-            parametersB.centerAzimuthProperty().set(p.centerAzimuth());
-            parametersB.maxDistanceProperty().set(p.maxDistance());
-            parametersB.horizontalFieldOfViewProperty()
+            PARAMETERS_B.observerLongitudeProperty().set(p.observerLongitude());
+            PARAMETERS_B.observerLatitudeProperty().set(p.observerLatitude());
+            PARAMETERS_B.observerElevationProperty().set(p.observerElevation());
+            PARAMETERS_B.centerAzimuthProperty().set(p.centerAzimuth());
+            PARAMETERS_B.maxDistanceProperty().set(p.maxDistance());
+            PARAMETERS_B.horizontalFieldOfViewProperty()
                     .set(p.horizontalFieldOfView());
-            parametersB.widthProperty().set(p.width());
-            parametersB.heightProperty().set(p.height());
-            parametersB.superSamplingExponentProperty()
+            PARAMETERS_B.widthProperty().set(p.width());
+            PARAMETERS_B.heightProperty().set(p.height());
+            PARAMETERS_B.superSamplingExponentProperty()
                     .set(p.superSamplingExponent());
             loadStage.close();
         });
@@ -431,15 +455,18 @@ public final class Alpano extends Application {
         Button quitButton = new Button("Annuler");
         quitButton.setOnAction(f -> loadStage.close());
 
-        grid.setPadding(new Insets(10, 10, 10, 10));
-        grid.setVgap(5);
-        grid.setHgap(5);
-        grid.setPrefWidth(150);
+        grid.setPadding(new Insets(20));
+        grid.setVgap(20);
+        grid.setHgap(20);
+        grid.setPrefWidth(200);
         grid.setPrefHeight(75);
 
         grid.add(choices, 0, 0, 2, 1);
         grid.add(loadButton, 0, 1);
         grid.add(quitButton, 1, 1);
+        
+        grid.setAlignment(Pos.CENTER);
+        grid.setPadding(new Insets(20));
 
         loadStage.setTitle("Alpano - Load File");
         loadStage.setScene(scene);
@@ -454,10 +481,11 @@ public final class Alpano extends Application {
     }
 
     private void setRoot(BorderPane root, StackPane panoPane,
-            GridPane paramsGrid) {
+            GridPane paramsGrid, ProgressBar computeBar) {
         root.setCenter(panoPane);
         root.setBottom(paramsGrid);
-        root.setPrefWidth(1400);
+        root.setTop(computeBar);
+        root.setPrefWidth(1500);
         root.setPrefHeight(700);
     }
 

@@ -9,21 +9,25 @@ import static javafx.collections.FXCollections.unmodifiableObservableList;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 import ch.epfl.alpano.Panorama;
 import ch.epfl.alpano.PanoramaComputer;
 import ch.epfl.alpano.PanoramaParameters;
 import ch.epfl.alpano.dem.ContinuousElevationModel;
 import ch.epfl.alpano.summit.Summit;
+import javafx.application.Platform;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Service;
+import javafx.concurrent.Task;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.ReadOnlyDoubleProperty;
 
 /**
  * Représente l'état actuel du panorama actuellement affiché à l'écran.
@@ -57,7 +61,7 @@ public class PanoramaComputerBean implements Serializable {
      * La propriété des étiquettes des sommets.
      */
     private final ObjectProperty<ObservableList<Node>> labels;
-    
+
     private final DoubleProperty status;
 
     /**
@@ -65,9 +69,10 @@ public class PanoramaComputerBean implements Serializable {
      */
     private final List<Summit> summits;
 
-    /**
-     * Le MNT continu passé au constructeur.
-     */
+    private final PanoramaComputer pc;
+
+    private final Service<Void> service;
+
     private final ContinuousElevationModel cem;
 
     /**
@@ -81,33 +86,74 @@ public class PanoramaComputerBean implements Serializable {
      */
     public PanoramaComputerBean(ContinuousElevationModel cem,
             List<Summit> summits) {
-        this.summits = unmodifiableList(new ArrayList<>(summits));
+        this.pc = new PanoramaComputer(cem);
         this.cem = cem;
+        this.summits = unmodifiableList(new ArrayList<>(summits));
         this.panorama = new SimpleObjectProperty<>(null);
         this.parameters = new SimpleObjectProperty<>(null);
-        this.parameters.addListener((b, o, n) -> synchronizeParameters());
         this.image = new SimpleObjectProperty<>(null);
         this.labels = new SimpleObjectProperty<>(observableArrayList());
         this.status = new SimpleDoubleProperty();
-    }
-
-    /**
-     * Permet de s'assurer que tous les éléments (propriétés) de la classe
-     * correspondent aux paramètres existants. Elle est appelée à chaque fois
-     * que les paramètres sont modifiés.
-     */
-    private void synchronizeParameters() {
-        PanoramaParameters parametersDisplay = parameters.get()
-                .panoramaDisplayParameters();
-        PanoramaComputer pc = new PanoramaComputer(cem);
         status.bind(pc.statusProperty());
-        panorama.set(
-                pc.computePanorama(parametersDisplay));
-        image.set(renderPanorama(panorama.get(), stdPanorama(panorama.get())));
-        labels.get().setAll(new Labelizer(cem, summits)
-                .labels(parameters.get().panoramaParameters()));
-        status.unbind();
-        status.set(0);
+        service = new Service<Void>() {
+            @Override
+            protected Task<Void> createTask() {
+                return new Task<Void>() {
+                    @Override
+                    protected Void call() throws Exception {
+                        // Background work
+                        final CountDownLatch latch = new CountDownLatch(1);
+                        Platform.runLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    PanoramaParameters parametersDisplay = parameters
+                                            .get().panoramaDisplayParameters();
+                                    panorama.set(pc.computePanorama(
+                                            parametersDisplay));
+                                    image.set(renderPanorama(panorama.get(),
+                                            stdPanorama(panorama.get())));
+                                    labels.get().setAll(new Labelizer(cem,
+                                            summits).labels(parameters.get()
+                                                    .panoramaParameters()));
+                                    status.unbind();
+                                    status.set(0);
+                                } finally {
+                                    latch.countDown();
+                                }
+                            }
+                        });
+                        latch.await();
+                        // Keep with the background work
+                        return null;
+                    }
+                };
+            }
+        };
+        this.parameters.addListener((b, o, n) -> {
+            Platform.runLater(new Runnable() {
+                @Override
+              public void run() {
+                  PanoramaParameters parametersDisplay = parameters.get()
+                          .panoramaDisplayParameters();
+                  panorama.set(pc.computePanorama(parametersDisplay));
+                  image.set(renderPanorama(panorama.get(),
+                          stdPanorama(panorama.get())));
+                  labels.get().setAll(new Labelizer(cem, summits)
+                          .labels(parameters.get().panoramaParameters()));
+              }
+            });
+//            new Thread() {
+//                @Override
+//                public void run() {
+//                    PanoramaParameters parametersDisplay = parameters.get()
+//                            .panoramaDisplayParameters();
+//                    panorama.set(pc.computePanorama(parametersDisplay));
+//                }
+//            }.start();
+            // service.reset();
+            // service.start();
+        });
     }
 
     /**
@@ -194,7 +240,7 @@ public class PanoramaComputerBean implements Serializable {
     public ObservableList<Node> getLabels() {
         return labels.get();
     }
-    
+
     public ReadOnlyDoubleProperty statusProperty() {
         return status;
     }
