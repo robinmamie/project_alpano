@@ -21,7 +21,7 @@ public class FileStringConverter extends StringConverter<File> {
 
     @Override
     public String toString(File arg0) {
-        return arg0.getName().substring(0,
+        return arg0 == null ? "" : arg0.getName().substring(0,
                 (int) arg0.getName().length() - sizeOfExtension);
     }
 

@@ -39,6 +39,8 @@ public final class LabeledListStringConverter extends StringConverter<Integer> {
 
     @Override
     public String toString(Integer arg0) {
+        if(arg0 == null)
+            return "";
         checkArgument(0 <= arg0 && arg0 < values.size(), "Invalid index.");
         return values.get(arg0);
     }

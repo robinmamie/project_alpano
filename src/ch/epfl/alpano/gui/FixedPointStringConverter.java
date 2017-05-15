@@ -40,7 +40,8 @@ public final class FixedPointStringConverter extends StringConverter<Integer> {
 
     @Override
     public String toString(Integer object) {
-        return new BigDecimal(object).movePointLeft(decimals).toString();
+        return object == null ? ""
+                : new BigDecimal(object).movePointLeft(decimals).toString();
     }
 
 }
