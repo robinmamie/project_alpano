@@ -10,7 +10,6 @@ import java.util.List;
 
 import ch.epfl.alpano.Panorama;
 import ch.epfl.alpano.PanoramaComputer;
-import ch.epfl.alpano.PanoramaParameters;
 import ch.epfl.alpano.dem.ContinuousElevationModel;
 import ch.epfl.alpano.summit.Summit;
 import javafx.beans.property.DoubleProperty;
@@ -90,14 +89,12 @@ public class PanoramaComputerBean implements Serializable {
             new Thread() {
                 @Override
                 public void run() {
-                    PanoramaParameters parametersDisplay = parameters.get()
-                            .panoramaDisplayParameters();
-                    panorama.set(pc.computePanorama(parametersDisplay));
+                    panorama.set(pc.computePanorama(parameters.get()
+                            .panoramaDisplayParameters()));
                     image.set(renderPanorama(panorama.get(),
                             stdPanorama(panorama.get())));
                 }
             }.start();
-            modifiableLabels.clear();
             modifiableLabels.setAll(new Labelizer(cem, summits)
                     .labels(parameters.get().panoramaParameters()));
         });
@@ -175,8 +172,7 @@ public class PanoramaComputerBean implements Serializable {
      *         observables.
      */
     public ReadOnlyObjectProperty<ObservableList<Node>> labelsProperty() {
-        return new SimpleObjectProperty<>(
-                unmodifiableObservableList(labels.get()));
+        return labels;
     }
 
     /**

@@ -66,7 +66,7 @@ import javafx.util.StringConverter;
 
 public final class Alpano extends Application {
 
-    private final static PanoramaUserParameters PRELOAD = PredefinedPanoramas.NIESEN;
+    private final static PanoramaUserParameters PRELOAD = PredefinedPanoramas.JURA;
 
     private final static ContinuousElevationModel CEM;
     private final static PanoramaParametersBean PARAMETERS_B;
