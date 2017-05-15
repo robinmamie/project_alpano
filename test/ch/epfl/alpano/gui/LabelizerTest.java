@@ -25,7 +25,7 @@ public class LabelizerTest {
                 new ContinuousElevationModel(
                         new SuperHgtDiscreteElevationModel()),
                 GazetteerParser.readSummitsFrom(new File("alps.txt"))).labels(
-                        PredefinedPanoramas.NIESEN.panoramaParameters());
+                        PredefinedPanoramas.NIESEN.panoramaDisplayParameters());
         long stop = System.nanoTime();
         nodes.forEach(System.out::println);
         System.out.printf("Number of summits: %d%n", nodes.size() / 2);

@@ -66,7 +66,7 @@ import javafx.util.StringConverter;
 
 public final class Alpano extends Application {
 
-    private final static PanoramaUserParameters PRELOAD = PredefinedPanoramas.JURA;
+    private final static PanoramaUserParameters PRELOAD = PredefinedPanoramas.NIESEN;
 
     private final static ContinuousElevationModel CEM;
     private final static PanoramaParametersBean PARAMETERS_B;
@@ -194,7 +194,7 @@ public final class Alpano extends Application {
             if (e.getButton() == MouseButton.PRIMARY) {
                 String[] lonAndLat = getFormattedLongitudeAndLatitude(x, y);
 
-                String qy = "?mlat=" + lonAndLat[1] + "&mlon=" + lonAndLat[0];
+                String qy = "mlat=" + lonAndLat[1] + "&mlon=" + lonAndLat[0];
                 String fg = "map=15/" + lonAndLat[1] + "/" + lonAndLat[0];
                 URI osmURI;
                 try {
@@ -223,11 +223,9 @@ public final class Alpano extends Application {
     private int[] getIndices(MouseEvent e) {
         int x = (int) e.getX(), y = (int) e.getY();
 
-        int superSE = 2 * COMPUTER_B.getParameters().superSamplingExponent();
-        if (superSE > 0) {
-            x *= superSE;
-            y *= superSE;
-        }
+        int superSE = COMPUTER_B.getParameters().superSamplingExponent();
+        x = (int) Math.scalb(x, superSE);
+        y = (int) Math.scalb(y, superSE);
 
         return new int[] { x, y };
     }
@@ -416,10 +414,10 @@ public final class Alpano extends Application {
     }
 
     private void openLoadWindow(ActionEvent e) {
-        
+
         // FIXME don't open if no save
         // FIXME create folders if don't exist
-        
+
         Stage loadStage = new Stage();
 
         GridPane grid = new GridPane();

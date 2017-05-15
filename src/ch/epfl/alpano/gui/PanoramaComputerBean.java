@@ -56,6 +56,8 @@ public class PanoramaComputerBean implements Serializable {
      */
     private final ObjectProperty<ObservableList<Node>> labels;
 
+    private final ObservableList<Node> modifiableLabels;
+
     private final DoubleProperty status;
 
     /**
@@ -63,7 +65,6 @@ public class PanoramaComputerBean implements Serializable {
      */
 
     private final PanoramaComputer pc;
-
 
     /**
      * Construit un PanoramaComputerBean en prenant un MNT continu et une liste
@@ -80,7 +81,9 @@ public class PanoramaComputerBean implements Serializable {
         this.panorama = new SimpleObjectProperty<>(null);
         this.parameters = new SimpleObjectProperty<>(null);
         this.image = new SimpleObjectProperty<>(null);
-        this.labels = new SimpleObjectProperty<>(observableArrayList());
+        this.modifiableLabels = observableArrayList();
+        this.labels = new SimpleObjectProperty<>(
+                unmodifiableObservableList(modifiableLabels));
         this.status = new SimpleDoubleProperty();
         status.bind(pc.statusProperty());
         this.parameters.addListener((b, o, n) -> {
@@ -94,7 +97,8 @@ public class PanoramaComputerBean implements Serializable {
                             stdPanorama(panorama.get())));
                 }
             }.start();
-            labels.get().setAll(new Labelizer(cem, summits)
+            modifiableLabels.clear();
+            modifiableLabels.setAll(new Labelizer(cem, summits)
                     .labels(parameters.get().panoramaParameters()));
         });
     }
