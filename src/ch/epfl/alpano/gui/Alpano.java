@@ -323,11 +323,11 @@ public final class Alpano extends Application {
         Button loadPanorama = new Button("Load");
         loadPanorama.setOnAction(e -> openLoadWindow(e));
         GridPane.setHalignment(loadPanorama, HPos.CENTER);
-
-        paramsGrid.setHgap(10);
-        paramsGrid.setVgap(8);
-        paramsGrid.setPadding(new Insets(10));
+        
         paramsGrid.setAlignment(Pos.CENTER);
+        paramsGrid.setHgap(10);
+        paramsGrid.setVgap(3);
+        paramsGrid.setPadding(new Insets(7, 5, 5, 5));
 
         paramsGrid.add(computeElevation, 6, 0);
         paramsGrid.add(saveImageAndPanorama, 6, 1);
