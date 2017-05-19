@@ -80,48 +80,49 @@ public final class PanoramaComputer {
         Panorama.Builder pb = new Panorama.Builder(parameters);
         double statusIncrement = 1d / parameters.width();
         for (int i = 0; i < parameters.width(); i += 20) {
-            final int j = i;
+            final int start = i;
+            final int stop = i + 20 > parameters.width() ? parameters.width() : i + 20;
             new Thread() {
                 @Override
                 public void run() {
-                    computePartPanorama(pb, parameters, j, j + 20,
-                            statusIncrement);
+                    for (int x = start; x < stop; ++x) {
+                        ElevationProfile profile = new ElevationProfile(dem,
+                                parameters.observerPosition(), parameters.azimuthForX(x),
+                                parameters.maxDistance());
+                        double dist = 0;
+                        for (int y = parameters.height() - 1; y >= 0; --y) {
+                            double angle = parameters.altitudeForY(y);
+                            DoubleUnaryOperator f = rayToGroundDistance(profile,
+                                    parameters.observerElevation(), tan(angle));
+                            dist = firstIntervalContainingRoot(f, dist,
+                                    parameters.maxDistance(), INTERVAL);
+                            if (dist == POSITIVE_INFINITY)
+                                break;
+                            dist = improveRoot(f, dist, dist + INTERVAL, EPSILON);
+                            GeoPoint point = profile.positionAt(dist);
+                            float distance = (float) (dist / cos(angle));
+                            float longitude = (float) point.longitude();
+                            float latitude = (float) point.latitude();
+                            float elevation = (float) dem.elevationAt(point);
+                            float slope = (float) dem.slopeAt(point);
+                            synchronized(pb) {
+                                pb.setDistanceAt(x, y, distance)
+                                .setLongitudeAt(x, y, longitude)
+                                .setLatitudeAt(x, y, latitude)
+                                .setElevationAt(x, y, elevation)
+                                .setSlopeAt(x, y, slope);
+                            }
+                        }
+                        synchronized (status) {
+                            status.set(status.get() + statusIncrement);
+                        }
+                    }
                 }
             }.start();
         }
         while (status.get() < 1d - 1e-10) {
         }
         return pb.build();
-    }
-
-    private void computePartPanorama(Panorama.Builder pb,
-            PanoramaParameters parameters, int start, int stop,
-            double statusIncrement) {
-        if(stop > parameters.width())
-            stop = parameters.width();
-        for (int x = start; x < stop; ++x) {
-            ElevationProfile profile = new ElevationProfile(dem,
-                    parameters.observerPosition(), parameters.azimuthForX(x),
-                    parameters.maxDistance());
-            double dist = 0;
-            for (int y = parameters.height() - 1; y >= 0; --y) {
-                double angle = parameters.altitudeForY(y);
-                DoubleUnaryOperator f = rayToGroundDistance(profile,
-                        parameters.observerElevation(), tan(angle));
-                dist = firstIntervalContainingRoot(f, dist,
-                        parameters.maxDistance(), INTERVAL);
-                if (dist == POSITIVE_INFINITY)
-                    break;
-                dist = improveRoot(f, dist, dist + INTERVAL, EPSILON);
-                GeoPoint point = profile.positionAt(dist);
-                pb.setDistanceAt(x, y, (float) (dist / cos(angle)))
-                        .setLongitudeAt(x, y, (float) point.longitude())
-                        .setLatitudeAt(x, y, (float) point.latitude())
-                        .setElevationAt(x, y, (float) dem.elevationAt(point))
-                        .setSlopeAt(x, y, (float) dem.slopeAt(point));
-            }
-            status.set(status.get() + statusIncrement);
-        }
     }
 
     /**

@@ -30,6 +30,7 @@ import ch.epfl.alpano.Panorama;
 import ch.epfl.alpano.dem.ContinuousElevationModel;
 import ch.epfl.alpano.dem.DiscreteElevationModel;
 import ch.epfl.alpano.dem.HgtDiscreteElevationModel;
+import ch.epfl.alpano.dem.SuperHgtDiscreteElevationModel;
 import ch.epfl.alpano.summit.GazetteerParser;
 import ch.epfl.alpano.summit.Summit;
 import javafx.application.Application;
@@ -79,6 +80,8 @@ public final class Alpano extends Application {
         } catch (IOException e) {
             throw new IllegalArgumentException();
         }
+        DiscreteElevationModel dem = new SuperHgtDiscreteElevationModel();
+        /*
         DiscreteElevationModel dem = new HgtDiscreteElevationModel(
                 new File("N45E006.hgt")).union(
                         new HgtDiscreteElevationModel(new File("N45E007.hgt")))
@@ -94,7 +97,7 @@ public final class Alpano extends Application {
                                                 new File("N46E008.hgt"))
                                                         .union(new HgtDiscreteElevationModel(
                                                                 new File(
-                                                                        "N46E009.hgt")))));
+                                                                        "N46E009.hgt")))));*/
 
         CEM = new ContinuousElevationModel(dem);
 

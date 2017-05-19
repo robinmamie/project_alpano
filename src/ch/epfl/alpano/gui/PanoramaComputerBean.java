@@ -57,12 +57,6 @@ public class PanoramaComputerBean implements Serializable {
     private final DoubleProperty status;
 
     /**
-     * La liste des sommets passés au constructeur.
-     */
-
-    private final PanoramaComputer pc;
-
-    /**
      * Construit un PanoramaComputerBean en prenant un MNT continu et une liste
      * de sommets en arguments.
      * 
@@ -73,19 +67,19 @@ public class PanoramaComputerBean implements Serializable {
      */
     public PanoramaComputerBean(ContinuousElevationModel cem,
             List<Summit> summits) {
-        this.pc = new PanoramaComputer(cem);
         this.panorama = new SimpleObjectProperty<>(null);
         this.parameters = new SimpleObjectProperty<>(null);
         this.image = new SimpleObjectProperty<>(null);
         ObservableList<Node> labels = observableArrayList();
         this.unmodifiableLabels = unmodifiableObservableList(labels);
         this.status = new SimpleDoubleProperty();
-        status.bind(pc.statusProperty());
         this.parameters.addListener((b, o, n) -> {
             labels.clear();
             new Thread() {
                 @Override
                 public void run() {
+                    PanoramaComputer pc = new PanoramaComputer(cem);
+                    status.bind(pc.statusProperty());
                     panorama.set(null);
                     image.set(null);
                     panorama.set(pc.computePanorama(
@@ -95,6 +89,8 @@ public class PanoramaComputerBean implements Serializable {
                     runLater(() -> labels
                             .setAll(new Labelizer(cem, summits).labels(
                                     parameters.get().panoramaDisplayParameters())));
+                    status.unbind();
+                    status.set(0);
                 }
             }.start();
         });
