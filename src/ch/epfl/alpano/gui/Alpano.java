@@ -167,9 +167,9 @@ public final class Alpano extends Application {
             float distance = COMPUTER_B.getPanorama().distanceAt(x, y);
             int altitude = (int) COMPUTER_B.getPanorama().elevationAt(x, y);
             double azimuth = COMPUTER_B.getParameters()
-                    .panoramaDisplayParameters().azimuthForX(x);
+                    .panoramaParameters().azimuthForX(x);
             double elevation = COMPUTER_B.getParameters()
-                    .panoramaDisplayParameters().altitudeForY(y);
+                    .panoramaParameters().altitudeForY(y);
 
             StringBuilder sb = new StringBuilder();
             sb.append("Position : ");
@@ -210,7 +210,7 @@ public final class Alpano extends Application {
                 int latitude = (int) (10_000 * toDegrees(p.latitudeAt(x, y)));
                 int elevation = (int) p.elevationAt(x, y) + 20;
                 int azimuth = (int) toDegrees(Azimuth.canonicalize(
-                        COMPUTER_B.getParameters().panoramaDisplayParameters()
+                        COMPUTER_B.getParameters().panoramaParameters()
                                 .azimuthForX(x) + Math.PI));
                 PARAMETERS_B.observerLongitudeProperty().set(longitude);
                 PARAMETERS_B.observerLatitudeProperty().set(latitude);
@@ -311,7 +311,7 @@ public final class Alpano extends Application {
         computeElevation
                 .setOnAction(e -> PARAMETERS_B.observerElevationProperty()
                         .set((int) CEM.elevationAt(PARAMETERS_B
-                                .parametersProperty().get().panoramaParameters()
+                                .parametersProperty().get().panoramaDisplayParameters()
                                 .observerPosition()) + 2));
         GridPane.setHalignment(computeElevation, HPos.CENTER);
 

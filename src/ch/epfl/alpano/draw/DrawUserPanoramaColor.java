@@ -49,31 +49,31 @@ final class DrawUserPanoramaColor {
         PanoramaComputer p = new PanoramaComputer(
                 new ContinuousElevationModel(dDEM));
         System.out.printf("PanoramaComputer loaded in %.3f s.%n", getSec());
-        outputImage(p.computePanorama(NIESEN.panoramaParameters()),
+        outputImage(p.computePanorama(NIESEN.panoramaDisplayParameters()),
                 "niesen-user.png");
         System.out.printf("Niesen drawn in %.3f s.%n", getSec());
-        outputImage(p.computePanorama(JURA.panoramaParameters()),
+        outputImage(p.computePanorama(JURA.panoramaDisplayParameters()),
                 "jura-user.png");
         System.out.printf("Jura drawn in %.3f s.%n", getSec());
-        outputImage(p.computePanorama(RACINE.panoramaParameters()),
+        outputImage(p.computePanorama(RACINE.panoramaDisplayParameters()),
                 "racine-user.png");
         System.out.printf("Racine drawn in %.3f s.%n", getSec());
-        outputImage(p.computePanorama(FINSTER.panoramaParameters()),
+        outputImage(p.computePanorama(FINSTER.panoramaDisplayParameters()),
                 "finsteraarhorn-user.png");
         System.out.printf("Finsteraarhorn in %.3f s.%n", getSec());
-        outputImage(p.computePanorama(SAUVABELIN.panoramaParameters()),
+        outputImage(p.computePanorama(SAUVABELIN.panoramaDisplayParameters()),
                 "sauvabelin-user.png");
         System.out.printf("Sauvabelin drawn in %.3f s.%n", getSec());
-        outputImage(p.computePanorama(PELICAN.panoramaParameters()),
+        outputImage(p.computePanorama(PELICAN.panoramaDisplayParameters()),
                 "pelican-user.png");
         System.out.printf("Pelican drawn in %.3f s.%n", getSec());
-        outputImage(p.computePanorama(COURTEPIN.panoramaParameters()),
+        outputImage(p.computePanorama(COURTEPIN.panoramaDisplayParameters()),
                 "courtepin-user.png");
         System.out.printf("Courtepin drawn in %.3f s.%n", getSec());
-        outputImage(p.computePanorama(SEEDORF.panoramaParameters()),
+        outputImage(p.computePanorama(SEEDORF.panoramaDisplayParameters()),
                 "seedorf-user.png");
         System.out.printf("Seedorf drawn in %.3f s.%n", getSec());
-        outputImage(p.computePanorama(ZIMMERWALD.panoramaParameters()),
+        outputImage(p.computePanorama(ZIMMERWALD.panoramaDisplayParameters()),
                 "zimmerwald-user.png");
         System.out.printf("Zimmerwald drawn in %.3f s, programm finished.%n",
                 getSec());

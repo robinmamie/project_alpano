@@ -30,6 +30,16 @@ public interface ChannelPainter {
      */
     float valueAt(int x, int y);
 
+    /**
+     * Retourne un peintre de canal prenant en compte la distance du pixel
+     * voisin le plus éloigné.
+     * 
+     * @param p
+     *            Le panorama avec lequel on désire calculer ces distances.
+     * 
+     * @return Un peintre de canal dont tous les pixels désignent la distance
+     *         par rapport à leur voisin le plus éloingé.
+     */
     static ChannelPainter maxDistanceToNeighbors(Panorama p) {
         return (x, y) -> max(
                 max(p.distanceAt(x - 1, y, 0), p.distanceAt(x + 1, y, 0)),

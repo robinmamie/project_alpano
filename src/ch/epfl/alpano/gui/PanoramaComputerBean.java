@@ -2,6 +2,7 @@ package ch.epfl.alpano.gui;
 
 import static ch.epfl.alpano.gui.ImagePainter.stdPanorama;
 import static ch.epfl.alpano.gui.PanoramaRenderer.renderPanorama;
+import static javafx.application.Platform.runLater;
 import static javafx.collections.FXCollections.observableArrayList;
 import static javafx.collections.FXCollections.unmodifiableObservableList;
 
@@ -50,12 +51,7 @@ public class PanoramaComputerBean implements Serializable {
      */
     private final ObjectProperty<Image> image;
 
-    /**
-     * La propriété des étiquettes des sommets.
-     */
-    private final ObjectProperty<ObservableList<Node>> labels;
-
-    private final ObservableList<Node> modifiableLabels;
+    private final ObservableList<Node> labels;
 
     private final DoubleProperty status;
 
@@ -80,23 +76,26 @@ public class PanoramaComputerBean implements Serializable {
         this.panorama = new SimpleObjectProperty<>(null);
         this.parameters = new SimpleObjectProperty<>(null);
         this.image = new SimpleObjectProperty<>(null);
-        this.modifiableLabels = observableArrayList();
-        this.labels = new SimpleObjectProperty<>(
-                unmodifiableObservableList(modifiableLabels));
+        this.labels = observableArrayList();
+        // TODO implement unmodifiable list
         this.status = new SimpleDoubleProperty();
         status.bind(pc.statusProperty());
         this.parameters.addListener((b, o, n) -> {
+            labels.clear();
             new Thread() {
                 @Override
                 public void run() {
-                    panorama.set(pc.computePanorama(parameters.get()
-                            .panoramaDisplayParameters()));
+                    panorama.set(null);
+                    image.set(null);
+                    panorama.set(pc.computePanorama(
+                            parameters.get().panoramaParameters()));
                     image.set(renderPanorama(panorama.get(),
                             stdPanorama(panorama.get())));
+                    runLater(() -> labels
+                            .setAll(new Labelizer(cem, summits).labels(
+                                    parameters.get().panoramaDisplayParameters())));
                 }
             }.start();
-            modifiableLabels.setAll(new Labelizer(cem, summits)
-                    .labels(parameters.get().panoramaParameters()));
         });
     }
 
@@ -165,23 +164,12 @@ public class PanoramaComputerBean implements Serializable {
     }
 
     /**
-     * Retourne la propriété en lecture seule de la liste des sommets visibles
-     * observables.
-     * 
-     * @return la propriété en lecture seule de la liste des sommets visibles
-     *         observables.
-     */
-    public ReadOnlyObjectProperty<ObservableList<Node>> labelsProperty() {
-        return labels;
-    }
-
-    /**
      * Retourne la liste des sommets visibles observables.
      * 
      * @return la liste des sommets visibles observables.
      */
     public ObservableList<Node> getLabels() {
-        return labels.get();
+        return labels;
     }
 
     public ReadOnlyDoubleProperty statusProperty() {

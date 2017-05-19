@@ -36,6 +36,8 @@ public final class PanoramaUserParameters implements Serializable {
      */
     private static final long serialVersionUID = -5211994945756595388L;
 
+    private static final int MAX_VERTICAL_FIELD_OF_VIEW = 170;
+
     /**
      * Table associative des paramètres.
      */
@@ -52,11 +54,11 @@ public final class PanoramaUserParameters implements Serializable {
      */
     public PanoramaUserParameters(Map<UserParameter, Integer> map) {
         checkArgument(map.size() == SIZE_USER_PARAMETER,
-                "The given map not valid.");
+                "The given map is not valid.");
         map = new EnumMap<>(map);
         map.replaceAll(UserParameter::sanitize);
-        int limit = (int) (1 + 170 * (map.get(WIDTH) - 1.)
-                / map.get(HORIZONTAL_FIELD_OF_VIEW));
+        int limit = (int) (1 + MAX_VERTICAL_FIELD_OF_VIEW
+                * (map.get(WIDTH) - 1.) / map.get(HORIZONTAL_FIELD_OF_VIEW));
         if (limit < map.get(HEIGHT))
             map.put(HEIGHT, limit);
         this.map = unmodifiableMap(map);
@@ -222,7 +224,7 @@ public final class PanoramaUserParameters implements Serializable {
      * @return Les paramètres du Panorama en prenant en compte l'exposant de
      *         suréchantillonage.
      */
-    public PanoramaParameters panoramaDisplayParameters() {
+    public PanoramaParameters panoramaParameters() {
         return panoramaParametersSet(
                 x -> (int) scalb(x, superSamplingExponent()));
     }
@@ -235,7 +237,7 @@ public final class PanoramaUserParameters implements Serializable {
      * @return Les paramètres du Panorama en ne prenant pas en compte l'exposant
      *         de suréchantillonage.
      */
-    public PanoramaParameters panoramaParameters() {
+    public PanoramaParameters panoramaDisplayParameters() {
         return panoramaParametersSet(x -> x);
     }
 
@@ -247,7 +249,7 @@ public final class PanoramaUserParameters implements Serializable {
     protected Map<UserParameter, Integer> map() {
         return map;
     }
-    
+
     @Override
     public boolean equals(Object thato) {
         return thato instanceof PanoramaUserParameters
