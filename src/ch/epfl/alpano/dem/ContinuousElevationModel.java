@@ -26,6 +26,8 @@ public final class ContinuousElevationModel {
      * Distance prise en compte pour le calcul de la pente
      */
     private static final double D = toMeters(1 / SAMPLES_PER_RADIAN);
+    
+    private static final double D_SQUARED = sq(D);
 
     /**
      * MNT discret utilisé.
@@ -73,7 +75,7 @@ public final class ContinuousElevationModel {
     private double slopeAtIndex(int x, int y) {
         double a = elevationAtIndex(x, y);
         return acos(D / sqrt(sq(elevationAtIndex(x + 1, y) - a)
-                + sq(elevationAtIndex(x, y + 1) - a) + sq(D)));
+                + sq(elevationAtIndex(x, y + 1) - a) + D_SQUARED));
     }
 
     /**

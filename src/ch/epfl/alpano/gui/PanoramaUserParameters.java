@@ -43,7 +43,7 @@ public final class PanoramaUserParameters implements Serializable {
      */
     private final Map<UserParameter, Integer> map;
 
-    private final int SIZE_USER_PARAMETER = 9;
+    private static final int SIZE_USER_PARAMETER = 9;
 
     /**
      * Constructeur primaire de la classe, prend une table associative en
