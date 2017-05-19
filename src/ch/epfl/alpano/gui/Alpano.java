@@ -30,6 +30,8 @@ import ch.epfl.alpano.Panorama;
 import ch.epfl.alpano.dem.ContinuousElevationModel;
 import ch.epfl.alpano.dem.DiscreteElevationModel;
 import ch.epfl.alpano.dem.HgtDiscreteElevationModel;
+import ch.epfl.alpano.dem.HilbertCreator;
+import ch.epfl.alpano.dem.HilbertDiscreteElevationModel;
 import ch.epfl.alpano.dem.SuperHgtDiscreteElevationModel;
 import ch.epfl.alpano.summit.GazetteerParser;
 import ch.epfl.alpano.summit.Summit;
@@ -74,13 +76,20 @@ public final class Alpano extends Application {
     private final static PanoramaComputerBean COMPUTER_B;
 
     static {
+        try {
+            HilbertCreator.buildFiles();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
         List<Summit> summits;
         try {
             summits = GazetteerParser.readSummitsFrom(new File("alps.txt"));
         } catch (IOException e) {
             throw new IllegalArgumentException();
         }
-        DiscreteElevationModel dem = new SuperHgtDiscreteElevationModel();
+        //DiscreteElevationModel dem = new SuperHgtDiscreteElevationModel();
+        DiscreteElevationModel dem = new HilbertDiscreteElevationModel(1);
         /*
         DiscreteElevationModel dem = new HgtDiscreteElevationModel(
                 new File("N45E006.hgt")).union(
@@ -98,7 +107,7 @@ public final class Alpano extends Application {
                                                         .union(new HgtDiscreteElevationModel(
                                                                 new File(
                                                                         "N46E009.hgt")))));*/
-
+        
         CEM = new ContinuousElevationModel(dem);
 
         PARAMETERS_B = new PanoramaParametersBean(PRELOAD);
