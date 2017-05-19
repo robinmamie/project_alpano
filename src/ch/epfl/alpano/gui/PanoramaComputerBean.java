@@ -51,7 +51,8 @@ public class PanoramaComputerBean implements Serializable {
      */
     private final ObjectProperty<Image> image;
 
-    private final ObservableList<Node> labels;
+    
+    private final ObservableList<Node> unmodifiableLabels;
 
     private final DoubleProperty status;
 
@@ -76,8 +77,8 @@ public class PanoramaComputerBean implements Serializable {
         this.panorama = new SimpleObjectProperty<>(null);
         this.parameters = new SimpleObjectProperty<>(null);
         this.image = new SimpleObjectProperty<>(null);
-        this.labels = observableArrayList();
-        // TODO implement unmodifiable list
+        ObservableList<Node> labels = observableArrayList();
+        this.unmodifiableLabels = unmodifiableObservableList(labels);
         this.status = new SimpleDoubleProperty();
         status.bind(pc.statusProperty());
         this.parameters.addListener((b, o, n) -> {
@@ -169,7 +170,7 @@ public class PanoramaComputerBean implements Serializable {
      * @return la liste des sommets visibles observables.
      */
     public ObservableList<Node> getLabels() {
-        return labels;
+        return unmodifiableLabels;
     }
 
     public ReadOnlyDoubleProperty statusProperty() {
