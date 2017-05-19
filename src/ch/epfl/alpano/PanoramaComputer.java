@@ -44,14 +44,14 @@ public final class PanoramaComputer {
      * Second intervalle utilisé afin d'affiner la recherche de la racine.
      */
     private static final double EPSILON = 4.0;
-    
+
     /**
      * MNT continu passé au constructeur.
      */
     private final ContinuousElevationModel dem;
-    
+
     private final DoubleProperty status;
-    
+
     /**
      * Constructeur de la classe PanoramaComputer prenant un MNT continu en
      * argument.
@@ -78,7 +78,28 @@ public final class PanoramaComputer {
      */
     public Panorama computePanorama(PanoramaParameters parameters) {
         Panorama.Builder pb = new Panorama.Builder(parameters);
-        for (int x = 0; x < parameters.width(); ++x) {
+        double statusIncrement = 1d / parameters.width();
+        for (int i = 0; i < parameters.width(); i += 20) {
+            final int j = i;
+            new Thread() {
+                @Override
+                public void run() {
+                    computePartPanorama(pb, parameters, j, j + 20,
+                            statusIncrement);
+                }
+            }.start();
+        }
+        while (status.get() < 1d - 1e-10) {
+        }
+        return pb.build();
+    }
+
+    private void computePartPanorama(Panorama.Builder pb,
+            PanoramaParameters parameters, int start, int stop,
+            double statusIncrement) {
+        if(stop > parameters.width())
+            stop = parameters.width();
+        for (int x = start; x < stop; ++x) {
             ElevationProfile profile = new ElevationProfile(dem,
                     parameters.observerPosition(), parameters.azimuthForX(x),
                     parameters.maxDistance());
@@ -99,9 +120,8 @@ public final class PanoramaComputer {
                         .setElevationAt(x, y, (float) dem.elevationAt(point))
                         .setSlopeAt(x, y, (float) dem.slopeAt(point));
             }
-            status.set((double) x / parameters.width());
+            status.set(status.get() + statusIncrement);
         }
-        return pb.build();
     }
 
     /**
@@ -123,8 +143,7 @@ public final class PanoramaComputer {
             ElevationProfile profile, double ray0, double raySlope) {
         return x -> ray0 + x * (raySlope + FACTOR * x) - profile.elevationAt(x);
     }
-    
-    
+
     public ReadOnlyDoubleProperty statusProperty() {
         return status;
     }

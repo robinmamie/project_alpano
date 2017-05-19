@@ -17,6 +17,7 @@ import java.util.BitSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import ch.epfl.alpano.PanoramaParameters;
 import ch.epfl.alpano.dem.ContinuousElevationModel;
@@ -99,7 +100,7 @@ public final class Labelizer {
      *            Une liste complètes de tous les sommets.
      */
     public Labelizer(ContinuousElevationModel cem, List<Summit> summits) {
-        this.cem = cem;
+        this.cem = Objects.requireNonNull(cem);
         this.summits = unmodifiableList(new ArrayList<>(summits));
         values = new HashMap<Summit, Integer[]>();
     }
