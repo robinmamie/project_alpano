@@ -12,7 +12,6 @@ import java.nio.ShortBuffer;
 
 import ch.epfl.alpano.Interval1D;
 import ch.epfl.alpano.Interval2D;
-import ch.epfl.alpano.Preconditions;
 
 public class HilbertDiscreteElevationModel implements DiscreteElevationModel {
 
@@ -30,7 +29,7 @@ public class HilbertDiscreteElevationModel implements DiscreteElevationModel {
 
     public HilbertDiscreteElevationModel(int x, int y) {
         // TODO Remove these magic numbers
-        Preconditions.checkArgument(0 <= x && x < 3 && 0 <= y && y < 2,
+        checkArgument(0 <= x && x < 3 && 0 <= y && y < 2,
                 "Invalid .hhgt file.");
         hilbertHGT = new File(getFileName(x, y));
         Interval1D iX = new Interval1D(BASE_LON + x * N,
