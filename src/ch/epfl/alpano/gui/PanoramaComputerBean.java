@@ -51,7 +51,6 @@ public class PanoramaComputerBean implements Serializable {
      */
     private final ObjectProperty<Image> image;
 
-    
     private final ObservableList<Node> unmodifiableLabels;
 
     private final DoubleProperty status;
@@ -82,13 +81,15 @@ public class PanoramaComputerBean implements Serializable {
                     status.bind(pc.statusProperty());
                     panorama.set(null);
                     image.set(null);
+                    long start = System.nanoTime();
                     panorama.set(pc.computePanorama(
                             parameters.get().panoramaParameters()));
+                    System.out.printf("Panorama computed in %.3f seconds.%n", (System.nanoTime() - start) * 1e-9);
                     image.set(renderPanorama(panorama.get(),
                             stdPanorama(panorama.get())));
-                    runLater(() -> labels
-                            .setAll(new Labelizer(cem, summits).labels(
-                                    parameters.get().panoramaDisplayParameters())));
+                    runLater(() -> labels.setAll(
+                            new Labelizer(cem, summits).labels(parameters.get()
+                                    .panoramaDisplayParameters())));
                     status.unbind();
                     status.set(0);
                 }

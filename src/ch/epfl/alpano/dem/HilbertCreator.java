@@ -33,6 +33,7 @@ public class HilbertCreator {
             return;
         }
         try (FileOutputStream stream = new FileOutputStream(file)) {
+            System.out.println("Creating the file " + fileName);
             for (int i = 0; i < N_SQUARED; ++i) {
                 int rx, ry, s, t = i, x = 0, y = 0;
                 for (s = 1; s < N; s *= 2) {

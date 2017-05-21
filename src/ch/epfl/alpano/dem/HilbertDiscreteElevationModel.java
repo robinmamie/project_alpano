@@ -57,6 +57,8 @@ public class HilbertDiscreteElevationModel implements DiscreteElevationModel {
     public double elevationSample(int x, int y) {
         checkArgument(extent().contains(x, y),
                 "The HilbertDEM does not contain the given index.");
+        x -= extent().iX().includedFrom();
+        y -= extent().iY().includedFrom();
         int rx, ry, s, d = 0;
         for (s = HilbertCreator.N/2; s > 0; s /= 2) {
             rx = (x & s) > 0 ? 1 : 0;
