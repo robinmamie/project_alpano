@@ -79,12 +79,14 @@ public final class PanoramaComputer {
     public Panorama computePanorama(PanoramaParameters parameters) {
         Panorama.Builder pb = new Panorama.Builder(parameters);
         double statusIncrement = 1d / parameters.width();
-        for (int i = 0; i < parameters.width(); i += 20) {
-            final int start = i;
-            final int stop = i + 20 > parameters.width() ? parameters.width() : i + 20;
-            new Thread() {
-                @Override
-                public void run() {
+        //for (int i = 0; i < parameters.width(); i += 20) {
+            //final int start = i;
+            final int start = 0;
+            //final int stop = i + 20 > parameters.width() ? parameters.width() : i + 20;
+            final int stop = parameters.width();
+            //new Thread() {
+                //@Override
+                //public void run() {
                     for (int x = start; x < stop; ++x) {
                         ElevationProfile profile = new ElevationProfile(dem,
                                 parameters.observerPosition(), parameters.azimuthForX(x),
@@ -105,23 +107,23 @@ public final class PanoramaComputer {
                             float latitude = (float) point.latitude();
                             float elevation = (float) dem.elevationAt(point);
                             float slope = (float) dem.slopeAt(point);
-                            synchronized(pb) {
+                            //synchronized(pb) {
                                 pb.setDistanceAt(x, y, distance)
                                 .setLongitudeAt(x, y, longitude)
                                 .setLatitudeAt(x, y, latitude)
                                 .setElevationAt(x, y, elevation)
                                 .setSlopeAt(x, y, slope);
-                            }
+                            //}
                         }
-                        synchronized (status) {
+                        //synchronized (status) {
                             status.set(status.get() + statusIncrement);
-                        }
-                    }
-                }
-            }.start();
+                        //}
+                    //}
+                //}
+            //}.start();
         }
-        while (status.get() < 1d - 1e-10) {
-        }
+        //while (status.get() < 1d - 1e-10) {
+        //}
         return pb.build();
     }
 
