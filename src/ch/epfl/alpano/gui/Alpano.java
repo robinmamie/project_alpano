@@ -88,8 +88,8 @@ public final class Alpano extends Application {
         } catch (IOException e) {
             throw new IllegalArgumentException();
         }
-        DiscreteElevationModel dem = new SuperHgtDiscreteElevationModel();
-        //DiscreteElevationModel dem = new HilbertDiscreteElevationModel(1);
+        //DiscreteElevationModel dem = new SuperHgtDiscreteElevationModel();
+        DiscreteElevationModel dem = new HilbertDiscreteElevationModel(1);
         /*
         DiscreteElevationModel dem = new HgtDiscreteElevationModel(
                 new File("N45E006.hgt")).union(
