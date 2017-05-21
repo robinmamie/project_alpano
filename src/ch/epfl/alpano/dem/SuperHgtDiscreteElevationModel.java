@@ -18,8 +18,8 @@ public final class SuperHgtDiscreteElevationModel
 
     private static final int AMOUNT = 18;
 
-    private static final int BASE_LON = 6;
-    private static final int BASE_LAT = 45;
+    protected static final int BASE_LON = 6;
+    protected static final int BASE_LAT = 45;
     private static final int BASE_LON_INDEX = (BASE_LON + 1)
             * SAMPLES_PER_DEGREE;
     private static final int BASE_LAT_INDEX = (BASE_LAT + 1)
