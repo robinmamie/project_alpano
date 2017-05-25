@@ -80,16 +80,4 @@ public interface ImagePainter {
         ChannelPainter o = distance.map(d -> d == POSITIVE_INFINITY ? 0 : 1);
         return ImagePainter.hsb(h, s, b, o);
     }
-
-    static ImagePainter greenBrownPanorama(Panorama panorama) {
-        ChannelPainter distance = panorama::distanceAt;
-        ChannelPainter elevation = panorama::elevationAt;
-        ChannelPainter slope = panorama::slopeAt;
-        ChannelPainter h = elevation.invert().add(4900).div(4600).clamp().mul(125);
-        ChannelPainter s = distance.div(200_000).clamp().invert();
-        ChannelPainter b = slope.mul(2).div((float) PI).invert().mul(0.7f)
-                .add(0.3f);
-        ChannelPainter o = distance.map(d -> d == POSITIVE_INFINITY ? 0 : 1);
-        return ImagePainter.hsb(h, s, b, o);
-    }
 }

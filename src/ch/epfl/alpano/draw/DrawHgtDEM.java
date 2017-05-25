@@ -13,7 +13,7 @@ import javax.imageio.ImageIO;
 import ch.epfl.alpano.GeoPoint;
 import ch.epfl.alpano.dem.ContinuousElevationModel;
 import ch.epfl.alpano.dem.DiscreteElevationModel;
-import ch.epfl.alpano.dem.SuperHgtDiscreteElevationModel;
+import ch.epfl.alpano.dem.HgtDiscreteElevationModel;
 
 /**
  * Dessine un HgtDEM.
@@ -33,8 +33,7 @@ final class DrawHgtDEM {
     public static void main(String[] as) throws Exception {
         long startTime = System.nanoTime();
 
-        DiscreteElevationModel dDEM = new SuperHgtDiscreteElevationModel();
-        //DiscreteElevationModel dDEM = new HilbertDiscreteElevationModel(1);
+        DiscreteElevationModel dDEM = new HgtDiscreteElevationModel(HGT_FILE);
         ContinuousElevationModel cDEM = new ContinuousElevationModel(dDEM);
         double step = WIDTH / (IMAGE_SIZE - 1);
         BufferedImage i = new BufferedImage(IMAGE_SIZE, IMAGE_SIZE,

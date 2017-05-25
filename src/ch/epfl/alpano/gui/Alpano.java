@@ -1,19 +1,21 @@
 package ch.epfl.alpano.gui;
 
 import static ch.epfl.alpano.Azimuth.toOctantString;
-import static ch.epfl.alpano.gui.UserParameter.*;
+import static ch.epfl.alpano.gui.UserParameter.CENTER_AZIMUTH;
+import static ch.epfl.alpano.gui.UserParameter.HEIGHT;
+import static ch.epfl.alpano.gui.UserParameter.HORIZONTAL_FIELD_OF_VIEW;
+import static ch.epfl.alpano.gui.UserParameter.MAX_DISTANCE;
+import static ch.epfl.alpano.gui.UserParameter.OBSERVER_ELEVATION;
+import static ch.epfl.alpano.gui.UserParameter.OBSERVER_LATITUDE;
+import static ch.epfl.alpano.gui.UserParameter.OBSERVER_LONGITUDE;
+import static ch.epfl.alpano.gui.UserParameter.SUPER_SAMPLING_EXPONENT;
+import static ch.epfl.alpano.gui.UserParameter.WIDTH;
+import static java.lang.Math.abs;
 import static java.lang.Math.toDegrees;
 import static java.lang.String.format;
-import static javafx.embed.swing.SwingFXUtils.fromFXImage;
-import static javax.imageio.ImageIO.write;
-import static java.lang.Math.abs;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -22,8 +24,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
-import ch.epfl.alpano.Azimuth;
-import ch.epfl.alpano.Panorama;
 import ch.epfl.alpano.dem.ContinuousElevationModel;
 import ch.epfl.alpano.dem.DiscreteElevationModel;
 import ch.epfl.alpano.dem.HgtDiscreteElevationModel;
@@ -31,22 +31,18 @@ import ch.epfl.alpano.summit.GazetteerParser;
 import ch.epfl.alpano.summit.Summit;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
-import javafx.event.ActionEvent;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseButton;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
@@ -60,6 +56,12 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 
+/**
+ * Classe principale du projet. Lance le programme graphique.
+ *
+ * @author Robin Mamie (257234)
+ * @author Maxence Jouve (269716)
+ */
 public final class Alpano extends Application {
 
     private final static PanoramaUserParameters PRELOAD = PredefinedPanoramas.JURA;
@@ -76,6 +78,7 @@ public final class Alpano extends Application {
     private final static PanoramaParametersBean PARAMETERS_B;
     private final static PanoramaComputerBean COMPUTER_B;
 
+    // Constructeur static de la classe.
     static {
         List<Summit> summits;
         try {
@@ -83,8 +86,6 @@ public final class Alpano extends Application {
         } catch (IOException e) {
             throw new IllegalArgumentException();
         }
-        // DiscreteElevationModel dem = new SuperHgtDiscreteElevationModel();
-        // DiscreteElevationModel dem = new HilbertDiscreteElevationModel(0, 0);
 
         DiscreteElevationModel dem = new HgtDiscreteElevationModel(
                 new File("N45E006.hgt")).union(
@@ -109,6 +110,12 @@ public final class Alpano extends Application {
         COMPUTER_B = new PanoramaComputerBean(CEM, summits);
     }
 
+    /**
+     * Méthode main du programme.
+     * 
+     * @param args
+     *            Arguments externes.
+     */
     public static void main(String[] args) {
         launch(args);
     }
@@ -122,15 +129,11 @@ public final class Alpano extends Application {
         StackPane panoGroup = new StackPane(panoView, labelsPane);
         ScrollPane panoScrollPane = new ScrollPane(panoGroup);
         Text updateText = setUpdateText();
-        ProgressBar computeBar = new ProgressBar();
-        GridPane progressGrid = new GridPane();
         StackPane updateNotice = setUpdateNotice(updateText);
         StackPane panoPane = new StackPane(panoScrollPane, updateNotice);
         GridPane paramsGrid = setDynamicParameters(areaInfo);
-        BorderPane root = setRoot(panoPane, paramsGrid, progressGrid);
+        BorderPane root = setRoot(panoPane, paramsGrid);
         Scene scene = new Scene(root);
-
-        setComputeBar(computeBar, progressGrid);
 
         primaryStage.setTitle("Alpano");
         primaryStage.setScene(scene);
@@ -188,37 +191,18 @@ public final class Alpano extends Application {
         panoView.setOnMouseClicked(e -> {
             int x = getSampledIndex(e.getX());
             int y = getSampledIndex(e.getY());
-
-            if (e.getButton() == MouseButton.PRIMARY) {
-                double lat = toDegrees(
-                        COMPUTER_B.getPanorama().latitudeAt(x, y));
-                double lon = toDegrees(
-                        COMPUTER_B.getPanorama().longitudeAt(x, y));
-                String qy = format((Locale) null, "mlat=%.4f&mlon=%.4f", lat,
-                        lon);
-                String fg = format((Locale) null, "map=15/%.4f/%.4f", lat, lon);
-                URI osmURI;
-                try {
-                    osmURI = new URI("http", "www.openstreetmap.org", "/", qy,
-                            fg);
-                    java.awt.Desktop.getDesktop().browse(osmURI);
-                } catch (URISyntaxException e1) {
-                    System.err.println("Could not parse URI.");
-                } catch (IOException e1) {
-                    System.err.println("Could not get browser.");
-                }
-            } else if (e.getButton() == MouseButton.SECONDARY) {
-                Panorama p = COMPUTER_B.getPanorama();
-                PARAMETERS_B.observerLongitudeProperty()
-                        .set((int) (10_000 * toDegrees(p.longitudeAt(x, y))));
-                PARAMETERS_B.observerLatitudeProperty()
-                        .set((int) (10_000 * toDegrees(p.latitudeAt(x, y))));
-                PARAMETERS_B.observerElevationProperty()
-                        .set((int) p.elevationAt(x, y) + 20);
-                PARAMETERS_B.centerAzimuthProperty()
-                        .set((int) toDegrees(Azimuth.canonicalize(
-                                COMPUTER_B.getParameters().panoramaParameters()
-                                        .azimuthForX(x) + Math.PI)));
+            double lat = toDegrees(COMPUTER_B.getPanorama().latitudeAt(x, y));
+            double lon = toDegrees(COMPUTER_B.getPanorama().longitudeAt(x, y));
+            String qy = format((Locale) null, "mlat=%.4f&mlon=%.4f", lat, lon);
+            String fg = format((Locale) null, "map=15/%.4f/%.4f", lat, lon);
+            URI osmURI;
+            try {
+                osmURI = new URI("http", "www.openstreetmap.org", "/", qy, fg);
+                java.awt.Desktop.getDesktop().browse(osmURI);
+            } catch (URISyntaxException e1) {
+                System.err.println("Could not parse URI.");
+            } catch (IOException e1) {
+                System.err.println("Could not get browser.");
             }
         });
     }
@@ -244,17 +228,6 @@ public final class Alpano extends Application {
         updateText.setFont(new Font(UDPATE_TEXT_FONT_SIZE));
         updateText.setTextAlignment(TextAlignment.CENTER);
         return updateText;
-    }
-
-    private void setComputeBar(ProgressBar computeBar, GridPane progressGrid) {
-        computeBar.progressProperty().bind(COMPUTER_B.statusProperty());
-        Text textProgress = new Text("0 %");
-        computeBar.progressProperty().addListener((p, o, n) -> textProgress
-                .setText(format("%.0f %%", n.doubleValue() * 100)));
-        GridPane.setHalignment(textProgress, HPos.CENTER);
-        progressGrid.add(computeBar, 0, 0);
-        progressGrid.add(textProgress, 0, 0);
-        progressGrid.setPadding(new Insets(5));
     }
 
     private StackPane setUpdateNotice(Text updateText) {
@@ -294,33 +267,12 @@ public final class Alpano extends Application {
         for (int i = 0; i < 18; ++i)
             paramsGrid.add(labelsAndField.get(i), i % 6, i / 6);
 
-        Button computeElevation = new Button("Auto-altitude");
-        computeElevation.setOnAction(e -> PARAMETERS_B
-                .observerElevationProperty()
-                .set((int) CEM.elevationAt(PARAMETERS_B.parametersProperty()
-                        .get().panoramaDisplayParameters().observerPosition())
-                        + 2));
-        GridPane.setHalignment(computeElevation, HPos.CENTER);
-
-        Button saveImageAndPanorama = new Button("Save");
-        saveImageAndPanorama.setOnAction(e -> openSaveWindow(e));
-        GridPane.setFillWidth(saveImageAndPanorama, true);
-        GridPane.setHalignment(saveImageAndPanorama, HPos.CENTER);
-
-        Button loadPanorama = new Button("Load");
-        loadPanorama.setOnAction(e -> openLoadWindow(e));
-        GridPane.setHalignment(loadPanorama, HPos.CENTER);
+        paramsGrid.add(areaInfo, 6, 0, 1, 3);
 
         paramsGrid.setAlignment(Pos.CENTER);
         paramsGrid.setHgap(BOTTOM_GRID_HGAP);
         paramsGrid.setVgap(BOTTOM_GRID_VGAP);
         paramsGrid.setPadding(BOTTOM_GRID_PADDING);
-
-        paramsGrid.add(computeElevation, 6, 0);
-        paramsGrid.add(saveImageAndPanorama, 6, 1);
-        paramsGrid.add(loadPanorama, 6, 2);
-
-        paramsGrid.add(areaInfo, 7, 0, 1, 3);
 
         return paramsGrid;
     }
@@ -354,145 +306,10 @@ public final class Alpano extends Application {
         return Arrays.asList(label, field);
     }
 
-    private void openSaveWindow(ActionEvent e) {
-        if (COMPUTER_B.getImage() == null)
-            return;
-
-        Stage saveStage = new Stage();
-
-        GridPane grid = new GridPane();
-        Scene scene = new Scene(grid);
-
-        Label queryL = new Label("Veuillez entrer le nom de la sauvegarde :");
-        TextField queryF = new TextField();
-        queryF.setPromptText("Exemple : mon_super_panorama");
-
-        Button saveButton = new Button("Sauvegarder");
-        saveButton.setOnAction(f -> {
-            File imgFolder = new File("img/");
-            File saveFolder = new File("save/");
-            if (!imgFolder.exists())
-                imgFolder.mkdirs();
-            if (!saveFolder.exists())
-                saveFolder.mkdirs();
-            if (queryF.getText() != null && !queryF.getText().isEmpty()) {
-                try {
-                    write(fromFXImage(COMPUTER_B.getImage(), null), "png",
-                            new File("img/" + queryF.getText() + ".png"));
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
-                try (ObjectOutputStream out = new ObjectOutputStream(
-                        new FileOutputStream(
-                                "save/" + queryF.getText() + ".ser"))) {
-                    out.writeObject(COMPUTER_B.getParameters());
-                } catch (IOException i) {
-                    i.printStackTrace();
-                }
-                saveStage.close();
-            }
-        });
-        Button quitButton = new Button("Annuler");
-        quitButton.setOnAction(f -> saveStage.close());
-
-        GridPane.setHalignment(quitButton, HPos.RIGHT);
-
-        grid.setVgap(20);
-        grid.setHgap(20);
-        grid.setPrefWidth(350);
-        grid.setPrefHeight(150);
-
-        grid.add(queryL, 0, 0, 2, 1);
-        grid.add(queryF, 0, 1, 2, 1);
-        grid.add(saveButton, 0, 2);
-        grid.add(quitButton, 1, 2);
-
-        grid.setAlignment(Pos.CENTER);
-        grid.setPadding(new Insets(20));
-
-        saveStage.setTitle("Alpano - Save File");
-        saveStage.setScene(scene);
-        saveStage.setResizable(false);
-        saveStage.show();
-    }
-
-    private void openLoadWindow(ActionEvent e) {
-
-        // FIXME don't open if no save
-        // FIXME create folders if don't exist
-
-        Stage loadStage = new Stage();
-
-        GridPane grid = new GridPane();
-        Scene scene = new Scene(grid);
-
-        File saveFolder = new File("save/");
-        File[] files = saveFolder.listFiles();
-
-        ChoiceBox<File> choices = new ChoiceBox<>();
-        GridPane.setHalignment(choices, HPos.CENTER);
-        choices.getItems().addAll(files);
-        StringConverter<File> loadConv = new FileStringConverter(
-                saveFolder.getPath(), 3);
-        choices.setConverter(loadConv);
-
-        Button loadButton = new Button("Load");
-
-        loadButton.setOnAction(f -> {
-            File load = choices.getValue();
-            PanoramaUserParameters p = null;
-            try (ObjectInputStream in = new ObjectInputStream(
-                    new FileInputStream(load))) {
-                p = (PanoramaUserParameters) in.readObject();
-            } catch (Exception i) {
-                i.printStackTrace();
-                return;
-            }
-            PARAMETERS_B.observerLongitudeProperty().set(p.observerLongitude());
-            PARAMETERS_B.observerLatitudeProperty().set(p.observerLatitude());
-            PARAMETERS_B.observerElevationProperty().set(p.observerElevation());
-            PARAMETERS_B.centerAzimuthProperty().set(p.centerAzimuth());
-            PARAMETERS_B.maxDistanceProperty().set(p.maxDistance());
-            PARAMETERS_B.horizontalFieldOfViewProperty()
-                    .set(p.horizontalFieldOfView());
-            PARAMETERS_B.widthProperty().set(p.width());
-            PARAMETERS_B.heightProperty().set(p.height());
-            PARAMETERS_B.superSamplingExponentProperty()
-                    .set(p.superSamplingExponent());
-            loadStage.close();
-        });
-
-        // for(File f: files)
-
-        Button quitButton = new Button("Annuler");
-        quitButton.setOnAction(f -> loadStage.close());
-
-        grid.setPadding(new Insets(20));
-        grid.setVgap(20);
-        grid.setHgap(20);
-        grid.setPrefWidth(200);
-        grid.setPrefHeight(75);
-
-        grid.add(choices, 0, 0, 2, 1);
-        grid.add(loadButton, 0, 1);
-        grid.add(quitButton, 1, 1);
-
-        grid.setAlignment(Pos.CENTER);
-        grid.setPadding(new Insets(20));
-
-        loadStage.setTitle("Alpano - Load File");
-        loadStage.setScene(scene);
-        loadStage.setResizable(false);
-        loadStage.show();
-
-    }
-
-    private BorderPane setRoot(StackPane panoPane, GridPane paramsGrid,
-            GridPane progressGrid) {
+    private BorderPane setRoot(StackPane panoPane, GridPane paramsGrid) {
         BorderPane root = new BorderPane();
         root.setCenter(panoPane);
         root.setBottom(paramsGrid);
-        root.setTop(progressGrid);
         root.setPrefWidth(WINDOW_PREF_WIDTH);
         root.setPrefHeight(WINDOW_PREF_HEIGHT);
         return root;

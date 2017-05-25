@@ -14,7 +14,6 @@ import static java.lang.Math.scalb;
 import static java.lang.Math.toRadians;
 import static java.util.Collections.unmodifiableMap;
 
-import java.io.Serializable;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.function.ToIntFunction;
@@ -29,13 +28,11 @@ import ch.epfl.alpano.PanoramaParameters;
  * @author Robin Mamie (257234)
  * @author Maxence Jouve (269716)
  */
-public final class PanoramaUserParameters implements Serializable {
+public final class PanoramaUserParameters {
 
     /**
-     * Serial ID.
+     * Indique la valeur maximale possible pour le champ de vue vertical.
      */
-    private static final long serialVersionUID = -5211994945756595388L;
-
     private static final int MAX_VERTICAL_FIELD_OF_VIEW = 170;
 
     /**
@@ -43,6 +40,7 @@ public final class PanoramaUserParameters implements Serializable {
      */
     private final Map<UserParameter, Integer> map;
 
+    
     private static final int SIZE_USER_PARAMETER = 9;
 
     /**

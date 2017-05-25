@@ -21,7 +21,7 @@ import ch.epfl.alpano.Panorama;
 import ch.epfl.alpano.PanoramaComputer;
 import ch.epfl.alpano.dem.ContinuousElevationModel;
 import ch.epfl.alpano.dem.DiscreteElevationModel;
-import ch.epfl.alpano.dem.SuperHgtDiscreteElevationModel;
+import ch.epfl.alpano.dem.HgtDiscreteElevationModel;
 import ch.epfl.alpano.gui.ChannelPainter;
 import ch.epfl.alpano.gui.ImagePainter;
 import ch.epfl.alpano.gui.PanoramaRenderer;
@@ -43,9 +43,8 @@ final class DrawUserPanoramaColor {
 
     public static void main(String[] as) throws IOException {
         resetTime();
-        DiscreteElevationModel dDEM = new SuperHgtDiscreteElevationModel();
-        //DiscreteElevationModel dDEM = new
-        //HgtDiscreteElevationModel(HGT_FILE_46_7);
+        DiscreteElevationModel dDEM = new HgtDiscreteElevationModel(
+                HGT_FILE_46_7);
         PanoramaComputer p = new PanoramaComputer(
                 new ContinuousElevationModel(dDEM));
         System.out.printf("PanoramaComputer loaded in %.3f s.%n", getSec());
@@ -95,7 +94,7 @@ final class DrawUserPanoramaColor {
         Image i = PanoramaRenderer.renderPanorama(p, l);
         write(fromFXImage(i, null), "png", new File(name));
     }
-    
+
     private static void resetTime() {
         START = System.nanoTime();
     }

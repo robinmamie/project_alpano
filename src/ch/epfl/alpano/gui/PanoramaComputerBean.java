@@ -6,18 +6,14 @@ import static javafx.application.Platform.runLater;
 import static javafx.collections.FXCollections.observableArrayList;
 import static javafx.collections.FXCollections.unmodifiableObservableList;
 
-import java.io.Serializable;
 import java.util.List;
 
 import ch.epfl.alpano.Panorama;
 import ch.epfl.alpano.PanoramaComputer;
 import ch.epfl.alpano.dem.ContinuousElevationModel;
 import ch.epfl.alpano.summit.Summit;
-import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
@@ -29,12 +25,7 @@ import javafx.scene.image.Image;
  * @author Robin Mamie (257234)
  * @author Maxence Jouve (269716)
  */
-public class PanoramaComputerBean implements Serializable {
-
-    /**
-     * Serial ID.
-     */
-    private static final long serialVersionUID = 3959178526495134195L;
+public class PanoramaComputerBean {
 
     /**
      * La propriété du Panorama.
@@ -51,9 +42,10 @@ public class PanoramaComputerBean implements Serializable {
      */
     private final ObjectProperty<Image> image;
 
+    /**
+     * La liste non modifiable des sommets.
+     */
     private final ObservableList<Node> unmodifiableLabels;
-
-    private final DoubleProperty status;
 
     /**
      * Construit un PanoramaComputerBean en prenant un MNT continu et une liste
@@ -71,27 +63,24 @@ public class PanoramaComputerBean implements Serializable {
         this.image = new SimpleObjectProperty<>(null);
         ObservableList<Node> labels = observableArrayList();
         this.unmodifiableLabels = unmodifiableObservableList(labels);
-        this.status = new SimpleDoubleProperty();
         this.parameters.addListener((b, o, n) -> {
             labels.clear();
             new Thread() {
                 @Override
                 public void run() {
                     PanoramaComputer pc = new PanoramaComputer(cem);
-                    status.bind(pc.statusProperty());
                     panorama.set(null);
                     image.set(null);
                     long start = System.nanoTime();
                     panorama.set(pc.computePanorama(
                             parameters.get().panoramaParameters()));
-                    System.out.printf("Panorama computed in %.3f seconds.%n", (System.nanoTime() - start) * 1e-9);
+                    System.out.printf("Panorama computed in %.3f seconds.%n",
+                            (System.nanoTime() - start) * 1e-9);
                     image.set(renderPanorama(panorama.get(),
                             stdPanorama(panorama.get())));
                     runLater(() -> labels.setAll(
                             new Labelizer(cem, summits).labels(parameters.get()
                                     .panoramaDisplayParameters())));
-                    status.unbind();
-                    status.set(0);
                 }
             }.start();
         });
@@ -168,10 +157,6 @@ public class PanoramaComputerBean implements Serializable {
      */
     public ObservableList<Node> getLabels() {
         return unmodifiableLabels;
-    }
-
-    public ReadOnlyDoubleProperty statusProperty() {
-        return status;
     }
 
 }

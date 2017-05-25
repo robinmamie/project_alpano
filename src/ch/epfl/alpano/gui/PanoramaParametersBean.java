@@ -11,7 +11,6 @@ import static ch.epfl.alpano.gui.UserParameter.SUPER_SAMPLING_EXPONENT;
 import static ch.epfl.alpano.gui.UserParameter.WIDTH;
 import static javafx.application.Platform.runLater;
 
-import java.io.Serializable;
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -25,12 +24,7 @@ import javafx.beans.property.SimpleObjectProperty;
  * @author Robin Mamie (257234)
  * @author Maxence Jouve (269716)
  */
-public class PanoramaParametersBean implements Serializable {
-
-    /**
-     * Serial ID.
-     */
-    private static final long serialVersionUID = -4507833007392871741L;
+public class PanoramaParametersBean {
 
     /**
      * Stocke les paramètres utilisateurs du Panorama dans une propriété javafx.
