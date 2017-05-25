@@ -8,7 +8,6 @@ import static ch.epfl.alpano.gui.UserParameter.MAX_DISTANCE;
 import static ch.epfl.alpano.gui.UserParameter.OBSERVER_ELEVATION;
 import static ch.epfl.alpano.gui.UserParameter.OBSERVER_LATITUDE;
 import static ch.epfl.alpano.gui.UserParameter.OBSERVER_LONGITUDE;
-import static ch.epfl.alpano.gui.UserParameter.SUPER_SAMPLING_EXPONENT;
 import static ch.epfl.alpano.gui.UserParameter.WIDTH;
 import static java.lang.Math.abs;
 import static java.lang.Math.toDegrees;
@@ -64,21 +63,70 @@ import javafx.util.StringConverter;
  */
 public final class Alpano extends Application {
 
+    /**
+     * Les paramètres de panorama à précharger.
+     */
     private final static PanoramaUserParameters PRELOAD = PredefinedPanoramas.JURA;
 
+    /**
+     * Valeur préférée de prefRowCount pour l'aire de texte des infos sous le
+     * curseur.
+     */
+    private final static int TEXT_AREA_PREF_ROW_COUNT = 2;
+
+    /**
+     * Opacité de la fenêtre de mise à jour.
+     */
     private final static float OPACITY_UPDATE_NOTICE = 0.9f;
+
+    /**
+     * Taille du texte de la mise à jour des paramètres.
+     */
     private final static double UDPATE_TEXT_FONT_SIZE = 40;
+
+    /**
+     * Espacement honrizontal des éléments de la grille du bas.
+     */
     private final static double BOTTOM_GRID_HGAP = 10;
+
+    /**
+     * Espacement vertical des éléments de la grille du bas.
+     */
     private final static double BOTTOM_GRID_VGAP = 3;
+
+    /**
+     * Taille de la marge de la grille du bas.
+     */
     private final static Insets BOTTOM_GRID_PADDING = new Insets(7, 5, 5, 5);
+
+    /**
+     * Largeur préférentielle de la fenêtre au démarrage.
+     */
     private final static double WINDOW_PREF_WIDTH = 1500;
+
+    /**
+     * Hauteur préférentielle de la fenêtre au démarrage.
+     */
     private final static double WINDOW_PREF_HEIGHT = 700;
 
+    /**
+     * MNT continu chargé.
+     */
     private final static ContinuousElevationModel CEM;
+
+    /**
+     * Bean des paramètres de panorama.
+     */
     private final static PanoramaParametersBean PARAMETERS_B;
+
+    /**
+     * Bean du calculateur de panorama.
+     */
     private final static PanoramaComputerBean COMPUTER_B;
 
-    // Constructeur static de la classe.
+    /**
+     * Constructeur statique de la classe.
+     */
     static {
         List<Summit> summits;
         try {
@@ -105,7 +153,6 @@ public final class Alpano extends Application {
                                                                         "N46E009.hgt")))));
 
         CEM = new ContinuousElevationModel(dem);
-
         PARAMETERS_B = new PanoramaParametersBean(PRELOAD);
         COMPUTER_B = new PanoramaComputerBean(CEM, summits);
     }
@@ -140,6 +187,29 @@ public final class Alpano extends Application {
         primaryStage.show();
     }
 
+    /**
+     * Crée la zone de texte qui contient les informations du point sous le
+     * curseur.
+     * 
+     * @return Un TextArea paramétré pour contenir les informations du point
+     *         sous le curseur.
+     */
+    private TextArea setAreaInfo() {
+        TextArea areaInfo = new TextArea();
+        areaInfo.setEditable(false);
+        areaInfo.setPrefRowCount(TEXT_AREA_PREF_ROW_COUNT);
+        return areaInfo;
+    }
+
+    /**
+     * Crée la vue du Panorama.
+     * 
+     * @param areaInfo
+     *            La zone de texte montrant les informations du point sous le
+     *            curseur.
+     * 
+     * @return Une ImageView contenant le Panorama.
+     */
     private ImageView setPanoView(TextArea areaInfo) {
         ImageView panoView = new ImageView();
         panoView.imageProperty().bind(COMPUTER_B.imageProperty());
@@ -151,13 +221,15 @@ public final class Alpano extends Application {
         return panoView;
     }
 
-    private TextArea setAreaInfo() {
-        TextArea areaInfo = new TextArea();
-        areaInfo.setEditable(false);
-        areaInfo.setPrefRowCount(2);
-        return areaInfo;
-    }
-
+    /**
+     * Paramétrise le comportement de l'aire de texte lorsque le curseur bouge.
+     * 
+     * @param panoView
+     *            Le Pane dans lequel le curseur se déplace.
+     * 
+     * @param areaInfo
+     *            La zone de texte à paramétrer.
+     */
     private void setMouseMove(ImageView panoView, TextArea areaInfo) {
         panoView.setOnMouseMoved(e -> {
             int x = getSampledIndex(e.getX());
@@ -168,8 +240,8 @@ public final class Alpano extends Application {
 
             double azimuth = COMPUTER_B.getParameters().panoramaParameters()
                     .azimuthForX(x);
-            char northOrSouth = lat >= 0 ? 'N' : 'S';
-            char eastOrWest = lon >= 0 ? 'E' : 'W';
+            char northOrSouth = lat >= 0.0 ? 'N' : 'S';
+            char eastOrWest = lon >= 0.0 ? 'E' : 'W';
 
             StringBuilder sb = new StringBuilder();
             sb.append(format("Position : %.4f°%c %.4f°%c%n", abs(lat),
@@ -187,6 +259,13 @@ public final class Alpano extends Application {
         });
     }
 
+    /**
+     * Paramétrise les actions à entreprendre lorsque l'utilisateur clique dans
+     * l'ImageView du Panorama.
+     * 
+     * @param panoView
+     *            Le Pane dans lequel la souris clique.
+     */
     private void setMouseClick(ImageView panoView) {
         panoView.setOnMouseClicked(e -> {
             int x = getSampledIndex(e.getX());
@@ -202,16 +281,29 @@ public final class Alpano extends Application {
             } catch (URISyntaxException e1) {
                 System.err.println("Could not parse URI.");
             } catch (IOException e1) {
-                System.err.println("Could not get browser.");
+                System.err.println("Could not get to browser.");
             }
         });
     }
 
+    /**
+     * Retourne l'index en prenant en compte le suréchantillonage.
+     * 
+     * @param index
+     *            L'index de base.
+     * 
+     * @return l'index prenant en compte le suréchantillonage.
+     */
     private int getSampledIndex(double index) {
         return (int) Math.scalb(index,
                 COMPUTER_B.getParameters().superSamplingExponent());
     }
 
+    /**
+     * Paramétrise le Pane contenant les étiquettes des sommets.
+     * 
+     * @return le Pane contenant les étiquettes des sommets.
+     */
     private Pane setLabels() {
         Pane labelsPane = new Pane();
         Bindings.bindContent(labelsPane.getChildren(), COMPUTER_B.getLabels());
@@ -221,6 +313,11 @@ public final class Alpano extends Application {
         return labelsPane;
     }
 
+    /**
+     * Paramétrise le texte de mise à jour.
+     * 
+     * @return le texte de mise à jour.
+     */
     private Text setUpdateText() {
         Text updateText = new Text();
         String notice = "Les paramètres du panorama ont changé.\nCliquez ici pour mettre le dessin à jour.";
@@ -230,6 +327,15 @@ public final class Alpano extends Application {
         return updateText;
     }
 
+    /**
+     * Paramétrise le Pane contenant le texte de miste à jour et son
+     * interactivité.
+     * 
+     * @param updateText
+     *            Le texte de mise à jour.
+     * 
+     * @return le Pane contenant le texte de miste à jour et son interactivité.
+     */
     private StackPane setUpdateNotice(Text updateText) {
         StackPane updateNotice = new StackPane(updateText);
         updateNotice.setBackground(
@@ -242,6 +348,15 @@ public final class Alpano extends Application {
         return updateNotice;
     }
 
+    /**
+     * Paramétrise la grille des paramètres au bas de la fenêtre principale.
+     * 
+     * @param areaInfo
+     *            La zone de texte contenant les informations du point se
+     *            situant sous le pointeur de la souris.
+     * 
+     * @return la grille des paramètres au bas de la fenêtre principale.
+     */
     private GridPane setDynamicParameters(TextArea areaInfo) {
 
         GridPane paramsGrid = new GridPane();
@@ -261,8 +376,7 @@ public final class Alpano extends Application {
                 setLabelAndField("Visibilité (km)", MAX_DISTANCE, 3, 0));
         labelsAndField.addAll(setLabelAndField("Largeur (px)", WIDTH, 4, 0));
         labelsAndField.addAll(setLabelAndField("Hauteur (px)", HEIGHT, 4, 0));
-        labelsAndField.addAll(
-                setLabelAndField("Suréchantillonage", SUPER_SAMPLING_EXPONENT));
+        labelsAndField.addAll(setSuperSamplingOption());
 
         for (int i = 0; i < 18; ++i)
             paramsGrid.add(labelsAndField.get(i), i % 6, i / 6);
@@ -277,8 +391,12 @@ public final class Alpano extends Application {
         return paramsGrid;
     }
 
-    private Collection<? extends Control> setLabelAndField(String string,
-            UserParameter superSamplingExponent) {
+    /**
+     * Paramétrise les options concernant le suréchantillonage.
+     * 
+     * @return le Label et la ChoiceBox du suréchantillonage.
+     */
+    private Collection<? extends Control> setSuperSamplingOption() {
         Label label = new Label("Suréchantillonage :");
         ChoiceBox<Integer> field = new ChoiceBox<>();
         field.getItems().addAll(0, 1, 2);
@@ -291,6 +409,21 @@ public final class Alpano extends Application {
         return Arrays.asList(label, field);
     }
 
+    /**
+     * Paramétrise les options concernant les différents paramètres du Panorama.
+     * 
+     * @param name
+     *            Le nom de l'option.
+     * @param uP
+     *            Le paramètre utilisateur concerné.
+     * @param prefColumnCount
+     *            Le nombre de colonnes de texte dans le Field.
+     * @param decimals
+     *            Le nombre de chiffres après la virgule désiré.
+     * 
+     * @return Le Label et le TextField correspondant aux paramètres donnés sous
+     *         forme de tableau.
+     */
     private Collection<? extends Control> setLabelAndField(String name,
             UserParameter uP, int prefColumnCount, int decimals) {
         Label label = new Label(name + " :");
@@ -306,6 +439,19 @@ public final class Alpano extends Application {
         return Arrays.asList(label, field);
     }
 
+    /**
+     * Paramétrise la racine de la fenêtre.
+     * 
+     * @param panoPane
+     *            Le Pane composé du Panorama, des Labels et de la notice
+     *            d'update.
+     * @param paramsGrid
+     *            Le Pane contenant toutes les options paramétrables du Panorama
+     *            ainsi que le texte contenant les informations du point situé
+     *            sous le curseur.
+     * 
+     * @return le BorderPane à la base de l'interface graphique.
+     */
     private BorderPane setRoot(StackPane panoPane, GridPane paramsGrid) {
         BorderPane root = new BorderPane();
         root.setCenter(panoPane);

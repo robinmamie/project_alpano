@@ -109,8 +109,7 @@ public final class GeoPoint {
 
     @Override
     public String toString() {
-        Locale l = null;
-        return format(l, "(%.4f,%.4f)", toDegrees(longitude()),
+        return format((Locale) null, "(%.4f,%.4f)", toDegrees(longitude()),
                 toDegrees(latitude()));
     }
 
