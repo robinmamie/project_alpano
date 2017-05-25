@@ -250,7 +250,7 @@ public final class Labelizer {
         List<Summit> visible = visibleSummits(parameters);
         List<Node> nodes = new ArrayList<>();
 
-        BitSet positions = new BitSet(parameters.width());
+        BitSet positions = new BitSet(parameters.width() + PIXELS_NEEDED);
         positions.flip(0, PIXELS_NEEDED);
         positions.flip(positions.size() - PIXELS_NEEDED, positions.size());
 

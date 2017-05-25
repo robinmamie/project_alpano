@@ -1,17 +1,12 @@
 package ch.epfl.alpano.gui;
 
-import static ch.epfl.alpano.gui.UserParameter.CENTER_AZIMUTH;
-import static ch.epfl.alpano.gui.UserParameter.HEIGHT;
-import static ch.epfl.alpano.gui.UserParameter.HORIZONTAL_FIELD_OF_VIEW;
-import static ch.epfl.alpano.gui.UserParameter.MAX_DISTANCE;
-import static ch.epfl.alpano.gui.UserParameter.OBSERVER_ELEVATION;
-import static ch.epfl.alpano.gui.UserParameter.OBSERVER_LATITUDE;
-import static ch.epfl.alpano.gui.UserParameter.OBSERVER_LONGITUDE;
-import static ch.epfl.alpano.gui.UserParameter.WIDTH;
+import static ch.epfl.alpano.Azimuth.toOctantString;
+import static ch.epfl.alpano.gui.UserParameter.*;
 import static java.lang.Math.toDegrees;
 import static java.lang.String.format;
 import static javafx.embed.swing.SwingFXUtils.fromFXImage;
 import static javax.imageio.ImageIO.write;
+import static java.lang.Math.abs;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -20,8 +15,10 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
@@ -50,7 +47,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
@@ -67,6 +63,14 @@ import javafx.util.StringConverter;
 public final class Alpano extends Application {
 
     private final static PanoramaUserParameters PRELOAD = PredefinedPanoramas.JURA;
+
+    private final static float OPACITY_UPDATE_NOTICE = 0.9f;
+    private final static double UDPATE_TEXT_FONT_SIZE = 40;
+    private final static double BOTTOM_GRID_HGAP = 10;
+    private final static double BOTTOM_GRID_VGAP = 3;
+    private final static Insets BOTTOM_GRID_PADDING = new Insets(7, 5, 5, 5);
+    private final static double WINDOW_PREF_WIDTH = 1500;
+    private final static double WINDOW_PREF_HEIGHT = 700;
 
     private final static ContinuousElevationModel CEM;
     private final static PanoramaParametersBean PARAMETERS_B;
@@ -112,149 +116,134 @@ public final class Alpano extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
 
-        // *** STRUCTRURE ***
-
-        ImageView panoView = new ImageView();
-        TextArea areaInfo = new TextArea();
-        Pane labelsPane = new Pane();
+        TextArea areaInfo = setAreaInfo();
+        ImageView panoView = setPanoView(areaInfo);
+        Pane labelsPane = setLabels();
         StackPane panoGroup = new StackPane(panoView, labelsPane);
         ScrollPane panoScrollPane = new ScrollPane(panoGroup);
-        Text updateText = new Text();
+        Text updateText = setUpdateText();
         ProgressBar computeBar = new ProgressBar();
         GridPane progressGrid = new GridPane();
-        StackPane updateNotice = new StackPane(updateText);
+        StackPane updateNotice = setUpdateNotice(updateText);
         StackPane panoPane = new StackPane(panoScrollPane, updateNotice);
-        GridPane paramsGrid = new GridPane();
-        BorderPane root = new BorderPane();
+        GridPane paramsGrid = setDynamicParameters(areaInfo);
+        BorderPane root = setRoot(panoPane, paramsGrid, progressGrid);
         Scene scene = new Scene(root);
 
-        // *** PANE 1 ***
-
-        setPanoView(panoView);
-        setMouseMove(panoView, areaInfo);
-        setMouseClick(panoView);
-        setLabels(labelsPane);
-        setUpdateText(updateText);
         setComputeBar(computeBar, progressGrid);
-        setUpdateNotice(updateNotice);
-
-        // *** PANE 2 & 3 ***
-
-        setDynamicParameters(paramsGrid, areaInfo);
-        setAreaInfo(areaInfo);
-
-        // *** ROOT ***
-
-        setRoot(root, panoPane, paramsGrid, progressGrid);
-
-        // *** PROGRAMM ***
 
         primaryStage.setTitle("Alpano");
         primaryStage.setScene(scene);
         primaryStage.show();
     }
 
-    private void setPanoView(ImageView panoView) {
+    private ImageView setPanoView(TextArea areaInfo) {
+        ImageView panoView = new ImageView();
         panoView.imageProperty().bind(COMPUTER_B.imageProperty());
         panoView.fitWidthProperty().bind(PARAMETERS_B.widthProperty());
         panoView.setPreserveRatio(true);
         panoView.setSmooth(true);
+        setMouseMove(panoView, areaInfo);
+        setMouseClick(panoView);
+        return panoView;
+    }
+
+    private TextArea setAreaInfo() {
+        TextArea areaInfo = new TextArea();
+        areaInfo.setEditable(false);
+        areaInfo.setPrefRowCount(2);
+        return areaInfo;
     }
 
     private void setMouseMove(ImageView panoView, TextArea areaInfo) {
         panoView.setOnMouseMoved(e -> {
-            int[] index = getIndices(e);
-            int x = index[0], y = index[1];
+            int x = getSampledIndex(e.getX());
+            int y = getSampledIndex(e.getY());
 
-            String[] lonAndLat = getFormattedLongitudeAndLatitude(x, y);
+            double lat = toDegrees(COMPUTER_B.getPanorama().latitudeAt(x, y));
+            double lon = toDegrees(COMPUTER_B.getPanorama().longitudeAt(x, y));
+
             double azimuth = COMPUTER_B.getParameters().panoramaParameters()
                     .azimuthForX(x);
+            char northOrSouth = lat >= 0 ? 'N' : 'S';
+            char eastOrWest = lon >= 0 ? 'E' : 'W';
 
             StringBuilder sb = new StringBuilder();
-            // TODO account for S and W
-            sb.append("Position : ");
-            sb.append(lonAndLat[1]);
-            sb.append("°N ");
-            sb.append(lonAndLat[0]);
-            sb.append("°E\n");
+            sb.append(format("Position : %.4f°%c %.4f°%c%n", abs(lat),
+                    northOrSouth, abs(lon), eastOrWest));
             sb.append(format("Distance : %.1f km%n",
                     COMPUTER_B.getPanorama().distanceAt(x, y) / 1000));
             sb.append(format("Altitude : %d m%n",
                     (int) COMPUTER_B.getPanorama().elevationAt(x, y)));
-            sb.append(format("Azimut : %.1f° (", toDegrees(azimuth)));
-            // TODO static import
-            sb.append(Azimuth.toOctantString(azimuth, "N", "E", "S", "W"));
-            sb.append(format(")  Élévation : %.1f°", toDegrees(COMPUTER_B
-                    .getParameters().panoramaParameters().altitudeForY(y))));
+            sb.append(format("Azimut : %.1f° (%s) Elévation : %.1f°",
+                    toDegrees(azimuth),
+                    toOctantString(azimuth, "N", "E", "S", "W"),
+                    toDegrees(COMPUTER_B.getParameters().panoramaParameters()
+                            .altitudeForY(y))));
             areaInfo.setText(sb.toString());
         });
     }
 
     private void setMouseClick(ImageView panoView) {
         panoView.setOnMouseClicked(e -> {
-            int[] index = getIndices(e);
-            int x = index[0], y = index[1];
+            int x = getSampledIndex(e.getX());
+            int y = getSampledIndex(e.getY());
 
             if (e.getButton() == MouseButton.PRIMARY) {
-                String[] lonAndLat = getFormattedLongitudeAndLatitude(x, y);
-
-                String qy = "mlat=" + lonAndLat[1] + "&mlon=" + lonAndLat[0];
-                String fg = "map=15/" + lonAndLat[1] + "/" + lonAndLat[0];
+                double lat = toDegrees(
+                        COMPUTER_B.getPanorama().latitudeAt(x, y));
+                double lon = toDegrees(
+                        COMPUTER_B.getPanorama().longitudeAt(x, y));
+                String qy = format((Locale) null, "mlat=%.4f&mlon=%.4f", lat,
+                        lon);
+                String fg = format((Locale) null, "map=15/%.4f/%.4f", lat, lon);
                 URI osmURI;
                 try {
                     osmURI = new URI("http", "www.openstreetmap.org", "/", qy,
                             fg);
                     java.awt.Desktop.getDesktop().browse(osmURI);
-                } catch (Exception e1) {
-                    // TODO other more specific exceptions?
-                    e1.printStackTrace();
+                } catch (URISyntaxException e1) {
+                    System.err.println("Could not parse URI.");
+                } catch (IOException e1) {
+                    System.err.println("Could not get browser.");
                 }
             } else if (e.getButton() == MouseButton.SECONDARY) {
                 Panorama p = COMPUTER_B.getPanorama();
-                int longitude = (int) (10_000 * toDegrees(p.longitudeAt(x, y)));
-                int latitude = (int) (10_000 * toDegrees(p.latitudeAt(x, y)));
-                int elevation = (int) p.elevationAt(x, y) + 20;
-                int azimuth = (int) toDegrees(Azimuth.canonicalize(
-                        COMPUTER_B.getParameters().panoramaParameters()
-                                .azimuthForX(x) + Math.PI));
-                PARAMETERS_B.observerLongitudeProperty().set(longitude);
-                PARAMETERS_B.observerLatitudeProperty().set(latitude);
-                PARAMETERS_B.observerElevationProperty().set(elevation);
-                PARAMETERS_B.centerAzimuthProperty().set(azimuth);
+                PARAMETERS_B.observerLongitudeProperty()
+                        .set((int) (10_000 * toDegrees(p.longitudeAt(x, y))));
+                PARAMETERS_B.observerLatitudeProperty()
+                        .set((int) (10_000 * toDegrees(p.latitudeAt(x, y))));
+                PARAMETERS_B.observerElevationProperty()
+                        .set((int) p.elevationAt(x, y) + 20);
+                PARAMETERS_B.centerAzimuthProperty()
+                        .set((int) toDegrees(Azimuth.canonicalize(
+                                COMPUTER_B.getParameters().panoramaParameters()
+                                        .azimuthForX(x) + Math.PI)));
             }
         });
     }
 
-    private int[] getIndices(MouseEvent e) {
-        int x = (int) e.getX(), y = (int) e.getY();
-
-        int superSE = COMPUTER_B.getParameters().superSamplingExponent();
-        x = (int) Math.scalb(x, superSE);
-        y = (int) Math.scalb(y, superSE);
-
-        return new int[] { x, y };
+    private int getSampledIndex(double index) {
+        return (int) Math.scalb(index,
+                COMPUTER_B.getParameters().superSamplingExponent());
     }
 
-    private String[] getFormattedLongitudeAndLatitude(int x, int y) {
-        float longitude = COMPUTER_B.getPanorama().longitudeAt(x, y);
-        float latitude = COMPUTER_B.getPanorama().latitudeAt(x, y);
-        String lambda = format((Locale) null, "%.4f", toDegrees(longitude));
-        String phi = format((Locale) null, "%.4f", toDegrees(latitude));
-        return new String[] { lambda, phi };
-    }
-
-    private void setLabels(Pane labelsPane) {
+    private Pane setLabels() {
+        Pane labelsPane = new Pane();
         Bindings.bindContent(labelsPane.getChildren(), COMPUTER_B.getLabels());
         labelsPane.prefWidthProperty().bind(PARAMETERS_B.widthProperty());
         labelsPane.prefHeightProperty().bind(PARAMETERS_B.heightProperty());
         labelsPane.setMouseTransparent(true);
+        return labelsPane;
     }
 
-    private void setUpdateText(Text updateText) {
+    private Text setUpdateText() {
+        Text updateText = new Text();
         String notice = "Les paramètres du panorama ont changé.\nCliquez ici pour mettre le dessin à jour.";
         updateText.setText(notice);
-        updateText.setFont(new Font(40));
+        updateText.setFont(new Font(UDPATE_TEXT_FONT_SIZE));
         updateText.setTextAlignment(TextAlignment.CENTER);
+        return updateText;
     }
 
     private void setComputeBar(ProgressBar computeBar, GridPane progressGrid) {
@@ -268,19 +257,21 @@ public final class Alpano extends Application {
         progressGrid.setPadding(new Insets(5));
     }
 
-    private void setUpdateNotice(StackPane updateNotice) {
+    private StackPane setUpdateNotice(Text updateText) {
+        StackPane updateNotice = new StackPane(updateText);
         updateNotice.setBackground(
                 new Background(new BackgroundFill(Color.WHITE, null, null)));
-        // TODO set magic number
-        updateNotice.setOpacity(0.9);
-
+        updateNotice.setOpacity(OPACITY_UPDATE_NOTICE);
         updateNotice.visibleProperty().bind(PARAMETERS_B.parametersProperty()
                 .isNotEqualTo(COMPUTER_B.parametersProperty()));
         updateNotice.setOnMouseClicked(e -> COMPUTER_B
                 .setParameters(PARAMETERS_B.parametersProperty().get()));
+        return updateNotice;
     }
 
-    private void setDynamicParameters(GridPane paramsGrid, TextArea areaInfo) {
+    private GridPane setDynamicParameters(TextArea areaInfo) {
+
+        GridPane paramsGrid = new GridPane();
 
         List<Control> labelsAndField = new ArrayList<>();
         labelsAndField.addAll(
@@ -297,18 +288,8 @@ public final class Alpano extends Application {
                 setLabelAndField("Visibilité (km)", MAX_DISTANCE, 3, 0));
         labelsAndField.addAll(setLabelAndField("Largeur (px)", WIDTH, 4, 0));
         labelsAndField.addAll(setLabelAndField("Hauteur (px)", HEIGHT, 4, 0));
-
-        Label superSamplingExL = new Label("Suréchantillonage :");
-        ChoiceBox<Integer> superSamplingExF = new ChoiceBox<>();
-        superSamplingExF.getItems().addAll(0, 1, 2);
-        StringConverter<Integer> supFor = new LabeledListStringConverter("non",
-                "2×", "4×");
-        superSamplingExF.valueProperty().bindBidirectional(
-                PARAMETERS_B.superSamplingExponentProperty());
-        superSamplingExF.setConverter(supFor);
-        superSamplingExL.setAlignment(Pos.CENTER_RIGHT);
-        labelsAndField.add(superSamplingExL);
-        labelsAndField.add(superSamplingExF);
+        labelsAndField.addAll(
+                setLabelAndField("Suréchantillonage", SUPER_SAMPLING_EXPONENT));
 
         for (int i = 0; i < 18; ++i)
             paramsGrid.add(labelsAndField.get(i), i % 6, i / 6);
@@ -331,20 +312,35 @@ public final class Alpano extends Application {
         GridPane.setHalignment(loadPanorama, HPos.CENTER);
 
         paramsGrid.setAlignment(Pos.CENTER);
-        // TODO static variables
-        paramsGrid.setHgap(10);
-        paramsGrid.setVgap(3);
-        paramsGrid.setPadding(new Insets(7, 5, 5, 5));
+        paramsGrid.setHgap(BOTTOM_GRID_HGAP);
+        paramsGrid.setVgap(BOTTOM_GRID_VGAP);
+        paramsGrid.setPadding(BOTTOM_GRID_PADDING);
 
         paramsGrid.add(computeElevation, 6, 0);
         paramsGrid.add(saveImageAndPanorama, 6, 1);
         paramsGrid.add(loadPanorama, 6, 2);
 
         paramsGrid.add(areaInfo, 7, 0, 1, 3);
+
+        return paramsGrid;
     }
 
-    private List<Control> setLabelAndField(String name, UserParameter uP,
-            int prefColumnCount, int decimals) {
+    private Collection<? extends Control> setLabelAndField(String string,
+            UserParameter superSamplingExponent) {
+        Label label = new Label("Suréchantillonage :");
+        ChoiceBox<Integer> field = new ChoiceBox<>();
+        field.getItems().addAll(0, 1, 2);
+        StringConverter<Integer> supFor = new LabeledListStringConverter("non",
+                "2×", "4×");
+        field.valueProperty().bindBidirectional(
+                PARAMETERS_B.superSamplingExponentProperty());
+        field.setConverter(supFor);
+        label.setAlignment(Pos.CENTER_RIGHT);
+        return Arrays.asList(label, field);
+    }
+
+    private Collection<? extends Control> setLabelAndField(String name,
+            UserParameter uP, int prefColumnCount, int decimals) {
         Label label = new Label(name + " :");
         GridPane.setHalignment(label, HPos.RIGHT);
         TextField field = new TextField();
@@ -491,18 +487,15 @@ public final class Alpano extends Application {
 
     }
 
-    private void setAreaInfo(TextArea areaInfo) {
-        areaInfo.setEditable(false);
-        areaInfo.setPrefRowCount(2);
-    }
-
-    private void setRoot(BorderPane root, StackPane panoPane,
-            GridPane paramsGrid, GridPane progressGrid) {
+    private BorderPane setRoot(StackPane panoPane, GridPane paramsGrid,
+            GridPane progressGrid) {
+        BorderPane root = new BorderPane();
         root.setCenter(panoPane);
         root.setBottom(paramsGrid);
         root.setTop(progressGrid);
-        root.setPrefWidth(1500);
-        root.setPrefHeight(700);
+        root.setPrefWidth(WINDOW_PREF_WIDTH);
+        root.setPrefHeight(WINDOW_PREF_HEIGHT);
+        return root;
     }
 
 }
