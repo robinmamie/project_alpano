@@ -29,7 +29,7 @@ import ch.epfl.alpano.Azimuth;
 import ch.epfl.alpano.Panorama;
 import ch.epfl.alpano.dem.ContinuousElevationModel;
 import ch.epfl.alpano.dem.DiscreteElevationModel;
-import ch.epfl.alpano.dem.HilbertDiscreteElevationModel;
+import ch.epfl.alpano.dem.HgtDiscreteElevationModel;
 import ch.epfl.alpano.summit.GazetteerParser;
 import ch.epfl.alpano.summit.Summit;
 import javafx.application.Application;
@@ -79,9 +79,9 @@ public final class Alpano extends Application {
         } catch (IOException e) {
             throw new IllegalArgumentException();
         }
-        //DiscreteElevationModel dem = new SuperHgtDiscreteElevationModel();
-        DiscreteElevationModel dem = new HilbertDiscreteElevationModel(0, 0);
-        /*
+        // DiscreteElevationModel dem = new SuperHgtDiscreteElevationModel();
+        // DiscreteElevationModel dem = new HilbertDiscreteElevationModel(0, 0);
+
         DiscreteElevationModel dem = new HgtDiscreteElevationModel(
                 new File("N45E006.hgt")).union(
                         new HgtDiscreteElevationModel(new File("N45E007.hgt")))
@@ -97,8 +97,8 @@ public final class Alpano extends Application {
                                                 new File("N46E008.hgt"))
                                                         .union(new HgtDiscreteElevationModel(
                                                                 new File(
-                                                                        "N46E009.hgt")))));*/
-        
+                                                                        "N46E009.hgt")))));
+
         CEM = new ContinuousElevationModel(dem);
 
         PARAMETERS_B = new PanoramaParametersBean(PRELOAD);
@@ -167,24 +167,25 @@ public final class Alpano extends Application {
             int x = index[0], y = index[1];
 
             String[] lonAndLat = getFormattedLongitudeAndLatitude(x, y);
-            float distance = COMPUTER_B.getPanorama().distanceAt(x, y);
-            int altitude = (int) COMPUTER_B.getPanorama().elevationAt(x, y);
-            double azimuth = COMPUTER_B.getParameters()
-                    .panoramaParameters().azimuthForX(x);
-            double elevation = COMPUTER_B.getParameters()
-                    .panoramaParameters().altitudeForY(y);
+            double azimuth = COMPUTER_B.getParameters().panoramaParameters()
+                    .azimuthForX(x);
 
             StringBuilder sb = new StringBuilder();
+            // TODO account for S and W
             sb.append("Position : ");
             sb.append(lonAndLat[1]);
             sb.append("°N ");
             sb.append(lonAndLat[0]);
             sb.append("°E\n");
-            sb.append(format("Distance : %.1f km%n", distance / 1000));
-            sb.append(format("Altitude : %d m%n", altitude));
+            sb.append(format("Distance : %.1f km%n",
+                    COMPUTER_B.getPanorama().distanceAt(x, y) / 1000));
+            sb.append(format("Altitude : %d m%n",
+                    (int) COMPUTER_B.getPanorama().elevationAt(x, y)));
             sb.append(format("Azimut : %.1f° (", toDegrees(azimuth)));
+            // TODO static import
             sb.append(Azimuth.toOctantString(azimuth, "N", "E", "S", "W"));
-            sb.append(format(")  Élévation : %.1f°", toDegrees(elevation)));
+            sb.append(format(")  Élévation : %.1f°", toDegrees(COMPUTER_B
+                    .getParameters().panoramaParameters().altitudeForY(y))));
             areaInfo.setText(sb.toString());
         });
     }
@@ -205,6 +206,7 @@ public final class Alpano extends Application {
                             fg);
                     java.awt.Desktop.getDesktop().browse(osmURI);
                 } catch (Exception e1) {
+                    // TODO other more specific exceptions?
                     e1.printStackTrace();
                 }
             } else if (e.getButton() == MouseButton.SECONDARY) {
@@ -269,6 +271,7 @@ public final class Alpano extends Application {
     private void setUpdateNotice(StackPane updateNotice) {
         updateNotice.setBackground(
                 new Background(new BackgroundFill(Color.WHITE, null, null)));
+        // TODO set magic number
         updateNotice.setOpacity(0.9);
 
         updateNotice.visibleProperty().bind(PARAMETERS_B.parametersProperty()
@@ -311,11 +314,11 @@ public final class Alpano extends Application {
             paramsGrid.add(labelsAndField.get(i), i % 6, i / 6);
 
         Button computeElevation = new Button("Auto-altitude");
-        computeElevation
-                .setOnAction(e -> PARAMETERS_B.observerElevationProperty()
-                        .set((int) CEM.elevationAt(PARAMETERS_B
-                                .parametersProperty().get().panoramaDisplayParameters()
-                                .observerPosition()) + 2));
+        computeElevation.setOnAction(e -> PARAMETERS_B
+                .observerElevationProperty()
+                .set((int) CEM.elevationAt(PARAMETERS_B.parametersProperty()
+                        .get().panoramaDisplayParameters().observerPosition())
+                        + 2));
         GridPane.setHalignment(computeElevation, HPos.CENTER);
 
         Button saveImageAndPanorama = new Button("Save");
@@ -326,8 +329,9 @@ public final class Alpano extends Application {
         Button loadPanorama = new Button("Load");
         loadPanorama.setOnAction(e -> openLoadWindow(e));
         GridPane.setHalignment(loadPanorama, HPos.CENTER);
-        
+
         paramsGrid.setAlignment(Pos.CENTER);
+        // TODO static variables
         paramsGrid.setHgap(10);
         paramsGrid.setVgap(3);
         paramsGrid.setPadding(new Insets(7, 5, 5, 5));
