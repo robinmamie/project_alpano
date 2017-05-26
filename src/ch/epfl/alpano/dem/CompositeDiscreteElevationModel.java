@@ -1,11 +1,12 @@
 package ch.epfl.alpano.dem;
 
-import ch.epfl.alpano.Interval2D;
 import static java.util.Objects.requireNonNull;
+
+import ch.epfl.alpano.Interval2D;
 
 /**
  * Représente l'union de deux MNT discrets. Classe immuable.
- *
+ * 
  * @author Robin Mamie (257234)
  * @author Maxence Jouve (269716)
  */
@@ -20,6 +21,11 @@ final class CompositeDiscreteElevationModel implements DiscreteElevationModel {
      * Le second MNT.
      */
     private final DiscreteElevationModel dem2;
+    
+    /**
+     * Étendue des MNT
+     */
+    private final Interval2D extent;
 
     /**
      * Construit un CompositeDiscreteElevationModel, composé par l'union de deux
@@ -37,17 +43,12 @@ final class CompositeDiscreteElevationModel implements DiscreteElevationModel {
             DiscreteElevationModel dem2) {
         this.dem1 = requireNonNull(dem1, "The first given DEM is null.");
         this.dem2 = requireNonNull(dem2, "The second given DEM is null.");
-    }
-
-    @Override
-    public void close() throws Exception {
-        dem1.close();
-        dem2.close();
+        this.extent = dem1.extent().union(dem2.extent());
     }
 
     @Override
     public Interval2D extent() {
-        return dem1.extent().union(dem2.extent());
+        return extent;
     }
 
     @Override

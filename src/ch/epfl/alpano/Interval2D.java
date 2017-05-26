@@ -1,12 +1,11 @@
 package ch.epfl.alpano;
 
 import static ch.epfl.alpano.Preconditions.checkArgument;
+import static java.util.Objects.hash;
 import static java.util.Objects.requireNonNull;
 
-import java.util.Objects;
-
 /**
- * Représente un intervalle bidimensionnel d'entiers. Composée du produit
+ * Représente un intervalle bidimensionnel d'entiers, composé du produit
  * cartésien de deux intervalles unidimensionnels. Classe immuable.
  *
  * @author Robin Mamie (257234)
@@ -28,9 +27,9 @@ public final class Interval2D {
      * Construit un intervalle bidimensionnel.
      * 
      * @param iX
-     *            Premier intervalle unidimensionnel.
+     *            Le premier intervalle unidimensionnel.
      * @param iY
-     *            Second intervalle unidimensionnel.
+     *            Le second intervalle unidimensionnel.
      * 
      * @throws NullPointerException
      *             si l'un des deux intervalles donnés en arguments est null.
@@ -147,26 +146,19 @@ public final class Interval2D {
 
     @Override
     public boolean equals(Object thatO) {
-        if (this == thatO)
-            return true;
-
-        if (thatO == null || getClass() != thatO.getClass())
-            return false;
-
-        Interval2D that = (Interval2D) thatO;
-
-        return this.iX().equals(that.iX()) && this.iY().equals(that.iY());
+        return thatO instanceof Interval2D
+                && this.iX().equals(((Interval2D) thatO).iX())
+                && this.iY().equals(((Interval2D) thatO).iY());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(iX(), iY());
+        return hash(iX(), iY());
     }
 
     @Override
     public String toString() {
-        return new StringBuilder(iX().toString()).append("×")
-                .append(iY().toString()).toString();
+        return iX() + "×" + iY();
     }
 
 }

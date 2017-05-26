@@ -49,7 +49,6 @@ final class DrawElevationProfile {
                 i.setRGB(x, HEIGHT - 1 - y, color);
             }
         }
-        dDEM.close();
 
         ImageIO.write(i, "png", new File("profile.png"));
 

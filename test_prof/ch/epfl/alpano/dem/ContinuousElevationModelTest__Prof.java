@@ -142,9 +142,6 @@ class RandomElevationDEM implements DiscreteElevationModel {
     public double elevationSample(int x, int y) {
         return elevations[x][y];
     }
-
-    @Override
-    public void close() throws Exception { }
 }
 
 class ConstantSlopeDEM implements DiscreteElevationModel {
@@ -164,7 +161,4 @@ class ConstantSlopeDEM implements DiscreteElevationModel {
     public double elevationSample(int x, int y) {
         return (x + y) * INTER_SAMPLE_DISTANCE;
     }
-
-    @Override
-    public void close() throws Exception {}
 }

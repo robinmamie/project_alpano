@@ -13,8 +13,19 @@ import ch.epfl.alpano.GeoPoint;
  */
 public final class Summit {
 
+    /**
+     * Le nom du sommet.
+     */
     private final String name;
+    
+    /**
+     * La position du sommet.
+     */
     private final GeoPoint position;
+    
+    /**
+     * L'élévation du sommet.
+     */
     private final int elevation;
 
     /**
@@ -65,8 +76,7 @@ public final class Summit {
 
     @Override
     public String toString() {
-        return new StringBuilder(name()).append(" ").append(position())
-                .append(" ").append(elevation()).toString();
+        return name() + " " + position() + " " + elevation();
     }
 
 }

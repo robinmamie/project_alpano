@@ -1,6 +1,9 @@
 package ch.epfl.alpano;
 
 import static ch.epfl.alpano.Math2.PI2;
+import static ch.epfl.alpano.Math2.HALF_PI;
+import static ch.epfl.alpano.Math2.THREE_HALF_PI;
+import static ch.epfl.alpano.Math2.THREE_EIGHTH_PI;
 import static ch.epfl.alpano.Math2.angularDistance;
 import static ch.epfl.alpano.Math2.floorMod;
 import static ch.epfl.alpano.Preconditions.checkArgument;
@@ -105,16 +108,16 @@ public interface Azimuth {
                 "The given azimuth is not in canonical form.");
 
         StringBuilder answer = new StringBuilder();
-        final double fieldSize = 3 * PI / 8;
+        double fieldSize = THREE_EIGHTH_PI;
 
         if (abs(angularDistance(azimuth, 0)) < fieldSize)
             answer.append(n);
         else if (abs(angularDistance(azimuth, PI)) < fieldSize)
             answer.append(s);
 
-        if (abs(angularDistance(azimuth, PI / 2)) < fieldSize)
+        if (abs(angularDistance(azimuth, HALF_PI)) < fieldSize)
             answer.append(e);
-        else if (abs(angularDistance(azimuth, 3 * PI / 2)) < fieldSize)
+        else if (abs(angularDistance(azimuth, THREE_HALF_PI)) < fieldSize)
             answer.append(w);
 
         return answer.toString();

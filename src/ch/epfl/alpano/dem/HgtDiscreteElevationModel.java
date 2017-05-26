@@ -1,12 +1,12 @@
 package ch.epfl.alpano.dem;
 
 import static ch.epfl.alpano.Preconditions.checkArgument;
+import static java.nio.channels.FileChannel.MapMode.READ_ONLY;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ShortBuffer;
-import java.nio.channels.FileChannel.MapMode;
 
 import ch.epfl.alpano.Interval1D;
 import ch.epfl.alpano.Interval2D;
@@ -19,9 +19,20 @@ import ch.epfl.alpano.Interval2D;
  */
 public final class HgtDiscreteElevationModel implements DiscreteElevationModel {
 
+    /**
+     * Taille d'un côté du MNT. Correspond au nombre de secondes d'arc par degré
+     * plus 1.
+     */
     private static final int SIDE = SAMPLES_PER_DEGREE + 1;
 
+    /**
+     * Contient l'élévation de chaque point.
+     */
     private final ShortBuffer source;
+
+    /**
+     * L'étendue du HgtDEM calculée dans le constructeur.
+     */
     private final Interval2D extent;
 
     /**
@@ -29,7 +40,7 @@ public final class HgtDiscreteElevationModel implements DiscreteElevationModel {
      * fichier.
      * 
      * @param file
-     *            Fichier au format .hgt et correspondant au restrictions
+     *            Un fichier au format .hgt et correspondant au restrictions
      *            définies.
      * 
      * @throws IllegalArgumentException
@@ -39,30 +50,26 @@ public final class HgtDiscreteElevationModel implements DiscreteElevationModel {
 
         checkArgument(file.isFile(), "The file does not exist.");
 
-        final String n = file.getName();
+        String n = file.getName();
 
         checkArgument(n.length() == 11,
                 "The file name is invalid: it is too short or too long.");
 
-        // On vérifie si la taille du fichier est adéquate.
-        final long l = file.length();
-
-        checkArgument(l == 2 * SIDE * SIDE,
+        long size = file.length();
+        checkArgument(size == 2 * SIDE * SIDE,
                 "The file is invalid: it does not comply to byte restrictions.");
 
-        final char ns = n.charAt(0);
-        final char ew = n.charAt(3);
+        char ns = n.charAt(0), ew = n.charAt(3);
 
         checkArgument(ns == 'N' || ns == 'S',
                 "The file name is invalid: it isn't defined for North or South.");
-
         checkArgument(ew == 'E' || ew == 'W',
                 "The file name is invalid: it isn't defined for East or West.");
 
         checkArgument(n.substring(7, 11).equals(".hgt"),
                 "The file name is invalid: it doesn't end with the extension \".hgt\".");
 
-        final int lat, lon;
+        int lat, lon;
         try {
             lat = Integer.parseInt(n.substring(1, 3));
             lon = Integer.parseInt(n.substring(4, 7));
@@ -73,44 +80,37 @@ public final class HgtDiscreteElevationModel implements DiscreteElevationModel {
 
         checkArgument(0 <= lat,
                 "The file name is invalid: it cannot have a negative latitude.");
-
         checkArgument(0 <= lon,
                 "The file name is invalid: it cannot have a negative longitude.");
 
         checkArgument(ns != 'N' || lat < 90,
                 "The file name is invalid: it cannot have this northern latitude.");
-
         checkArgument(lat <= 90,
                 "The file name is invalid: it cannot have this latitude.");
 
         checkArgument(ew != 'E' || lon < 180,
                 "The file name is invalid: it cannot have this eastern longitude.");
-
         checkArgument(lon <= 180,
                 "The file name is invalid: it cannot have this longitude.");
 
-        // On extrait les points du fichiers pour les enregistrer
-        // dans un ShortBuffer.
+        // Extraction des élévations.
         try (FileInputStream stream = new FileInputStream(file)) {
-            source = stream.getChannel().map(MapMode.READ_ONLY, 0, l)
+            source = stream.getChannel().map(READ_ONLY, 0, size)
                     .asShortBuffer();
         } catch (IOException e) {
             throw new IllegalArgumentException(
-                    "The file is either invalid, corrupted, or not found.");
+                    "The file is either invalid, corrupt, or not found.");
         }
 
         // On enregistre l'étendue du MNT pour ne pas devoir le recalculer
         // à chaque fois que extent() est demandé. Toutes les informations
-        // nécessaires ont été calculée dans ce constructeur.
+        // nécessaires ont été calculées dans ce constructeur, il paraît donc
+        // judicieux de le faire ici.
         int lonIndex = (ew == 'E' ? 1 : -1) * lon * SAMPLES_PER_DEGREE;
         int latIndex = (ns == 'N' ? 1 : -1) * lat * SAMPLES_PER_DEGREE;
-        Interval1D longitude = new Interval1D(lonIndex, lonIndex + SIDE - 1);
-        Interval1D latit = new Interval1D(latIndex, latIndex + SIDE - 1);
-        this.extent = new Interval2D(longitude, latit);
-    }
-
-    @Override
-    public void close() throws Exception {
+        this.extent = new Interval2D(
+                new Interval1D(lonIndex, lonIndex + SAMPLES_PER_DEGREE),
+                new Interval1D(latIndex, latIndex + SAMPLES_PER_DEGREE));
     }
 
     @Override
@@ -122,11 +122,8 @@ public final class HgtDiscreteElevationModel implements DiscreteElevationModel {
     public double elevationSample(int x, int y) {
         checkArgument(extent().contains(x, y),
                 "The HgtDEM does not contain the given index.");
-
-        int ySize = extent().iY().includedTo() - y;
-        int xSize = x - extent().iX().includedFrom();
-
-        return source.get(ySize * SIDE + xSize);
+        return source.get((extent().iY().includedTo() - y) * SIDE + x
+                - extent().iX().includedFrom());
     }
 
 }

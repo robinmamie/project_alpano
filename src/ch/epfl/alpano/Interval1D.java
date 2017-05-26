@@ -1,10 +1,9 @@
 package ch.epfl.alpano;
 
 import static ch.epfl.alpano.Preconditions.checkArgument;
-import static java.lang.Math.min;
 import static java.lang.Math.max;
-
-import java.util.Objects;
+import static java.lang.Math.min;
+import static java.util.Objects.hash;
 
 /**
  * Représente un intervalle unidimensionnel d'entiers. Classe immuable.
@@ -147,27 +146,19 @@ public final class Interval1D {
 
     @Override
     public boolean equals(Object thatO) {
-        if (this == thatO)
-            return true;
-
-        if (thatO == null || getClass() != thatO.getClass())
-            return false;
-
-        Interval1D that = (Interval1D) thatO;
-
-        return this.includedFrom() == that.includedFrom()
-                && this.includedTo() == that.includedTo();
+        return thatO instanceof Interval1D
+                && this.includedFrom() == ((Interval1D) thatO).includedFrom()
+                && this.includedTo() == ((Interval1D) thatO).includedTo();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(includedFrom(), includedTo());
+        return hash(includedFrom(), includedTo());
     }
 
     @Override
     public String toString() {
-        return new StringBuilder("[").append(includedFrom()).append("..")
-                .append(includedTo()).append("]").toString();
+        return "[" + includedFrom() + ".." + includedTo() + "]";
     }
 
 }

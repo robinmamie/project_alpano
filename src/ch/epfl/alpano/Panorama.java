@@ -1,9 +1,8 @@
 package ch.epfl.alpano;
 
-import static java.util.Objects.requireNonNull;
 import static java.lang.Float.POSITIVE_INFINITY;
-
-import java.util.Arrays;
+import static java.util.Arrays.fill;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Classe contenant toutes les informations utiles à la représentation graphique
@@ -19,9 +18,34 @@ import java.util.Arrays;
  */
 public final class Panorama {
 
+    /**
+     * Les paramètres du Panorama.
+     */
     private final PanoramaParameters parameters;
+
+    /**
+     * Les composantes du Panorama.
+     */
     private final float[] distance, longitude, latitude, elevation, slope;
 
+    /**
+     * Constructeur privé du Panorama ne pouvant être appelé que par son
+     * Builder.
+     * 
+     * @param parameters
+     *            Les paramètres du Panorama.
+     * @param distance
+     *            Les distances par rapport à l'observateur de chaque point du
+     *            Panorama.
+     * @param longitude
+     *            La longitude de chaque point du Panorama.
+     * @param latitude
+     *            La latitude de chaque point du Panorama.
+     * @param elevation
+     *            L'élévation de chaque point du Panorama.
+     * @param slope
+     *            La pente de chaque point du Panorama.
+     */
     private Panorama(PanoramaParameters parameters, float[] distance,
             float[] longitude, float[] latitude, float[] elevation,
             float[] slope) {
@@ -42,6 +66,21 @@ public final class Panorama {
         return parameters;
     }
 
+    /**
+     * Permet aux différentes méthodes de la classe d'appeler le bon paramètre.
+     * 
+     * @param x
+     *            L'index horizontal.
+     * @param y
+     *            L'index vertical.
+     * @param parameter
+     *            Le paramètre demandé.
+     * 
+     * @return La valeur du point au paramètre demandé.
+     * 
+     * @throws IndexOutOfBoundsException
+     *             si l'index n'est pas valide pour ce Panorama.
+     */
     private float getParameter(int x, int y, float[] parameter) {
         if (!parameters.isValidSampleIndex(x, y))
             throw new IndexOutOfBoundsException();
@@ -71,14 +110,14 @@ public final class Panorama {
     /**
      * Retourne la distance du point <i>(x,y)</i> du Panorama par rapport à
      * l'observateur si le point est défini dans le Panorama. Sinon, retourne la
-     * valeur par défaut passée en arguement.
+     * valeur par défaut passée en argument.
      * 
      * @param x
      *            L'index horizontal.
      * @param y
      *            L'index vertical.
      * @param d
-     *            Valeur par défaut.
+     *            La valeur par défaut.
      * 
      * @return La distance du point <i>(x,y)</i> du Panorama par rapport à
      *         l'observateur ou la valeur par défaut <i>d</i> passée en argument
@@ -166,15 +205,28 @@ public final class Panorama {
     }
 
     /**
-     * Classe utilitaire permettant de construire un panorama qui lui sera
-     * immuable.
+     * Classe utilitaire non immuable permettant de construire un panorama qui
+     * lui sera immuable.
      *
      * @author Robin Mamie (257234)
      * @author Maxence Jouve (269716)
      */
     public static final class Builder {
+
+        /**
+         * Les paramètres du Panorama.
+         */
         private final PanoramaParameters parameters;
+
+        /**
+         * Les composantes du Panorama.
+         */
         private float[] distance, longitude, latitude, elevation, slope;
+
+        /**
+         * Permet d'indiquer si le Panorama.Builder a déjà été construit une
+         * fois.
+         */
         private boolean built;
 
         /**
@@ -190,7 +242,7 @@ public final class Panorama {
         public Builder(PanoramaParameters parameters) {
             this.parameters = requireNonNull(parameters,
                     "The given parameters are null.");
-            final int size = parameters.width() * parameters.height();
+            int size = parameters.width() * parameters.height();
 
             this.distance = new float[size];
             this.longitude = new float[size];
@@ -198,11 +250,32 @@ public final class Panorama {
             this.elevation = new float[size];
             this.slope = new float[size];
 
-            Arrays.fill(this.distance, POSITIVE_INFINITY);
+            fill(this.distance, POSITIVE_INFINITY);
 
             this.built = false;
         }
 
+        /**
+         * Permet aux différentes méthodes de la classe de mettre à jour le bon
+         * paramètre.
+         * 
+         * @param x
+         *            L'index horizontal.
+         * @param y
+         *            L'index vertical.
+         * @param parameter
+         *            Le paramètre à set.
+         * @param value
+         *            La valeur à set dans le paramètre.
+         * 
+         * @return L'instance actualisée du Builder.
+         * 
+         * @throws IllegalStateException
+         *             si un Panorama a déjà été construit à l'aide de ce
+         *             Builder.
+         * @throws IndexOutOfBoundsException
+         *             si l'index n'est pas valide pour ce Panorama.
+         */
         private Builder setParameter(int x, int y, float[] parameter,
                 float value) {
             if (built)
@@ -339,8 +412,14 @@ public final class Panorama {
                 throw new IllegalStateException(
                         "The Panorama Builder was already built.");
             this.built = true;
-            return new Panorama(parameters, distance, longitude, latitude,
+            Panorama p = new Panorama(parameters, distance, longitude, latitude,
                     elevation, slope);
+            distance = null;
+            longitude = null;
+            latitude = null;
+            elevation = null;
+            slope = null;
+            return p;
         }
 
     }

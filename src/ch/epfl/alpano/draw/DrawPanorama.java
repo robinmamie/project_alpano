@@ -18,6 +18,12 @@ import ch.epfl.alpano.dem.ContinuousElevationModel;
 import ch.epfl.alpano.dem.DiscreteElevationModel;
 import ch.epfl.alpano.dem.HgtDiscreteElevationModel;
 
+/**
+ * Dessine un panorama test.
+ *
+ * @author Robin Mamie (257234)
+ * @author Maxence Jouve (269716)
+ */
 final class DrawPanorama {
     final static File HGT_FILE = new File("N46E007.hgt");
 
@@ -37,27 +43,27 @@ final class DrawPanorama {
 
     public static void main(String[] as) throws Exception {
         long start = System.nanoTime();
-        try (DiscreteElevationModel dDEM = new HgtDiscreteElevationModel(
-                HGT_FILE)) {
-            ContinuousElevationModel cDEM = new ContinuousElevationModel(dDEM);
-            Panorama p = new PanoramaComputer(cDEM).computePanorama(PARAMS);
+        DiscreteElevationModel dDEM = new HgtDiscreteElevationModel(HGT_FILE);
+        ContinuousElevationModel cDEM = new ContinuousElevationModel(dDEM);
+        Panorama p = new PanoramaComputer(cDEM).computePanorama(PARAMS);
 
-            BufferedImage i = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT,
-                    TYPE_INT_RGB);
+        BufferedImage i = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT,
+                TYPE_INT_RGB);
 
-            for (int x = 0; x < IMAGE_WIDTH; ++x) {
-                for (int y = 0; y < IMAGE_HEIGHT; ++y) {
-                    float d = p.distanceAt(x, y);
-                    int c = (d == Float.POSITIVE_INFINITY) ? 0x87_CE_EB
-                            : gray((d - 2_000) / 15_000);
-                    i.setRGB(x, y, c);
-                }
+        for (int x = 0; x < IMAGE_WIDTH; ++x) {
+            for (int y = 0; y < IMAGE_HEIGHT; ++y) {
+                float d = p.distanceAt(x, y);
+                int c = (d == Float.POSITIVE_INFINITY) ? 0x87_CE_EB
+                        : gray((d - 2_000) / 15_000);
+                i.setRGB(x, y, c);
             }
-
-            ImageIO.write(i, "png", new File("niesen.png"));
         }
+
+        ImageIO.write(i, "png", new File("niesen.png"));
+
         long stop = System.nanoTime();
-        System.out.printf("DrawPanorama took %.3f ms.%n", (stop-start)*1e-6);
+        System.out.printf("DrawPanorama took %.3f ms.%n",
+                (stop - start) * 1e-6);
     }
 
     private static int gray(double v) {

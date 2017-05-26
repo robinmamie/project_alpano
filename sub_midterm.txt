@@ -1,0 +1,102 @@
+Total: 76/80
+------------------------------
+* Etape 1 (DPE) [15/15]
+
+** Interface Preconditions [1/1]
+
+** Interface Math2 [10/10]
+*** Style [2/2]
++0: Excellent travail, joli! ;)
+*** Méthode firstIntervalContainingRoot [2/2]
++0: la validité des paramètres n'est pas testée (minX <= maxX et 0 < dX)
+*** Méthode improveRoot [2/2]
+*** Méthode lerp [1/1]
+*** Méthode bilerp [1/1]
+*** Méthodes Restantes [2/2]
+
+** Interface Distance [1/1]
+
+** Interface Azimuth [3/3]
+*** Méthode toOctantString [1/1]
+*** Méthodes Restantes [2/2]
+------------------------------
+* Etape 2 (MBU) [13/13]
+
+** Classe GeoPoint [3/3]
+*** Méthode distanceTo [1/1]
+*** Méthode azimuthTo [1/1]
+*** Constructeur et autres méthodes [1/1]
+
+** Classe Interval1D [5/5]
+*** Méthode sizeOfIntersectionWith [1/1]
+*** Constructeur et autres méthodes [4/4]
+
+** Classe Interval2D [5/5]
+*** Méthode sizeOfIntersectionWith [1/1]
+*** Constructeur et autres méthodes [4/4]
+------------------------------
+* Etape 3 (LKI) [12/13]
+
+** Interface DiscreteElevationModel [2/2]
+*** Création et utilisation des constantes demandées [1/1]
+*** Implémentation des méthodes de l'interface [1/1]
+
+** Classe CompositeDiscreteElevationModel [3/4]
+*** Classe finale et visible dans le package seulement [1/1]
+*** Traitement correct des arguments dans le constructeur [0/1]
+-1: L'union des DEM n’est pas stockée à la construction de l’objet et est recalculée à chaque fois que la méthode extent() est appelée.
+*** Implémentation de la méthode elevationSample [2/2]
+
+** Classe ContinuousElevationModel [7/7]
+*** Classe finale et publique [1/1]
+*** Création et utilisation judicieuse des constantes [1/1]
+*** Implémentation efficace de la méthode slopeAt [3/3]
+*** Implémentation efficace de la méthode elevationAt [2/2]
+Remarque:
++0: Bravo pour votre utilisation de l'interface fonctionnelle BiFunction !
+------------------------------
+* Etape 4 (KGE) [13/13]
+
+** Classe HgtDiscreteElevationModel [6/6]
+*** Constructeur [4/4]
+*** Méthode close & extent [1/1]
+*** Méthode elevationSample [1/1]
+
+** Classe ElevationProfile [7/7]
+*** Constructeur [4/4]
+*** Méthode positionAt [2/2]
+*** Méthode slopeAt & elevationAt [1/1]
+------------------------------
+* Etape 5 (AFE) [10/13]
+
+** Classe Summit [2/2]
+*** ToString format [1/1]
+*** Constructeur [1/1]
+
+** Classe GazetteerParser [4/5]
+*** Constructeur [1/1]
+*** Méthode readSummits [3/4]
+-1: GetName Peu efficace.(Utiliser Substring(36))
+
+** Classe PanoramaParameters [4/6]
+*** Calculs d'azimuth, altitude propres [2/2]
+*** Constructeur [1/2]
+-1: Mauvais check pour le width,juste verifier qu’il est plus grand que 0
+*** Accesseurs [0/1]
+-1: CenterVertical , CenterHorizantal ,delta et verticalFieldOfView auraient du être des paramètres.
+*** Calcul de l'index linéaire [1/1]
+------------------------------
+* Etape 6 (NZI) [13/13]
+Remarque:
++0: très beau code, bien documenté, avec des fonctions privées internes pour éviter un maximum les répétions, bravo !
+
+** Class Panorama [3/3]
+
+** Class Panorama.Builder [3/3]
++0: mettre à null les tableaux une fois build() appelé pour libérer la mémoire
+
+** Class PanoramaComputer [7/7]
+*** Méthode computePanorama [5/5]
++0: Préférer les méthodes du dem en utilisant le GeoPoint précédemment créé plutôt que celles de l’ElevationProfile
+*** Méthode rayToGroundDistance [2/2]
+

@@ -3,10 +3,10 @@ package ch.epfl.alpano;
 import static ch.epfl.alpano.Distance.EARTH_RADIUS;
 import static ch.epfl.alpano.Math2.firstIntervalContainingRoot;
 import static ch.epfl.alpano.Math2.improveRoot;
+import static java.lang.Double.POSITIVE_INFINITY;
 import static java.lang.Math.cos;
 import static java.lang.Math.tan;
 import static java.util.Objects.requireNonNull;
-import static java.lang.Double.POSITIVE_INFINITY;
 
 import java.util.function.DoubleUnaryOperator;
 
@@ -22,11 +22,29 @@ import ch.epfl.alpano.dem.ElevationProfile;
  */
 public final class PanoramaComputer {
 
+    /**
+     * Le coefficient de réfraction.
+     */
     private static final double K = 0.13;
-    private static final double FACTOR = (1.0 - K) / (2 * EARTH_RADIUS);
-    private static final double INTERVAL = 64.0;
-    private static final double EPSILON = 4.0;
 
+    /**
+     * Le facteur utilisé pour le calcul de la réfraction atmosphérique.
+     */
+    private static final double FACTOR = (1.0 - K) / (2 * EARTH_RADIUS);
+
+    /**
+     * Premier intervalle utilisé afin de trouver une racine à la fonction.
+     */
+    public static final double INTERVAL = 64;
+
+    /**
+     * Second intervalle utilisé afin d'affiner la recherche de la racine.
+     */
+    private static final double EPSILON = 4;
+
+    /**
+     * MNT continu passé au constructeur.
+     */
     private final ContinuousElevationModel dem;
 
     /**
@@ -72,8 +90,8 @@ public final class PanoramaComputer {
                 pb.setDistanceAt(x, y, (float) (dist / cos(angle)))
                         .setLongitudeAt(x, y, (float) point.longitude())
                         .setLatitudeAt(x, y, (float) point.latitude())
-                        .setElevationAt(x, y, (float) profile.elevationAt(dist))
-                        .setSlopeAt(x, y, (float) profile.slopeAt(dist));
+                        .setElevationAt(x, y, (float) dem.elevationAt(point))
+                        .setSlopeAt(x, y, (float) dem.slopeAt(point));
             }
         }
         return pb.build();

@@ -24,6 +24,21 @@ public interface Math2 {
     double PI2 = 2 * PI;
 
     /**
+     * La valeur Pi/2.
+     */
+    double HALF_PI = PI / 2;
+
+    /**
+     * La valeur 3*Pi/2.
+     */
+    double THREE_HALF_PI = 3 * PI / 2;
+
+    /**
+     * La valeur 3*Pi/8.
+     */
+    double THREE_EIGHTH_PI = 3 * PI / 8;
+
+    /**
      * Calcule le carré d'un nombre à l'aide d'une multiplication.
      * 
      * @param x
@@ -83,8 +98,8 @@ public interface Math2 {
      * @param y1
      *            Second point de l'interpolation.
      * @param x
-     *            Paramètre de l'interpolatio. 0 retourne le premier argument et
-     *            1 le second.
+     *            Paramètre de l'interpolation. 0 retourne le premier argument
+     *            et 1 le second.
      * 
      * @return La valeur désignée par x sur la droite interpolé à l'aide les
      *         deux premiers arguments.
@@ -140,9 +155,14 @@ public interface Math2 {
      *         lequel la fonction contient une racine ou
      *         Double.POSITIVE_INFINITY si l'intervalle ne contient pas de
      *         racine.
+     * 
+     * @throws IllegalArgumentException
+     *             si la borne supérieure est inférieure à la borne inférieure
+     *             ou si le pas <i>dX</i> n'est pas strictement positif.
      */
     static double firstIntervalContainingRoot(DoubleUnaryOperator f,
             double minX, double maxX, double dX) {
+        checkArgument(minX <= maxX && 0 < dX);
         while (minX <= maxX - dX) {
             if (f.applyAsDouble(minX) * f.applyAsDouble(minX + dX) <= 0)
                 return minX;

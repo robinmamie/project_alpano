@@ -1,12 +1,16 @@
 package ch.epfl.alpano.summit;
 
+import static java.lang.Integer.parseInt;
+import static java.lang.Math.toRadians;
+import static java.nio.charset.StandardCharsets.US_ASCII;
+import static java.util.Collections.unmodifiableList;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import ch.epfl.alpano.GeoPoint;
@@ -20,34 +24,70 @@ import ch.epfl.alpano.GeoPoint;
  */
 public final class GazetteerParser {
 
-    private static final int NAME_POSITION = 6;
-
+    /**
+     * Constructeur privé, car la classe est non instanciable.
+     */
     private GazetteerParser() {
     }
 
-    private static String getName(String[] line) throws IOException {
-        StringBuilder sb = new StringBuilder();
-        if (line.length <= NAME_POSITION)
-            throw new IOException();
-        for (int i = NAME_POSITION; i < line.length; ++i) {
-            sb.append(line[i]);
-            if (i + 1 < line.length)
-                sb.append(" ");
-        }
-        return sb.toString();
+    /**
+     * Récupère le nom du sommet.
+     * 
+     * @param line
+     *            La ligne extraite du fichier.
+     * 
+     * @return Le nom du sommet.
+     * 
+     * @throws IOException
+     *             si le format de la ligne est invalide.
+     */
+    private static String getName(String line) throws IOException {
+        return line.substring(36);
     }
 
+    /**
+     * Retourne la valeur en radians de l'angle donné en argument.
+     * 
+     * @param degrees
+     *            String représentant l'angle sous le format "xxx:xx:xx"
+     * 
+     * @return L'angle en radians.
+     * 
+     * @throws NumberFormatException
+     *             si au moins une partie de l'angle n'est pas composée de
+     *             nombres.
+     * @throws ArrayIndexOutOfBoundsException
+     *             si l'angle est composé de moins de 3 valeurs.
+     */
     private static double hmsToRadians(String degrees)
-            throws NumberFormatException {
+            throws NumberFormatException, ArrayIndexOutOfBoundsException {
         String[] hmsS = degrees.split(":");
-        double[] hms = { Integer.parseInt(hmsS[0]), Integer.parseInt(hmsS[1]),
-                Integer.parseInt(hmsS[2]) };
-        double fractional = (hms[1] + hms[2] / 60.0) / 60.0;
-        hms[0] += (degrees.charAt(0) == '-' ? -1 : 1) * fractional;
-        return Math.toRadians(hms[0]);
+        double[] hms = { parseInt(hmsS[0]), parseInt(hmsS[1]),
+                parseInt(hmsS[2]) };
+        hms[0] += (degrees.charAt(0) == '-' ? -1 : 1)
+                * ((hms[1] + hms[2] / 60.0) / 60.0);
+        return toRadians(hms[0]);
     }
 
-    private static GeoPoint getPoint(String lon, String lat) {
+    /**
+     * Créée un point à partir de la longitude et la latitude passées en
+     * argument.
+     * 
+     * @param lon
+     *            La longitude du point.
+     * @param lat
+     *            La latitude du point.
+     * 
+     * @return Le point géographique associé aux valeurs passées en argument.
+     * 
+     * @throws NumberFormatException
+     *             si au moins une partie de l'un des deux angles n'est pas
+     *             composée de nombres.
+     * @throws ArrayIndexOutOfBoundsException
+     *             si l'un des deux angles est composé de moins de 3 valeurs.
+     */
+    private static GeoPoint getPoint(String lon, String lat)
+            throws NumberFormatException, ArrayIndexOutOfBoundsException {
         return new GeoPoint(hmsToRadians(lon), hmsToRadians(lat));
     }
 
@@ -65,26 +105,23 @@ public final class GazetteerParser {
      */
     public static List<Summit> readSummitsFrom(File file) throws IOException {
         List<Summit> summits = new ArrayList<>();
+
         try (BufferedReader b = new BufferedReader(
-                new InputStreamReader(new FileInputStream(file)))) {
+                new InputStreamReader(new FileInputStream(file), US_ASCII))) {
             String s;
             while ((s = b.readLine()) != null) {
-                // Seperates the line in blocks
-                // Cuts where there is one or more whitespace
                 String[] elements = s.trim().split("\\s+");
-
-                String summit = getName(elements);
-                GeoPoint point = getPoint(elements[0], elements[1]);
-                int elevation = Integer.parseInt(elements[2]);
-
-                summits.add(new Summit(summit, point, elevation));
+                summits.add(new Summit(getName(s),
+                        getPoint(elements[0], elements[1]),
+                        parseInt(elements[2])));
             }
-        } catch (IOException e) {
-            throw new IOException(e.getMessage());
         } catch (NumberFormatException e) {
-            throw new IOException(e.getMessage());
+            throw new IOException(
+                    "One of the angles given is not formed of letters.");
+        } catch (ArrayIndexOutOfBoundsException e) {
+            throw new IOException("One of the angles given is too short.");
         }
 
-        return Collections.unmodifiableList(new ArrayList<>(summits));
+        return unmodifiableList(summits);
     }
 }
