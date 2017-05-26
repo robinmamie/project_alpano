@@ -35,12 +35,12 @@ public final class PanoramaComputer {
     /**
      * Premier intervalle utilisé afin de trouver une racine à la fonction.
      */
-    public static final double INTERVAL = 64.0;
+    public static final double INTERVAL = 64;
 
     /**
      * Second intervalle utilisé afin d'affiner la recherche de la racine.
      */
-    private static final double EPSILON = 4.0;
+    private static final double EPSILON = 4;
 
     /**
      * MNT continu passé au constructeur.

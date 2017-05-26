@@ -40,8 +40,15 @@ public final class PanoramaUserParameters {
      */
     private final Map<UserParameter, Integer> map;
 
-    
-    private static final int SIZE_USER_PARAMETER = 9;
+    /**
+     * Nombre de décimales dans un paramètre entier.
+     */
+    private static final double DECIMAL_SHIFT = 10_000;
+
+    /**
+     * Nombre de mètres dans un km.
+     */
+    public static final int M_PER_KM = 1_000;
 
     /**
      * Constructeur primaire de la classe, prend une table associative en
@@ -51,7 +58,7 @@ public final class PanoramaUserParameters {
      *            La table associative des paramètres utilisateur.
      */
     public PanoramaUserParameters(Map<UserParameter, Integer> map) {
-        checkArgument(map.size() == SIZE_USER_PARAMETER,
+        checkArgument(map.size() == UserParameter.values().length,
                 "The given map is not valid.");
         map = new EnumMap<>(map);
         map.replaceAll(UserParameter::sanitize);
@@ -208,10 +215,10 @@ public final class PanoramaUserParameters {
      */
     private PanoramaParameters panoramaParametersSet(ToIntFunction<Integer> s) {
         return new PanoramaParameters(
-                new GeoPoint(toRadians(observerLongitude() / 10_000.),
-                        toRadians(observerLatitude() / 10_000.)),
+                new GeoPoint(toRadians(observerLongitude() / DECIMAL_SHIFT),
+                        toRadians(observerLatitude() / DECIMAL_SHIFT)),
                 observerElevation(), toRadians(centerAzimuth()),
-                toRadians(horizontalFieldOfView()), maxDistance() * 1_000,
+                toRadians(horizontalFieldOfView()), maxDistance() * M_PER_KM,
                 s.applyAsInt((width())), s.applyAsInt((height())));
     }
 
@@ -226,7 +233,6 @@ public final class PanoramaUserParameters {
         return panoramaParametersSet(
                 x -> (int) scalb(x, superSamplingExponent()));
     }
-    // TODO wtf, see step 8, what is what
 
     /**
      * Crée les paramètres du Panorama en ne prenant pas en compte l'exposant de

@@ -11,13 +11,13 @@ import static java.lang.Math.atan2;
 import static java.lang.Math.round;
 import static java.lang.Math.tan;
 import static java.util.Collections.unmodifiableList;
+import static java.util.Objects.requireNonNull;
 
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import ch.epfl.alpano.PanoramaParameters;
 import ch.epfl.alpano.dem.ContinuousElevationModel;
@@ -100,8 +100,9 @@ public final class Labelizer {
      *            Une liste complètes de tous les sommets.
      */
     public Labelizer(ContinuousElevationModel cem, List<Summit> summits) {
-        this.cem = Objects.requireNonNull(cem);
-        this.summits = unmodifiableList(new ArrayList<>(summits));
+        this.cem = requireNonNull(cem);
+        this.summits = unmodifiableList(
+                new ArrayList<>(requireNonNull(summits)));
         values = new HashMap<Summit, Integer[]>();
     }
 
@@ -249,12 +250,12 @@ public final class Labelizer {
 
         List<Summit> visible = visibleSummits(parameters);
         List<Node> nodes = new ArrayList<>();
-
+        
         BitSet positions = new BitSet(parameters.width() + PIXELS_NEEDED);
-        positions.flip(0, PIXELS_NEEDED);
-        positions.flip(positions.size() - PIXELS_NEEDED, positions.size());
+        positions.set(0, PIXELS_NEEDED);
+        positions.set(parameters.width(), parameters.width() + PIXELS_NEEDED);
 
-        int labelPlaceInit = -1, labelPlace = labelPlaceInit;
+        int labelPlace = -1;
 
         for (Summit s : visible) {
             int x = values.get(s)[INDEX_X], y = values.get(s)[INDEX_Y];
@@ -262,10 +263,10 @@ public final class Labelizer {
             if (y > PIXEL_THRESHOLD
                     && positions.get(x, x + PIXELS_NEEDED).isEmpty()) {
 
-                if (labelPlace == labelPlaceInit)
+                if (labelPlace == -1)
                     labelPlace = y - PIXELS_NEEDED - PIXELS_ROOM;
 
-                positions.flip(x, x + PIXELS_NEEDED);
+                positions.set(x, x + PIXELS_NEEDED);
 
                 Text t = new Text(s.name() + " (" + s.elevation() + " m)");
                 t.getTransforms().addAll(new Translate(x, labelPlace),
@@ -276,10 +277,6 @@ public final class Labelizer {
             }
         }
         return unmodifiableList(nodes);
-        // TODO *BONUS* User can give personalised inputs, e.g. cities, list and
-        // save
-        // them, and then force them to show on the Panorama, e.g. by inputing
-        // an infinite elevation for the "Summit".
     }
 
 }

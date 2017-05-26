@@ -1,6 +1,7 @@
 package ch.epfl.alpano.gui;
 
 import static ch.epfl.alpano.Azimuth.toOctantString;
+import static ch.epfl.alpano.gui.PanoramaUserParameters.M_PER_KM;
 import static ch.epfl.alpano.gui.UserParameter.CENTER_AZIMUTH;
 import static ch.epfl.alpano.gui.UserParameter.HEIGHT;
 import static ch.epfl.alpano.gui.UserParameter.HORIZONTAL_FIELD_OF_VIEW;
@@ -125,15 +126,46 @@ public final class Alpano extends Application {
     private final static PanoramaComputerBean COMPUTER_B;
 
     /**
+     * Nombre de décimales maximum après la latitude et la longitude dans les
+     * paramètres.
+     */
+    private static final int MAX_DECIMAL_NUMBER = 4;
+
+    /**
+     * Pas de décimales.
+     */
+    private static final int NO_DECIMAL_NUMBER = 0;
+    
+    /**
+     * Nombre maximal de colonnes dans les parmètres.
+     */
+    private static final int MAXI_COL_COUNT = 7;
+    
+    /**
+     * Nombre moyen de colonnes dans les paramètres.
+     */
+    private static final int MIDI_COL_COUNT = 4;
+    
+    /**
+     * Nombre minimal de colonnes dans les paramètres.
+     */
+    private static final int MINI_COL_COUNT = 3;
+
+
+    /**
      * Constructeur statique de la classe.
      */
     static {
+        System.out.println("Alpano launching...");
+
         List<Summit> summits;
         try {
             summits = GazetteerParser.readSummitsFrom(new File("alps.txt"));
         } catch (IOException e) {
             throw new IllegalArgumentException();
         }
+
+        System.out.println(" - Summits loaded.");
 
         DiscreteElevationModel dem = new HgtDiscreteElevationModel(
                 new File("N45E006.hgt")).union(
@@ -152,9 +184,13 @@ public final class Alpano extends Application {
                                                                 new File(
                                                                         "N46E009.hgt")))));
 
+        System.out.println(" - DEMs loaded.");
+
         CEM = new ContinuousElevationModel(dem);
         PARAMETERS_B = new PanoramaParametersBean(PRELOAD);
         COMPUTER_B = new PanoramaComputerBean(CEM, summits);
+
+        System.out.println(" - Beans created.");
     }
 
     /**
@@ -172,19 +208,25 @@ public final class Alpano extends Application {
 
         TextArea areaInfo = setAreaInfo();
         ImageView panoView = setPanoView(areaInfo);
-        Pane labelsPane = setLabels();
+        Pane labelsPane = setLabelsPane();
         StackPane panoGroup = new StackPane(panoView, labelsPane);
         ScrollPane panoScrollPane = new ScrollPane(panoGroup);
         Text updateText = setUpdateText();
         StackPane updateNotice = setUpdateNotice(updateText);
         StackPane panoPane = new StackPane(panoScrollPane, updateNotice);
-        GridPane paramsGrid = setDynamicParameters(areaInfo);
+        GridPane paramsGrid = setParamsGrid(areaInfo);
         BorderPane root = setRoot(panoPane, paramsGrid);
         Scene scene = new Scene(root);
 
         primaryStage.setTitle("Alpano");
         primaryStage.setScene(scene);
+        primaryStage.setWidth(WINDOW_PREF_WIDTH);
+        primaryStage.setHeight(WINDOW_PREF_HEIGHT);
         primaryStage.show();
+
+        System.out.println(" - Graphical interface loaded.");
+
+        System.out.println("\nWelcome!\n");
     }
 
     /**
@@ -247,7 +289,7 @@ public final class Alpano extends Application {
             sb.append(format("Position : %.4f°%c %.4f°%c%n", abs(lat),
                     northOrSouth, abs(lon), eastOrWest));
             sb.append(format("Distance : %.1f km%n",
-                    COMPUTER_B.getPanorama().distanceAt(x, y) / 1000));
+                    COMPUTER_B.getPanorama().distanceAt(x, y) / M_PER_KM));
             sb.append(format("Altitude : %d m%n",
                     (int) COMPUTER_B.getPanorama().elevationAt(x, y)));
             sb.append(format("Azimut : %.1f° (%s) Elévation : %.1f°",
@@ -304,7 +346,7 @@ public final class Alpano extends Application {
      * 
      * @return le Pane contenant les étiquettes des sommets.
      */
-    private Pane setLabels() {
+    private Pane setLabelsPane() {
         Pane labelsPane = new Pane();
         Bindings.bindContent(labelsPane.getChildren(), COMPUTER_B.getLabels());
         labelsPane.prefWidthProperty().bind(PARAMETERS_B.widthProperty());
@@ -319,9 +361,8 @@ public final class Alpano extends Application {
      * @return le texte de mise à jour.
      */
     private Text setUpdateText() {
-        Text updateText = new Text();
-        String notice = "Les paramètres du panorama ont changé.\nCliquez ici pour mettre le dessin à jour.";
-        updateText.setText(notice);
+        Text updateText = new Text(
+                "Les paramètres du panorama ont changé.\nCliquez ici pour mettre le dessin à jour.");
         updateText.setFont(new Font(UDPATE_TEXT_FONT_SIZE));
         updateText.setTextAlignment(TextAlignment.CENTER);
         return updateText;
@@ -357,28 +398,30 @@ public final class Alpano extends Application {
      * 
      * @return la grille des paramètres au bas de la fenêtre principale.
      */
-    private GridPane setDynamicParameters(TextArea areaInfo) {
+    private GridPane setParamsGrid(TextArea areaInfo) {
 
         GridPane paramsGrid = new GridPane();
 
         List<Control> labelsAndField = new ArrayList<>();
-        labelsAndField.addAll(
-                setLabelAndField("Latitude (°)", OBSERVER_LATITUDE, 7, 4));
-        labelsAndField.addAll(
-                setLabelAndField("Longitude (°)", OBSERVER_LONGITUDE, 7, 4));
-        labelsAndField.addAll(
-                setLabelAndField("Altitude (m)", OBSERVER_ELEVATION, 4, 0));
-        labelsAndField
-                .addAll(setLabelAndField("Azimut (°)", CENTER_AZIMUTH, 3, 0));
+        labelsAndField.addAll(setLabelAndField("Latitude (°)",
+                OBSERVER_LATITUDE, MAXI_COL_COUNT, MAX_DECIMAL_NUMBER));
+        labelsAndField.addAll(setLabelAndField("Longitude (°)",
+                OBSERVER_LONGITUDE, MAXI_COL_COUNT, MAX_DECIMAL_NUMBER));
+        labelsAndField.addAll(setLabelAndField("Altitude (m)",
+                OBSERVER_ELEVATION, MIDI_COL_COUNT, NO_DECIMAL_NUMBER));
+        labelsAndField.addAll(setLabelAndField("Azimut (°)", CENTER_AZIMUTH,
+                MINI_COL_COUNT, 0));
         labelsAndField.addAll(setLabelAndField("Angle de vue (°)",
-                HORIZONTAL_FIELD_OF_VIEW, 3, 0));
+                HORIZONTAL_FIELD_OF_VIEW, MINI_COL_COUNT, 0));
+        labelsAndField.addAll(setLabelAndField("Visibilité (km)", MAX_DISTANCE,
+                MINI_COL_COUNT, 0));
         labelsAndField.addAll(
-                setLabelAndField("Visibilité (km)", MAX_DISTANCE, 3, 0));
-        labelsAndField.addAll(setLabelAndField("Largeur (px)", WIDTH, 4, 0));
-        labelsAndField.addAll(setLabelAndField("Hauteur (px)", HEIGHT, 4, 0));
+                setLabelAndField("Largeur (px)", WIDTH, MIDI_COL_COUNT, 0));
+        labelsAndField.addAll(
+                setLabelAndField("Hauteur (px)", HEIGHT, MIDI_COL_COUNT, 0));
         labelsAndField.addAll(setSuperSamplingOption());
 
-        for (int i = 0; i < 18; ++i)
+        for (int i = 0; i < labelsAndField.size(); ++i)
             paramsGrid.add(labelsAndField.get(i), i % 6, i / 6);
 
         paramsGrid.add(areaInfo, 6, 0, 1, 3);
@@ -456,8 +499,6 @@ public final class Alpano extends Application {
         BorderPane root = new BorderPane();
         root.setCenter(panoPane);
         root.setBottom(paramsGrid);
-        root.setPrefWidth(WINDOW_PREF_WIDTH);
-        root.setPrefHeight(WINDOW_PREF_HEIGHT);
         return root;
     }
 

@@ -2,7 +2,9 @@ package ch.epfl.alpano.gui;
 
 import static ch.epfl.alpano.Preconditions.checkArgument;
 import static java.util.Arrays.asList;
+import static java.util.Collections.unmodifiableList;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javafx.util.StringConverter;
@@ -28,7 +30,7 @@ public final class LabeledListStringConverter extends StringConverter<Integer> {
      *            Les valeurs prédéfinies de chaînes de caractères.
      */
     public LabeledListStringConverter(String... values) {
-        this.values = asList(values);
+        this.values = unmodifiableList(new ArrayList<>(asList(values)));
     }
 
     @Override

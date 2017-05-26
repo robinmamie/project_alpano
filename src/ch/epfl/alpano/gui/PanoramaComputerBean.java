@@ -2,7 +2,6 @@ package ch.epfl.alpano.gui;
 
 import static ch.epfl.alpano.gui.ImagePainter.stdPanorama;
 import static ch.epfl.alpano.gui.PanoramaRenderer.renderPanorama;
-import static javafx.application.Platform.runLater;
 import static javafx.collections.FXCollections.observableArrayList;
 import static javafx.collections.FXCollections.unmodifiableObservableList;
 
@@ -25,7 +24,7 @@ import javafx.scene.image.Image;
  * @author Robin Mamie (257234)
  * @author Maxence Jouve (269716)
  */
-public class PanoramaComputerBean {
+public final class PanoramaComputerBean {
 
     /**
      * La propriété du Panorama.
@@ -63,26 +62,28 @@ public class PanoramaComputerBean {
         this.image = new SimpleObjectProperty<>(null);
         ObservableList<Node> labels = observableArrayList();
         this.unmodifiableLabels = unmodifiableObservableList(labels);
+
         this.parameters.addListener((b, o, n) -> {
+            System.out.println("Launching computation...");
+            long start = System.nanoTime();
+            panorama.set(new PanoramaComputer(cem)
+                    .computePanorama(parameters.get().panoramaParameters()));
+
+            System.out.printf("Panorama computed after %.3f seconds.%n",
+                    (System.nanoTime() - start) * 1e-9);
+
+            image.set(renderPanorama(panorama.get(),
+                    stdPanorama(panorama.get())));
+
+            System.out.printf("Panorama rendered after %.3f seconds.%n",
+                    (System.nanoTime() - start) * 1e-9);
+
             labels.clear();
-            new Thread() {
-                @Override
-                public void run() {
-                    PanoramaComputer pc = new PanoramaComputer(cem);
-                    panorama.set(null);
-                    image.set(null);
-                    long start = System.nanoTime();
-                    panorama.set(pc.computePanorama(
-                            parameters.get().panoramaParameters()));
-                    System.out.printf("Panorama computed in %.3f seconds.%n",
-                            (System.nanoTime() - start) * 1e-9);
-                    image.set(renderPanorama(panorama.get(),
-                            stdPanorama(panorama.get())));
-                    runLater(() -> labels.setAll(
-                            new Labelizer(cem, summits).labels(parameters.get()
-                                    .panoramaDisplayParameters())));
-                }
-            }.start();
+            labels.setAll(new Labelizer(cem, summits)
+                    .labels(parameters.get().panoramaDisplayParameters()));
+            System.out.printf("Panorama's labels set after %.3f seconds.%n",
+                    (System.nanoTime() - start) * 1e-9);
+            System.out.println("Computation finished.\n");
         });
     }
 

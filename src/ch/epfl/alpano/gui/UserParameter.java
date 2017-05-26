@@ -65,9 +65,9 @@ public enum UserParameter {
      * Constructeur du paramètre.
      * 
      * @param min
-     *            La borne inférieure
+     *            La borne inférieure.
      * @param max
-     *            La borne supérieure
+     *            La borne supérieure.
      */
     private UserParameter(int min, int max) {
         this.min = min;

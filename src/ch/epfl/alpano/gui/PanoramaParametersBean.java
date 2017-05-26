@@ -24,7 +24,7 @@ import javafx.beans.property.SimpleObjectProperty;
  * @author Robin Mamie (257234)
  * @author Maxence Jouve (269716)
  */
-public class PanoramaParametersBean {
+public final class PanoramaParametersBean {
 
     /**
      * Stocke les paramètres utilisateurs du Panorama dans une propriété javafx.
@@ -46,10 +46,11 @@ public class PanoramaParametersBean {
     public PanoramaParametersBean(PanoramaUserParameters parameters) {
         this.parameters = new SimpleObjectProperty<>(parameters);
         this.properties = new EnumMap<>(UserParameter.class);
-        parameters.map().forEach((u, x) -> this.properties.put(u,
-                new SimpleObjectProperty<>(x)));
-        properties.forEach((u, x) -> x.addListener(
-                (b, o, n) -> runLater(this::synchronizeParameters)));
+        parameters.map().forEach((u, x) -> {
+            this.properties.put(u, new SimpleObjectProperty<>(x));
+            properties.get(u).addListener(
+                    (p, o, n) -> runLater(this::synchronizeParameters));
+        });
     }
 
     /**
@@ -74,7 +75,15 @@ public class PanoramaParametersBean {
     public ReadOnlyObjectProperty<PanoramaUserParameters> parametersProperty() {
         return parameters;
     }
-    
+
+    /**
+     * Retourne la propriété spécifiée par un UserParameter.
+     * 
+     * @param uP
+     * Le UserParameter concerné.
+     * 
+     * @return la propriété spécifiée par un UserParameter.
+     */
     public ObjectProperty<Integer> getProperty(UserParameter uP) {
         return properties.get(uP);
     }
