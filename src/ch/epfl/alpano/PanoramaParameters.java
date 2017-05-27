@@ -85,7 +85,7 @@ public final class PanoramaParameters {
 
         this.verticalFieldOfView = (horizontalFieldOfView() * (height() - 1))
                 / (width() - 1);
-        
+
         this.delta = horizontalFieldOfView() / (width() - 1);
         this.centerHorizontalPixel = (width() - 1) / 2.0;
         this.centerVerticalPixel = (height() - 1) / 2.0;
@@ -293,4 +293,5 @@ public final class PanoramaParameters {
         assert isValidSampleIndex(x, y);
         return y * width() + x;
     }
+
 }

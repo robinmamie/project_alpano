@@ -2,6 +2,7 @@ package ch.epfl.alpano.gui;
 
 import static ch.epfl.alpano.gui.ImagePainter.stdPanorama;
 import static ch.epfl.alpano.gui.PanoramaRenderer.renderPanorama;
+import static javafx.application.Platform.runLater;
 import static javafx.collections.FXCollections.observableArrayList;
 import static javafx.collections.FXCollections.unmodifiableObservableList;
 
@@ -11,8 +12,11 @@ import ch.epfl.alpano.Panorama;
 import ch.epfl.alpano.PanoramaComputer;
 import ch.epfl.alpano.dem.ContinuousElevationModel;
 import ch.epfl.alpano.summit.Summit;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
@@ -46,6 +50,8 @@ public final class PanoramaComputerBean {
      */
     private final ObservableList<Node> unmodifiableLabels;
 
+    private final DoubleProperty status;
+
     /**
      * Construit un PanoramaComputerBean en prenant un MNT continu et une liste
      * de sommets en arguments.
@@ -62,28 +68,58 @@ public final class PanoramaComputerBean {
         this.image = new SimpleObjectProperty<>(null);
         ObservableList<Node> labels = observableArrayList();
         this.unmodifiableLabels = unmodifiableObservableList(labels);
+        this.status = new SimpleDoubleProperty();
+        PanoramaComputer pc = new PanoramaComputer(cem);
 
         this.parameters.addListener((b, o, n) -> {
-            System.out.println("Launching computation...");
-            long start = System.nanoTime();
-            panorama.set(new PanoramaComputer(cem)
-                    .computePanorama(parameters.get().panoramaParameters()));
-
-            System.out.printf("Panorama computed after %.3f seconds.%n",
-                    (System.nanoTime() - start) * 1e-9);
-
-            image.set(renderPanorama(panorama.get(),
-                    stdPanorama(panorama.get())));
-
-            System.out.printf("Panorama rendered after %.3f seconds.%n",
-                    (System.nanoTime() - start) * 1e-9);
-
             labels.clear();
-            labels.setAll(new Labelizer(cem, summits)
-                    .labels(parameters.get().panoramaDisplayParameters()));
-            System.out.printf("Panorama's labels set after %.3f seconds.%n",
-                    (System.nanoTime() - start) * 1e-9);
-            System.out.println("Computation finished.\n");
+            new Thread() {
+                @Override
+                public void run() {
+                    if (panorama.get() != null)
+                        System.out.println("Erasing previous panorama...");
+                    panorama.set(null);
+                    image.set(null);
+                    System.out.println(
+                            "Launching computation with the following parameters:");
+                    System.out.println(
+                            "-------------------------------------------");
+                    System.out.println(parameters.get());
+                    System.out.println(
+                            "-------------------------------------------");
+                    status.bind(pc.statusProperty());
+                    long start = System.nanoTime();
+                    try {
+                        panorama.set(pc.computePanorama(
+                                parameters.get().panoramaParameters()));
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    System.out.printf("Panorama computed after %.3f seconds.%n",
+                            (System.nanoTime() - start) * 1e-9);
+                    Image i = renderPanorama(panorama.get(),
+                            stdPanorama(panorama.get()));
+
+                    System.out.printf("Panorama rendered after %.3f seconds.%n",
+                            (System.nanoTime() - start) * 1e-9);
+
+                    List<Node> list = new Labelizer(cem, summits).labels(
+                            parameters.get().panoramaDisplayParameters());
+                    System.out.printf(
+                            "Panorama's labels computed after %.3f seconds.%n",
+                            (System.nanoTime() - start) * 1e-9);
+
+                    runLater(() -> {
+                        labels.setAll(list);
+                        image.set(i);
+                        status.unbind();
+                        status.set(0);
+                        System.out.println("Computation finished.\n");
+                    });
+                }
+            }.start();
+
         });
     }
 
@@ -158,6 +194,10 @@ public final class PanoramaComputerBean {
      */
     public ObservableList<Node> getLabels() {
         return unmodifiableLabels;
+    }
+
+    public ReadOnlyDoubleProperty statusProperty() {
+        return status;
     }
 
 }

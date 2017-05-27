@@ -36,7 +36,7 @@ final class SignatureChecks_06 {
         checkPanorama(p);
     }
 
-    void checkPanoramaComputer(PanoramaParameters pp) {
+    void checkPanoramaComputer(PanoramaParameters pp) throws InterruptedException {
         ContinuousElevationModel d = null;
         PanoramaComputer pc = new PanoramaComputer(d);
         Panorama p = pc.computePanorama(pp);

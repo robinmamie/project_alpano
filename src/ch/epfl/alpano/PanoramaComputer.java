@@ -8,10 +8,15 @@ import static java.lang.Math.cos;
 import static java.lang.Math.tan;
 import static java.util.Objects.requireNonNull;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.DoubleUnaryOperator;
 
 import ch.epfl.alpano.dem.ContinuousElevationModel;
 import ch.epfl.alpano.dem.ElevationProfile;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.ReadOnlyDoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 
 /**
  * Classe permettant de calculer un Panorama à l'aide d'un MNT continu. Classe
@@ -42,10 +47,14 @@ public final class PanoramaComputer {
      */
     private static final double EPSILON = 4;
 
+    private static final int THREAD_SPACING = 20;
+
     /**
      * MNT continu passé au constructeur.
      */
     private final ContinuousElevationModel dem;
+
+    private final DoubleProperty status;
 
     /**
      * Constructeur de la classe PanoramaComputer prenant un MNT continu en
@@ -60,6 +69,7 @@ public final class PanoramaComputer {
     public PanoramaComputer(ContinuousElevationModel dem) {
         this.dem = requireNonNull(dem,
                 "The given ContinuousElevationModel is null.");
+        status = new SimpleDoubleProperty(0d);
     }
 
     /**
@@ -69,32 +79,67 @@ public final class PanoramaComputer {
      *            Les paramètres qui définissent le Panorama à construire.
      * 
      * @return Le Panorama créé à l'aide des paramètres passés en argument.
+     * @throws InterruptedException
      */
-    public Panorama computePanorama(PanoramaParameters parameters) {
+    public Panorama computePanorama(PanoramaParameters parameters)
+            throws InterruptedException {
         Panorama.Builder pb = new Panorama.Builder(parameters);
-        for (int x = 0; x < parameters.width(); ++x) {
-            ElevationProfile profile = new ElevationProfile(dem,
-                    parameters.observerPosition(), parameters.azimuthForX(x),
-                    parameters.maxDistance());
-            double dist = 0;
-            for (int y = parameters.height() - 1; y >= 0; --y) {
-                double angle = parameters.altitudeForY(y);
-                DoubleUnaryOperator f = rayToGroundDistance(profile,
-                        parameters.observerElevation(), tan(angle));
-                dist = firstIntervalContainingRoot(f, dist,
-                        parameters.maxDistance(), INTERVAL);
-                if (dist == POSITIVE_INFINITY)
-                    break;
-                dist = improveRoot(f, dist, dist + INTERVAL, EPSILON);
-                GeoPoint point = profile.positionAt(dist);
-                pb.setDistanceAt(x, y, (float) (dist / cos(angle)))
-                        .setLongitudeAt(x, y, (float) point.longitude())
-                        .setLatitudeAt(x, y, (float) point.latitude())
-                        .setElevationAt(x, y, (float) dem.elevationAt(point))
-                        .setSlopeAt(x, y, (float) dem.slopeAt(point));
-            }
+        List<Thread> threads = new ArrayList<>();
+        status.set(0d);
+        double statusIncrement = 1d / parameters.width();
+        for (int i = 0; i < parameters.width(); i += THREAD_SPACING) {
+            final int stop = i + THREAD_SPACING > parameters.width()
+                    ? parameters.width() : i + THREAD_SPACING;
+            threads.add(
+                    createThread(parameters, pb, i, stop, statusIncrement));
         }
+        for (Thread r : threads)
+            r.start();
+        for (Thread r : threads)
+            r.join();
         return pb.build();
+    }
+
+    private Thread createThread(PanoramaParameters parameters,
+            Panorama.Builder pb, int start, int stop, double statusIncrement) {
+        return new Thread() {
+            @Override
+            public void run() {
+                for (int x = start; x < stop; ++x) {
+                    ElevationProfile profile = new ElevationProfile(dem,
+                            parameters.observerPosition(),
+                            parameters.azimuthForX(x),
+                            parameters.maxDistance());
+                    double dist = 0;
+                    for (int y = parameters.height() - 1; y >= 0; --y) {
+                        double angle = parameters.altitudeForY(y);
+                        DoubleUnaryOperator f = rayToGroundDistance(profile,
+                                parameters.observerElevation(), tan(angle));
+                        dist = firstIntervalContainingRoot(f, dist,
+                                parameters.maxDistance(), INTERVAL);
+                        if (dist == POSITIVE_INFINITY)
+                            break;
+                        dist = improveRoot(f, dist, dist + INTERVAL, EPSILON);
+                        GeoPoint point = profile.positionAt(dist);
+                        float distance = (float) (dist / cos(angle));
+                        float longitude = (float) point.longitude();
+                        float latitude = (float) point.latitude();
+                        float elevation = (float) dem.elevationAt(point);
+                        float slope = (float) dem.slopeAt(point);
+                        synchronized (pb) {
+                            pb.setDistanceAt(x, y, distance)
+                                    .setLongitudeAt(x, y, longitude)
+                                    .setLatitudeAt(x, y, latitude)
+                                    .setElevationAt(x, y, elevation)
+                                    .setSlopeAt(x, y, slope);
+                        }
+                    }
+                    synchronized (status) {
+                        status.set(status.get() + statusIncrement);
+                    }
+                }
+            }
+        };
     }
 
     /**
@@ -115,6 +160,10 @@ public final class PanoramaComputer {
     public static DoubleUnaryOperator rayToGroundDistance(
             ElevationProfile profile, double ray0, double raySlope) {
         return x -> ray0 + x * (raySlope + FACTOR * x) - profile.elevationAt(x);
+    }
+    
+    public ReadOnlyDoubleProperty statusProperty() {
+        return status;
     }
 
 }

@@ -1,5 +1,6 @@
 package ch.epfl.alpano.gui;
 
+import static ch.epfl.alpano.Azimuth.toOctantString;
 import static ch.epfl.alpano.Preconditions.checkArgument;
 import static ch.epfl.alpano.gui.UserParameter.CENTER_AZIMUTH;
 import static ch.epfl.alpano.gui.UserParameter.HEIGHT;
@@ -10,10 +11,13 @@ import static ch.epfl.alpano.gui.UserParameter.OBSERVER_LATITUDE;
 import static ch.epfl.alpano.gui.UserParameter.OBSERVER_LONGITUDE;
 import static ch.epfl.alpano.gui.UserParameter.SUPER_SAMPLING_EXPONENT;
 import static ch.epfl.alpano.gui.UserParameter.WIDTH;
+import static java.lang.Math.abs;
 import static java.lang.Math.scalb;
 import static java.lang.Math.toRadians;
+import static java.lang.String.format;
 import static java.util.Collections.unmodifiableMap;
 
+import java.io.Serializable;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.function.ToIntFunction;
@@ -28,7 +32,12 @@ import ch.epfl.alpano.PanoramaParameters;
  * @author Robin Mamie (257234)
  * @author Maxence Jouve (269716)
  */
-public final class PanoramaUserParameters {
+public final class PanoramaUserParameters implements Serializable {
+
+    /**
+     * Serial ID.
+     */
+    private static final long serialVersionUID = -5211994945756595388L;
 
     /**
      * Indique la valeur maximale possible pour le champ de vue vertical.
@@ -263,6 +272,25 @@ public final class PanoramaUserParameters {
     @Override
     public int hashCode() {
         return map.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        char northOrSouth = observerLatitude() >= 0 ? 'N' : 'S';
+        char eastOrWest = observerLongitude() >= 0.0 ? 'E' : 'W';
+
+        return format("Position : %.4f°%c %.4f°%c%n",
+                abs((double) observerLatitude() / DECIMAL_SHIFT), northOrSouth,
+                abs((double) observerLongitude() / DECIMAL_SHIFT), eastOrWest)
+                + format("Altitude : %d m%n", observerElevation())
+                + format("Azimut : %d° (%s)  Visibilité : %d km%n",
+                        centerAzimuth(),
+                        toOctantString(Math.toRadians(centerAzimuth()), "N",
+                                "E", "S", "W"),
+                        maxDistance())
+                + format("Largeur : %d px  Hauteur : %d px%n", width(), height())
+                + format("Suréchantillonage : %s", superSamplingExponent() == 0
+                        ? "non" : superSamplingExponent() == 1 ? "2×" : "4×");
     }
 
 }
