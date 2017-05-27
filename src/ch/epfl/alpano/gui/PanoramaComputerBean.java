@@ -11,7 +11,7 @@ import java.util.List;
 import ch.epfl.alpano.Panorama;
 import ch.epfl.alpano.PanoramaComputer;
 import ch.epfl.alpano.dem.ContinuousElevationModel;
-import ch.epfl.alpano.summit.Summit;
+import ch.epfl.alpano.summit.Labelizable;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyDoubleProperty;
@@ -62,7 +62,7 @@ public final class PanoramaComputerBean {
      *            Une liste de sommets.
      */
     public PanoramaComputerBean(ContinuousElevationModel cem,
-            List<Summit> summits) {
+            List<Labelizable> summits) {
         this.panorama = new SimpleObjectProperty<>(null);
         this.parameters = new SimpleObjectProperty<>(null);
         this.image = new SimpleObjectProperty<>(null);

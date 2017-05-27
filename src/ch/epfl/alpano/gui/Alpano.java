@@ -33,12 +33,14 @@ import java.util.List;
 import java.util.Locale;
 
 import ch.epfl.alpano.Azimuth;
+import ch.epfl.alpano.GeoPoint;
 import ch.epfl.alpano.Panorama;
 import ch.epfl.alpano.dem.ContinuousElevationModel;
 import ch.epfl.alpano.dem.DiscreteElevationModel;
 import ch.epfl.alpano.dem.SuperHgtDiscreteElevationModel;
 import ch.epfl.alpano.summit.GazetteerParser;
-import ch.epfl.alpano.summit.Summit;
+import ch.epfl.alpano.summit.Labelizable;
+import ch.epfl.alpano.summit.Place;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
@@ -179,15 +181,20 @@ public final class Alpano extends Application {
     static {
         System.out.println("\nAlpano launching...");
 
-        List<Summit> summits;
+        List<Labelizable> labels = new ArrayList<>();
         try {
-            summits = GazetteerParser.readSummitsFrom(new File("alps.txt"));
+            labels.addAll(
+                    GazetteerParser.readSummitsFrom(new File("alps.txt")));
         } catch (IOException e) {
             throw new IllegalArgumentException(
                     "The file 'alps.txt' does not exist or is corrupted.");
         }
 
-        System.out.println(" - Summits loaded.");
+        labels.add(new Place("COURTEPIN",
+                new GeoPoint(Math.toRadians(7.13018), Math.toRadians(46.86575)),
+                615, 5));
+
+        System.out.println(" - Summits and labels loaded.");
 
         DiscreteElevationModel dem = new SuperHgtDiscreteElevationModel();
 
@@ -195,7 +202,7 @@ public final class Alpano extends Application {
 
         CEM = new ContinuousElevationModel(dem);
         PARAMETERS_B = new PanoramaParametersBean(PRELOAD);
-        COMPUTER_B = new PanoramaComputerBean(CEM, summits);
+        COMPUTER_B = new PanoramaComputerBean(CEM, labels);
 
         System.out.println(" - Beans created.");
     }
@@ -408,14 +415,14 @@ public final class Alpano extends Application {
     private StackPane setUpdateNotice() {
         Text updateText = setUpdateText(
                 "Les paramètres du panorama ont changé.\nCliquez ici pour mettre le dessin à jour.");
-        
+
         Text updatingText = setUpdateText("");
         ProgressBar updatingProcess = new ProgressBar();
         updatingProcess.setPrefWidth(500);
         updatingProcess.setPrefHeight(25);
         updatingProcess.progressProperty().bind(COMPUTER_B.statusProperty());
         COMPUTER_B.statusProperty().addListener((p, o, n) -> {
-            if(1 - n.doubleValue() < 1e-10)
+            if (1 - n.doubleValue() < 1e-10)
                 updatingText.setText("Le panorama est en cours de création...");
             else
                 updatingText.setText("Le panorama est en cours de calcul...");
@@ -427,7 +434,7 @@ public final class Alpano extends Application {
         updatingGrid.setVgap(10);
         GridPane.setHalignment(updatingProcess, HPos.CENTER);
         GridPane.setHalignment(updatingText, HPos.CENTER);
-        
+
         StackPane updateNotice = new StackPane(updateText);
         updateNotice.setBackground(
                 new Background(new BackgroundFill(Color.WHITE, null, null)));
@@ -560,10 +567,10 @@ public final class Alpano extends Application {
         MenuItem save = new MenuItem("Sauvegarder");
         save.setAccelerator(KeyCombination.keyCombination("Ctrl+S"));
         save.setOnAction(e -> openSaveWindow(panoGroup));
-        MenuItem load = new MenuItem("Charger", null);
+        MenuItem load = new MenuItem("Charger");
         load.setOnAction(e -> openLoadWindow());
         load.setAccelerator(KeyCombination.keyCombination("Ctrl+L"));
-        MenuItem exit = new MenuItem("Quitter", null);
+        MenuItem exit = new MenuItem("Quitter");
         exit.setOnAction(e -> {
             System.out.println("Goodbye.");
             System.exit(0);
@@ -733,10 +740,52 @@ public final class Alpano extends Application {
 
     private Menu setMenuParameters() {
         Menu menuParameters = new Menu("Paramètres");
+        MenuItem addLabel = new MenuItem("Ajouter lieu");
+        addLabel.setOnAction(e -> openAddPlaceWindow());
         RadioMenuItem autoAltitude = setAutoAltitude();
         autoAltitude.setAccelerator(KeyCombination.keyCombination("Ctrl+E"));
-        menuParameters.getItems().addAll(autoAltitude);
+        menuParameters.getItems().addAll(addLabel, new SeparatorMenuItem(), autoAltitude);
         return menuParameters;
+    }
+
+    private void openAddPlaceWindow() {
+
+        Stage placeStage = new Stage();
+        GridPane grid = new GridPane();
+        Scene scene = new Scene(grid);
+
+        Label mainRequest = new Label("Veuillez entrer les données du point :");
+        // TODO compléter avec nom, lon, lat, alt
+        TextField queryF = new TextField();
+        queryF.setPromptText("Exemple : mon_super_panorama");
+
+        Button saveButton = new Button("Sauvegarder");
+        saveButton.setOnAction(e -> savePlace(placeStage, queryF));
+
+        Button quitButton = new Button("Annuler");
+        quitButton.setOnAction(f -> placeStage.close());
+        GridPane.setHalignment(quitButton, HPos.RIGHT);
+
+        grid.add(mainRequest, 0, 0, 2, 1);
+        grid.add(queryF, 0, 1, 2, 1);
+        grid.add(saveButton, 0, 2);
+        grid.add(quitButton, 1, 2);
+
+        grid.setVgap(BOTTOM_GRID_VGAP);
+        grid.setHgap(BOTTOM_GRID_HGAP);
+        grid.setAlignment(Pos.CENTER);
+        grid.setPadding(BOTTOM_GRID_PADDING);
+
+        placeStage.setTitle("Save Panorama");
+        placeStage.setScene(scene);
+        placeStage.setResizable(false);
+        placeStage.setAlwaysOnTop(true);
+        placeStage.setWidth(250);
+        placeStage.show();
+    }
+
+    private void savePlace(Stage placeStage, TextField queryF) {
+        
     }
 
     private RadioMenuItem setAutoAltitude() {

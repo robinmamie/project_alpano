@@ -14,6 +14,7 @@ import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.List;
@@ -22,8 +23,9 @@ import java.util.Map;
 import ch.epfl.alpano.PanoramaParameters;
 import ch.epfl.alpano.dem.ContinuousElevationModel;
 import ch.epfl.alpano.dem.ElevationProfile;
-import ch.epfl.alpano.summit.Summit;
+import ch.epfl.alpano.summit.Labelizable;
 import javafx.scene.Node;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
 import javafx.scene.transform.Rotate;
@@ -82,13 +84,13 @@ public final class Labelizer {
     /**
      * Liste des sommets initialisée dans le constructeur.
      */
-    private final List<Summit> summits;
+    private final List<Labelizable> labels;
 
     /**
      * Table associative utilisée pour sauvegarder les coordonées d'un sommet
      * sur l'image.
      */
-    private final Map<Summit, Integer[]> values;
+    private final Map<Labelizable, Integer[]> values;
 
     /**
      * Construit un Labelizer, qui servira à étiquetter les sommets visibles
@@ -99,11 +101,11 @@ public final class Labelizer {
      * @param summits
      *            Une liste complètes de tous les sommets.
      */
-    public Labelizer(ContinuousElevationModel cem, List<Summit> summits) {
+    public Labelizer(ContinuousElevationModel cem, List<Labelizable> summits) {
         this.cem = requireNonNull(cem);
-        this.summits = unmodifiableList(
+        this.labels = unmodifiableList(
                 new ArrayList<>(requireNonNull(summits)));
-        values = new HashMap<Summit, Integer[]>();
+        values = new HashMap<Labelizable, Integer[]>();
     }
 
     /**
@@ -117,7 +119,7 @@ public final class Labelizer {
      * @return La distance entre l'observateur et le sommet ou POSITIVE_INFINITY
      *         si le sommet se trouve trop loin.
      */
-    private double distanceToSummit(Summit s, PanoramaParameters parameters) {
+    private double distanceToSummit(Labelizable s, PanoramaParameters parameters) {
         double distance = parameters.observerPosition()
                 .distanceTo(s.position());
         return distance > parameters.maxDistance() ? POSITIVE_INFINITY
@@ -136,7 +138,7 @@ public final class Labelizer {
      *         POSITIVE_INFINITY si le sommet n'apparaît pas dans cet angle de
      *         vue horizontal.
      */
-    private double azimuthToSummit(Summit s, PanoramaParameters parameters) {
+    private double azimuthToSummit(Labelizable s, PanoramaParameters parameters) {
         double azimuth = parameters.observerPosition().azimuthTo(s.position());
         return abs(angularDistance(azimuth,
                 parameters.centerAzimuth())) > parameters
@@ -160,7 +162,7 @@ public final class Labelizer {
      *         POSITIVE_INFINITY si le sommet n'apparaît pas dans cet angle de
      *         vue vertical.
      */
-    private double altitudeToSummit(Summit s, PanoramaParameters parameters,
+    private double altitudeToSummit(Labelizable s, PanoramaParameters parameters,
             ElevationProfile profile, double distance) {
         double altitude = atan2(
                 -rayToGroundDistance(profile, parameters.observerElevation(), 0)
@@ -179,7 +181,7 @@ public final class Labelizer {
      * 
      * @return vrai si le sommet est visible sur le Panorama.
      */
-    private boolean summitIsVisible(Summit summit,
+    private boolean summitIsVisible(Labelizable summit,
             PanoramaParameters parameters) {
 
         double distance = distanceToSummit(summit, parameters);
@@ -210,6 +212,7 @@ public final class Labelizer {
         values.put(summit,
                 new Integer[] { (int) round(parameters.xForAzimuth(azimuth)),
                         (int) round(parameters.yForAltitude(altitude)) });
+        
         return true;
     }
 
@@ -221,14 +224,17 @@ public final class Labelizer {
      * 
      * @return La liste triée de tous les sommets visibles.
      */
-    private List<Summit> visibleSummits(PanoramaParameters parameters) {
-        List<Summit> visible = new ArrayList<>();
+    private List<Labelizable> visibleSummits(PanoramaParameters parameters) {
+        List<Labelizable> visible = new ArrayList<>();
 
-        for (Summit s : summits)
-            if (summitIsVisible(s, parameters))
-                visible.add(s);
+        for (Labelizable l : labels)
+            if (summitIsVisible(l, parameters))
+                visible.add(l);
 
         visible.sort((a, b) -> {
+            int typeOfLabel = compare(b.priority(), a.priority());
+            if(typeOfLabel != 0)
+                return typeOfLabel;
             int higher = compare(values.get(a)[INDEX_Y],
                     values.get(b)[INDEX_Y]);
             return higher == 0 ? compare(b.elevation(), a.elevation()) : higher;
@@ -248,32 +254,36 @@ public final class Labelizer {
      */
     public List<Node> labels(PanoramaParameters parameters) {
 
-        List<Summit> visible = visibleSummits(parameters);
+        List<Labelizable> visible = visibleSummits(parameters);
         List<Node> nodes = new ArrayList<>();
         
         BitSet positions = new BitSet(parameters.width() + PIXELS_NEEDED);
         positions.set(0, PIXELS_NEEDED);
         positions.set(parameters.width(), parameters.width() + PIXELS_NEEDED);
 
-        int labelPlace = -1;
+        int labelPlace = Integer.MAX_VALUE;
+        
+        for(Labelizable l: visible) {
+            int y = values.get(l)[INDEX_Y];
+            if(y > PIXEL_THRESHOLD && y < labelPlace)
+                labelPlace = y - PIXELS_NEEDED - PIXELS_ROOM;
+        }
 
-        for (Summit s : visible) {
-            int x = values.get(s)[INDEX_X], y = values.get(s)[INDEX_Y];
+        for (Labelizable l : visible) {
+            int x = values.get(l)[INDEX_X], y = values.get(l)[INDEX_Y];
 
             if (y > PIXEL_THRESHOLD
                     && positions.get(x, x + PIXELS_NEEDED).isEmpty()) {
 
-                if (labelPlace == -1)
-                    labelPlace = y - PIXELS_NEEDED - PIXELS_ROOM;
-
                 positions.set(x, x + PIXELS_NEEDED);
 
-                Text t = new Text(s.name() + " (" + s.elevation() + " m)");
-                t.getTransforms().addAll(new Translate(x, labelPlace),
+                Text text = new Text(l.name() + " (" + l.elevation() + " m)");
+                text.getTransforms().addAll(new Translate(x, labelPlace),
                         new Rotate(TEXT_ANGLE, 0, 0));
-                nodes.add(t);
-
-                nodes.add(new Line(x, labelPlace + PIXELS_ROOM, x, y));
+                Line line = new Line(x, labelPlace + PIXELS_ROOM, x, y);
+                if(l.priority() != 0)
+                    text.setFill(Color.RED);
+                nodes.addAll(Arrays.asList(text, line));
             }
         }
         return unmodifiableList(nodes);
