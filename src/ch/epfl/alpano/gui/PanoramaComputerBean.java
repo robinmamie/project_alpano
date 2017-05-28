@@ -52,8 +52,10 @@ public final class PanoramaComputerBean {
      */
     private final ObservableList<Node> unmodifiableLabels;
 
+    private final ObjectProperty<ContinuousElevationModel> cem;
+
     private final DoubleProperty status;
-    
+
     private final BooleanProperty hideNonSummits;
 
     /**
@@ -72,18 +74,20 @@ public final class PanoramaComputerBean {
         this.image = new SimpleObjectProperty<>(null);
         ObservableList<Node> labels = observableArrayList();
         this.unmodifiableLabels = unmodifiableObservableList(labels);
+        this.cem = new SimpleObjectProperty<>(cem);
         this.status = new SimpleDoubleProperty();
         this.hideNonSummits = new SimpleBooleanProperty(false);
-        PanoramaComputer pc = new PanoramaComputer(cem);
 
         this.parameters.addListener((b, o, n) -> {
-            if(n == null)
+            if (n == null)
                 return;
             labels.clear();
             new Thread() {
                 @Override
                 public void run() {
-                    System.out.println("*************************************************************");
+                    PanoramaComputer pc = new PanoramaComputer(cemProperty().get());
+                    System.out.println(
+                            "\n*************************************************************");
                     if (panorama.get() != null)
                         System.out.println("Erasing previous panorama...");
                     panorama.set(null);
@@ -112,8 +116,10 @@ public final class PanoramaComputerBean {
                     System.out.printf("Panorama rendered after %.3f seconds.%n",
                             (System.nanoTime() - start) * 1e-9);
 
-                    List<Node> list = new Labelizer(cem, summits, hideNonSummits.getValue()).labels(
-                            parameters.get().panoramaDisplayParameters());
+                    List<Node> list = new Labelizer(cemProperty().get(), summits,
+                            hideNonSummits.getValue())
+                                    .labels(parameters.get()
+                                            .panoramaDisplayParameters());
                     System.out.printf(
                             "Panorama's labels computed after %.3f seconds.%n",
                             (System.nanoTime() - start) * 1e-9);
@@ -123,8 +129,10 @@ public final class PanoramaComputerBean {
                         image.set(i);
                         status.unbind();
                         status.set(0);
-                        System.out.println("Computation and rendering finished.");
-                        System.out.println("*************************************************************\n");
+                        System.out
+                                .println("Computation and rendering finished.");
+                        System.out.println(
+                                "*************************************************************\n");
                     });
                 }
             }.start();
@@ -204,11 +212,15 @@ public final class PanoramaComputerBean {
     public ObservableList<Node> getLabels() {
         return unmodifiableLabels;
     }
+    
+    public ObjectProperty<ContinuousElevationModel> cemProperty() {
+        return cem;
+    }
 
     public ReadOnlyDoubleProperty statusProperty() {
         return status;
     }
-    
+
     public BooleanProperty hideNonSummitsProperty() {
         return hideNonSummits;
     }

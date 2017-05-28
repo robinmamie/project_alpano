@@ -33,11 +33,11 @@ import java.util.List;
 import java.util.Locale;
 
 import ch.epfl.alpano.Azimuth;
-import javafx.scene.control.Slider;
 import ch.epfl.alpano.GeoPoint;
 import ch.epfl.alpano.Panorama;
 import ch.epfl.alpano.dem.ContinuousElevationModel;
 import ch.epfl.alpano.dem.DiscreteElevationModel;
+import ch.epfl.alpano.dem.HilbertDiscreteElevationModel;
 import ch.epfl.alpano.dem.SuperHgtDiscreteElevationModel;
 import ch.epfl.alpano.summit.GazetteerParser;
 import ch.epfl.alpano.summit.Labelizable;
@@ -57,12 +57,15 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.control.Slider;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
@@ -209,7 +212,7 @@ public final class Alpano extends Application {
 
         System.out.println(" - Summits and labels loaded.");
 
-        DiscreteElevationModel dem = new SuperHgtDiscreteElevationModel();
+        DiscreteElevationModel dem = SuperHgtDiscreteElevationModel.FULL;
 
         System.out.println(" - DEMs loaded.");
 
@@ -463,7 +466,7 @@ public final class Alpano extends Application {
                 updateNotice.getChildren().setAll(updateText);
         });
         COMPUTER_B.parametersProperty().addListener((p, o, n) -> {
-            if(!updateNotice.getChildren().contains(updatingGrid))
+            if (!updateNotice.getChildren().contains(updatingGrid))
                 updateNotice.getChildren().setAll(updatingGrid);
         });
         updateNotice.setOnMouseClicked(e -> {
@@ -581,7 +584,8 @@ public final class Alpano extends Application {
         MenuBar menuBar = new MenuBar();
         Menu menuFile = setMenuFile(panoGroup);
         Menu menuParameters = setMenuParameters();
-        menuBar.getMenus().addAll(menuFile, menuParameters);
+        Menu menuHelp = setMenuHelp();
+        menuBar.getMenus().addAll(menuFile, menuParameters, menuHelp);
         return menuBar;
     }
 
@@ -606,8 +610,8 @@ public final class Alpano extends Application {
         exit.setAccelerator(KeyCombination.keyCombination("Ctrl+Q"));
 
         try {
-            refresh.setGraphic(new ImageView(
-                    new Image(new FileInputStream(new File("res/refresh.png")))));
+            refresh.setGraphic(new ImageView(new Image(
+                    new FileInputStream(new File("res/refresh.png")))));
             save.setGraphic(new ImageView(
                     new Image(new FileInputStream(new File("res/save.png")))));
             load.setGraphic(new ImageView(
@@ -639,10 +643,12 @@ public final class Alpano extends Application {
         saveButton.setOnAction(f -> {
             File imgFile = new File("img/" + queryF.getText() + ".png");
             File saveFile = new File("save/" + queryF.getText() + ".png");
+            Runnable save = () -> saveImageAndParameters(saveStage, queryF,
+                    panoGroup);
             if (imgFile.exists() || saveFile.exists())
-                alreadyExistsPrompt(saveStage, queryF, panoGroup);
+                alreadyExistsPrompt(queryF.getText(), save);
             else
-                saveImageAndParameters(saveStage, queryF, panoGroup);
+                save.run();
         });
 
         Button quitButton = new Button("Annuler");
@@ -664,6 +670,12 @@ public final class Alpano extends Application {
         saveStage.setResizable(false);
         saveStage.setAlwaysOnTop(true);
         saveStage.setWidth(250);
+        try {
+            saveStage.getIcons().add(
+                    new Image(new FileInputStream(new File("res/save.png"))));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
         saveStage.show();
     }
 
@@ -676,7 +688,7 @@ public final class Alpano extends Application {
         if (!saveFolder.exists())
             saveFolder.mkdirs();
         File imgFile = new File("img/" + queryF.getText() + ".png");
-        File saveFile = new File("save/" + queryF.getText() + ".png");
+        File saveFile = new File("save/" + queryF.getText() + ".ser");
 
         if (queryF.getText() != null && !queryF.getText().isEmpty()) {
             try {
@@ -685,12 +697,16 @@ public final class Alpano extends Application {
                         (int) panoGroup.getHeight());
                 panoGroup.snapshot(null, image);
                 write(fromFXImage(image, null), "png", imgFile);
+                System.out
+                        .println("Image saved in:       " + imgFile.getPath());
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
             try (ObjectOutputStream out = new ObjectOutputStream(
                     new FileOutputStream(saveFile))) {
                 out.writeObject(COMPUTER_B.getParameters());
+                System.out
+                        .println("Parameters saved in:  " + saveFile.getPath());
             } catch (IOException i) {
                 i.printStackTrace();
             }
@@ -698,19 +714,18 @@ public final class Alpano extends Application {
         }
     }
 
-    private void alreadyExistsPrompt(Stage saveStage, TextField queryF,
-            StackPane panoGroup) {
+    private void alreadyExistsPrompt(String name, Runnable action) {
         Stage promptStage = new Stage();
         GridPane grid = new GridPane();
         Scene scene = new Scene(grid);
 
-        Label queryL = new Label("Le fichier " + queryF.getText()
+        Label queryL = new Label("Le fichier " + name
                 + " existe déjà.\nQue souhaitez-vous faire ?");
 
         Button saveButton = new Button("Continuer");
         saveButton.setOnAction(f -> {
             promptStage.close();
-            saveImageAndParameters(saveStage, queryF, panoGroup);
+            action.run();
         });
 
         Button quitButton = new Button("Annuler");
@@ -726,7 +741,7 @@ public final class Alpano extends Application {
         grid.setAlignment(Pos.CENTER);
         grid.setPadding(BOTTOM_GRID_PADDING);
 
-        promptStage.setTitle("Save Panorama");
+        promptStage.setTitle("Overwrite file?");
         promptStage.setScene(scene);
         promptStage.setResizable(false);
         promptStage.setAlwaysOnTop(true);
@@ -796,6 +811,12 @@ public final class Alpano extends Application {
         loadStage.setScene(scene);
         loadStage.setResizable(false);
         loadStage.setAlwaysOnTop(true);
+        try {
+            loadStage.getIcons().add(
+                    new Image(new FileInputStream(new File("res/load.png"))));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
         loadStage.show();
 
     }
@@ -816,21 +837,21 @@ public final class Alpano extends Application {
     private Menu setMenuParameters() {
         Menu menuParameters = new Menu("Paramètres");
         MenuItem addLabel = new MenuItem("Ajouter lieu");
-        addLabel.setAccelerator(KeyCombination.keyCombination("Ctrl+I"));
         addLabel.setOnAction(e -> openAddPlaceWindow());
-        // TODO add CEM parameters (build Hilbert,...)
+        MenuItem changeCem = new MenuItem("Changer de MNT");
+        changeCem.setOnAction(e -> changeCem());
         RadioMenuItem autoAltitude = setAutoAltitude();
-        autoAltitude.setAccelerator(KeyCombination.keyCombination("Ctrl+E"));
         RadioMenuItem hideNonSummits = new RadioMenuItem(
                 "Masquer les étiquettes supplémentaires");
         COMPUTER_B.hideNonSummitsProperty()
                 .bind(hideNonSummits.selectedProperty());
-        hideNonSummits.setAccelerator(KeyCombination.keyCombination("Ctrl+M"));
-        menuParameters.getItems().addAll(addLabel, new SeparatorMenuItem(),
-                autoAltitude, hideNonSummits);
+        menuParameters.getItems().addAll(addLabel, changeCem,
+                new SeparatorMenuItem(), autoAltitude, hideNonSummits);
         try {
             addLabel.setGraphic(new ImageView(
                     new Image(new FileInputStream(new File("res/globe.png")))));
+            changeCem.setGraphic(new ImageView(
+                    new Image(new FileInputStream(new File("res/dem.png")))));
         } catch (FileNotFoundException e1) {
             e1.printStackTrace();
         }
@@ -879,9 +900,16 @@ public final class Alpano extends Application {
         GridPane.setHalignment(infoPriority, HPos.CENTER);
 
         Button saveButton = new Button("Sauvegarder");
-        saveButton.setOnAction(e -> savePlace(placeStage, nameF,
-                (TextField) labelsAndField.get(3),
-                (TextField) labelsAndField.get(5), slider));
+        saveButton.setOnAction(f -> {
+            File plcFile = new File("plc/" + nameF.getText() + ".ser");
+            Runnable save = () -> savePlace(placeStage, nameF,
+                    (TextField) labelsAndField.get(3),
+                    (TextField) labelsAndField.get(5), slider);
+            if (plcFile.exists())
+                alreadyExistsPrompt(nameF.getText(), save);
+            else
+                save.run();
+        });
 
         Button quitButton = new Button("Annuler");
         quitButton.setOnAction(f -> placeStage.close());
@@ -903,6 +931,12 @@ public final class Alpano extends Application {
         placeStage.setScene(scene);
         placeStage.setResizable(false);
         placeStage.setAlwaysOnTop(true);
+        try {
+            placeStage.getIcons().add(
+                    new Image(new FileInputStream(new File("res/globe.png"))));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
         placeStage.show();
     }
 
@@ -911,22 +945,81 @@ public final class Alpano extends Application {
         File plcFolder = new File("plc/");
         if (!plcFolder.exists())
             plcFolder.mkdirs();
+        File plcFile = new File("plc/" + name.getText() + ".ser");
         if (name.getText() != null && !name.getText().isEmpty()
                 && lat.getText() != null && !lat.getText().isEmpty()
                 && lon.getText() != null && !lon.getText().isEmpty()) {
             try (ObjectOutputStream out = new ObjectOutputStream(
-                    new FileOutputStream("plc/" + name.getText() + ".ser"))) {
+                    new FileOutputStream(plcFile))) {
                 GeoPoint position = new GeoPoint(
                         Math.toRadians(Double.parseDouble(lon.getText())),
                         Math.toRadians(Double.parseDouble(lat.getText())));
                 out.writeObject(new Place(name.getText(), position,
                         (int) CEM.elevationAt(position),
                         (int) slider.getValue()));
+                System.out
+                        .println("Label saved in:       " + plcFile.getPath());
             } catch (IOException i) {
                 i.printStackTrace();
             }
             placeStage.close();
         }
+    }
+
+    private void changeCem() {
+        Stage placeStage = new Stage();
+        GridPane grid = new GridPane();
+        Scene scene = new Scene(grid);
+
+        Label mainRequest = new Label("Choisissez le MNT désiré :");
+
+        ToggleGroup group = new ToggleGroup();
+        RadioButton superHGT = new RadioButton("Option standard");
+        superHGT.setUserData(SuperHgtDiscreteElevationModel.FULL);
+        superHGT.setToggleGroup(group);
+        superHGT.setSelected(false);
+        RadioButton hilbertHGT = new RadioButton("Option Hilbert");
+        // TODO Prendre en compte + de Hilbert ? Se baser sur SuperHgtDEM ? ->
+        // créer constructeur de plus dans SHgtDEM
+        hilbertHGT.setUserData(new HilbertDiscreteElevationModel(0, 0));
+        hilbertHGT.setToggleGroup(group);
+        hilbertHGT.setSelected(false);
+
+        group.selectedToggleProperty().addListener((p, o, n) -> {
+            if (group.getSelectedToggle() != null) {
+                COMPUTER_B.cemProperty()
+                        .set(new ContinuousElevationModel(
+                                (DiscreteElevationModel) group
+                                        .getSelectedToggle().getUserData()));
+                System.out.println("DEM changed.");
+            }
+        });
+
+        Button okButton = new Button("OK");
+        okButton.setOnAction(e -> placeStage.close());
+        GridPane.setHalignment(okButton, HPos.CENTER);
+
+        grid.add(mainRequest, 0, 0);
+        grid.add(superHGT, 0, 1);
+        grid.add(hilbertHGT, 0, 2);
+        grid.add(okButton, 0, 3);
+
+        grid.setVgap(BOTTOM_GRID_VGAP);
+        grid.setHgap(BOTTOM_GRID_HGAP);
+        grid.setAlignment(Pos.CENTER);
+        grid.setPadding(BOTTOM_GRID_PADDING);
+
+        placeStage.setTitle("Change DEM");
+        placeStage.setScene(scene);
+        placeStage.setResizable(false);
+        placeStage.setAlwaysOnTop(true);
+        try {
+            placeStage.getIcons().add(
+                    new Image(new FileInputStream(new File("res/dem.png"))));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        placeStage.show();
     }
 
     private RadioMenuItem setAutoAltitude() {
@@ -949,6 +1042,52 @@ public final class Alpano extends Application {
             }
         });
         return autoAltitude;
+    }
+
+    private Menu setMenuHelp() {
+        Menu menuHelp = new Menu("Aide");
+        // TODO Help window
+        MenuItem about = new MenuItem("À propos");
+        about.setOnAction(e -> setMenuAbout());
+        
+
+        try {
+            about.setGraphic(new ImageView(new Image(
+                    new FileInputStream(new File("res/info.png")))));
+        } catch (FileNotFoundException e1) {
+            e1.printStackTrace();
+        }
+
+        menuHelp.getItems().addAll(about);
+        return menuHelp;
+    }
+
+    private void setMenuAbout() {
+        Stage aboutStage = new Stage();
+        GridPane grid = new GridPane();
+        Scene scene = new Scene(grid);
+
+        Label mainRequest = new Label("Version 1.0\nProgrammé par M. Jouve et R. Mamie.\nJuin 2017, EPFL.\nmaxence.jouve@epfl.ch\nrobin.mamie@epfl.ch");
+        mainRequest.setTextAlignment(TextAlignment.CENTER);
+
+        grid.add(mainRequest, 0, 0);
+
+        grid.setVgap(BOTTOM_GRID_VGAP);
+        grid.setHgap(BOTTOM_GRID_HGAP);
+        grid.setAlignment(Pos.CENTER);
+        grid.setPadding(BOTTOM_GRID_PADDING);
+
+        aboutStage.setTitle("About");
+        aboutStage.setScene(scene);
+        aboutStage.setResizable(false);
+        aboutStage.setAlwaysOnTop(true);
+        try {
+            aboutStage.getIcons().add(
+                    new Image(new FileInputStream(new File("res/info.png"))));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        aboutStage.show();
     }
 
     /**

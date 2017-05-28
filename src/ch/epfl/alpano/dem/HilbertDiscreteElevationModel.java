@@ -2,6 +2,7 @@ package ch.epfl.alpano.dem;
 
 import static ch.epfl.alpano.Preconditions.checkArgument;
 import static java.nio.channels.FileChannel.MapMode.READ_ONLY;
+import static ch.epfl.alpano.dem.SuperHgtDiscreteElevationModel.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,22 +16,24 @@ import ch.epfl.alpano.Interval2D;
 
 public class HilbertDiscreteElevationModel implements DiscreteElevationModel {
 
-    public final static int N = 8192;
-    public final static int N_SQUARED = N * N;
+    private final static int N = 8192;
+    private final static int N_SQUARED = N * N;
 
     private final static int BASE_LON = SuperHgtDiscreteElevationModel.BASE_LON
-            * DiscreteElevationModel.SAMPLES_PER_DEGREE;
+            * SAMPLES_PER_DEGREE;
     private final static int BASE_LAT = SuperHgtDiscreteElevationModel.BASE_LAT
-            * DiscreteElevationModel.SAMPLES_PER_DEGREE;
+            * SAMPLES_PER_DEGREE;
 
     private final File hilbertHGT;
     private final ShortBuffer source;
     private final Interval2D extent;
 
     public HilbertDiscreteElevationModel(int x, int y) {
-        // TODO Remove these magic numbers
-        checkArgument(0 <= x && x < 3 && 0 <= y && y < 2,
-                "Invalid .hhgt file.");
+        checkArgument(
+                0 <= x && x <= (MAX_LON * SAMPLES_PER_DEGREE - BASE_LON) / N
+                        && 0 <= y
+                        && y <= (MAX_LAT * SAMPLES_PER_DEGREE - BASE_LAT) / N,
+                "Invalid .hhgt file number.");
         hilbertHGT = new File(getFileName(x, y));
         Interval1D iX = new Interval1D(BASE_LON + x * N,
                 BASE_LON + (x + 1) * N - 1);
@@ -92,7 +95,7 @@ public class HilbertDiscreteElevationModel implements DiscreteElevationModel {
     }
 
     private void createFile() throws FileNotFoundException, IOException {
-        DiscreteElevationModel dem = new SuperHgtDiscreteElevationModel();
+        DiscreteElevationModel dem = SuperHgtDiscreteElevationModel.FULL;
         try (FileOutputStream stream = new FileOutputStream(hilbertHGT)) {
             System.out.println("Creating the file " + hilbertHGT.getName());
             for (int i = 0; i < N_SQUARED; ++i) {

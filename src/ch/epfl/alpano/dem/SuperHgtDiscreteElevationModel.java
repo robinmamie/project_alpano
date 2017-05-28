@@ -16,38 +16,54 @@ import ch.epfl.alpano.Interval2D;
 public final class SuperHgtDiscreteElevationModel
         implements DiscreteElevationModel {
 
-    private static final int AMOUNT = 18;
+    public static final SuperHgtDiscreteElevationModel FULL = new SuperHgtDiscreteElevationModel();
 
     protected static final int BASE_LON = 6;
+    protected static final int MAX_LON = 12;
     protected static final int BASE_LAT = 45;
-    private static final int BASE_LON_INDEX = (BASE_LON + 1)
-            * SAMPLES_PER_DEGREE;
-    private static final int BASE_LAT_INDEX = (BASE_LAT + 1)
-            * SAMPLES_PER_DEGREE;
-    private static final int SIZE_HOR = 6;
+    protected static final int MAX_LAT = 48;
 
     private final HgtDiscreteElevationModel[] sources;
-    
+
+    private final int baseLonIndex;
+    private final int baseLatIndex;
+    private final int sizeHor;
+
     /**
      * L'étendue du HgtDEM calculée dans le constructeur.
      */
     private final Interval2D extent;
 
-    public SuperHgtDiscreteElevationModel() {
-        // TODO allow custom import
-        sources = new HgtDiscreteElevationModel[AMOUNT];
+    public SuperHgtDiscreteElevationModel(int lonMin, int lonMax, int latMin,
+            int latMax) {
 
-        for (int i = 0; i < AMOUNT; ++i)
+        this.sizeHor = lonMax - lonMin;
+        int sizeVer = latMax - latMin;
+        int size = sizeHor * sizeVer;
+        checkArgument(lonMin < lonMax && latMin < latMax);
+        checkArgument(BASE_LON <= lonMin && lonMax <= MAX_LON);
+        checkArgument(BASE_LAT <= latMin && latMax <= MAX_LAT);
+        sources = new HgtDiscreteElevationModel[size];
+        for (int i = 0; i < size; ++i)
             sources[i] = new HgtDiscreteElevationModel(
-                    new File("N" + (BASE_LAT + i / SIZE_HOR) + "E"
-                            + String.format("%03d", (BASE_LON + (i % SIZE_HOR)))
+                    new File("N" + (latMin + i / sizeHor) + "E"
+                            + String.format("%03d", (lonMin + (i % sizeHor)))
                             + ".hgt"));
 
-        int lonIndex = BASE_LON * SAMPLES_PER_DEGREE;
-        int latIndex = BASE_LAT * SAMPLES_PER_DEGREE;
+        int lonIndex = lonMin * SAMPLES_PER_DEGREE;
+        this.baseLonIndex = lonIndex + SAMPLES_PER_DEGREE;
+        int latIndex = latMin * SAMPLES_PER_DEGREE;
+        this.baseLatIndex = latIndex + SAMPLES_PER_DEGREE;
         this.extent = new Interval2D(
-                new Interval1D(lonIndex, lonIndex + SAMPLES_PER_DEGREE * 6),
-                new Interval1D(latIndex, latIndex + SAMPLES_PER_DEGREE * 3));
+                new Interval1D(lonIndex,
+                        lonIndex + SAMPLES_PER_DEGREE * sizeHor),
+                new Interval1D(latIndex,
+                        latIndex + SAMPLES_PER_DEGREE * sizeVer));
+
+    }
+
+    private SuperHgtDiscreteElevationModel() {
+        this(BASE_LON, MAX_LON, BASE_LAT, MAX_LAT);
     }
 
     @Override
@@ -57,13 +73,13 @@ public final class SuperHgtDiscreteElevationModel
 
     private int getArray(int x, int y) {
         int i = 0;
-        while (x > BASE_LON_INDEX) {
+        while (x > baseLonIndex) {
             x -= SAMPLES_PER_DEGREE;
             i += 1;
         }
-        while (y > BASE_LAT_INDEX) {
+        while (y > baseLatIndex) {
             y -= SAMPLES_PER_DEGREE;
-            i += SIZE_HOR;
+            i += sizeHor;
         }
         return i;
     }
