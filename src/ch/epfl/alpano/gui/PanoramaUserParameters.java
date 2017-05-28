@@ -282,13 +282,15 @@ public final class PanoramaUserParameters implements Serializable {
         return format("Position : %.4f°%c %.4f°%c%n",
                 abs((double) observerLatitude() / DECIMAL_SHIFT), northOrSouth,
                 abs((double) observerLongitude() / DECIMAL_SHIFT), eastOrWest)
-                + format("Altitude : %d m%n", observerElevation())
+                + format("Altitude : %d m  Angle de vue : %d°%n",
+                        observerElevation(), horizontalFieldOfView())
                 + format("Azimut : %d° (%s)  Visibilité : %d km%n",
                         centerAzimuth(),
                         toOctantString(Math.toRadians(centerAzimuth()), "N",
                                 "E", "S", "W"),
                         maxDistance())
-                + format("Largeur : %d px  Hauteur : %d px%n", width(), height())
+                + format("Largeur : %d px  Hauteur : %d px%n", width(),
+                        height())
                 + format("Suréchantillonage : %s", superSamplingExponent() == 0
                         ? "non" : superSamplingExponent() == 1 ? "2×" : "4×");
     }

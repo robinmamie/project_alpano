@@ -13,10 +13,12 @@ import ch.epfl.alpano.PanoramaComputer;
 import ch.epfl.alpano.dem.ContinuousElevationModel;
 import ch.epfl.alpano.summit.Labelizable;
 import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
@@ -51,6 +53,8 @@ public final class PanoramaComputerBean {
     private final ObservableList<Node> unmodifiableLabels;
 
     private final DoubleProperty status;
+    
+    private final BooleanProperty hideNonSummits;
 
     /**
      * Construit un PanoramaComputerBean en prenant un MNT continu et une liste
@@ -69,13 +73,17 @@ public final class PanoramaComputerBean {
         ObservableList<Node> labels = observableArrayList();
         this.unmodifiableLabels = unmodifiableObservableList(labels);
         this.status = new SimpleDoubleProperty();
+        this.hideNonSummits = new SimpleBooleanProperty(false);
         PanoramaComputer pc = new PanoramaComputer(cem);
 
         this.parameters.addListener((b, o, n) -> {
+            if(n == null)
+                return;
             labels.clear();
             new Thread() {
                 @Override
                 public void run() {
+                    System.out.println("*************************************************************");
                     if (panorama.get() != null)
                         System.out.println("Erasing previous panorama...");
                     panorama.set(null);
@@ -104,7 +112,7 @@ public final class PanoramaComputerBean {
                     System.out.printf("Panorama rendered after %.3f seconds.%n",
                             (System.nanoTime() - start) * 1e-9);
 
-                    List<Node> list = new Labelizer(cem, summits).labels(
+                    List<Node> list = new Labelizer(cem, summits, hideNonSummits.getValue()).labels(
                             parameters.get().panoramaDisplayParameters());
                     System.out.printf(
                             "Panorama's labels computed after %.3f seconds.%n",
@@ -115,7 +123,8 @@ public final class PanoramaComputerBean {
                         image.set(i);
                         status.unbind();
                         status.set(0);
-                        System.out.println("Computation finished.\n");
+                        System.out.println("Computation and rendering finished.");
+                        System.out.println("*************************************************************\n");
                     });
                 }
             }.start();
@@ -198,6 +207,10 @@ public final class PanoramaComputerBean {
 
     public ReadOnlyDoubleProperty statusProperty() {
         return status;
+    }
+    
+    public BooleanProperty hideNonSummitsProperty() {
+        return hideNonSummits;
     }
 
 }

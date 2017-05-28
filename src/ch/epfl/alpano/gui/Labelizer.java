@@ -92,6 +92,8 @@ public final class Labelizer {
      */
     private final Map<Labelizable, Integer[]> values;
 
+    private final boolean hideNonSummits;
+
     /**
      * Construit un Labelizer, qui servira à étiquetter les sommets visibles
      * d'un Panorama.
@@ -101,11 +103,13 @@ public final class Labelizer {
      * @param summits
      *            Une liste complètes de tous les sommets.
      */
-    public Labelizer(ContinuousElevationModel cem, List<Labelizable> summits) {
+    public Labelizer(ContinuousElevationModel cem, List<Labelizable> summits,
+            boolean hideNonSummits) {
         this.cem = requireNonNull(cem);
         this.labels = unmodifiableList(
                 new ArrayList<>(requireNonNull(summits)));
         values = new HashMap<Labelizable, Integer[]>();
+        this.hideNonSummits = hideNonSummits;
     }
 
     /**
@@ -119,7 +123,8 @@ public final class Labelizer {
      * @return La distance entre l'observateur et le sommet ou POSITIVE_INFINITY
      *         si le sommet se trouve trop loin.
      */
-    private double distanceToSummit(Labelizable s, PanoramaParameters parameters) {
+    private double distanceToSummit(Labelizable s,
+            PanoramaParameters parameters) {
         double distance = parameters.observerPosition()
                 .distanceTo(s.position());
         return distance > parameters.maxDistance() ? POSITIVE_INFINITY
@@ -138,7 +143,8 @@ public final class Labelizer {
      *         POSITIVE_INFINITY si le sommet n'apparaît pas dans cet angle de
      *         vue horizontal.
      */
-    private double azimuthToSummit(Labelizable s, PanoramaParameters parameters) {
+    private double azimuthToSummit(Labelizable s,
+            PanoramaParameters parameters) {
         double azimuth = parameters.observerPosition().azimuthTo(s.position());
         return abs(angularDistance(azimuth,
                 parameters.centerAzimuth())) > parameters
@@ -162,8 +168,9 @@ public final class Labelizer {
      *         POSITIVE_INFINITY si le sommet n'apparaît pas dans cet angle de
      *         vue vertical.
      */
-    private double altitudeToSummit(Labelizable s, PanoramaParameters parameters,
-            ElevationProfile profile, double distance) {
+    private double altitudeToSummit(Labelizable s,
+            PanoramaParameters parameters, ElevationProfile profile,
+            double distance) {
         double altitude = atan2(
                 -rayToGroundDistance(profile, parameters.observerElevation(), 0)
                         .applyAsDouble(distance),
@@ -212,7 +219,7 @@ public final class Labelizer {
         values.put(summit,
                 new Integer[] { (int) round(parameters.xForAzimuth(azimuth)),
                         (int) round(parameters.yForAltitude(altitude)) });
-        
+
         return true;
     }
 
@@ -228,12 +235,13 @@ public final class Labelizer {
         List<Labelizable> visible = new ArrayList<>();
 
         for (Labelizable l : labels)
-            if (summitIsVisible(l, parameters))
+            if (summitIsVisible(l, parameters)
+                    && (l.priority() == 0 || !hideNonSummits))
                 visible.add(l);
 
         visible.sort((a, b) -> {
             int typeOfLabel = compare(b.priority(), a.priority());
-            if(typeOfLabel != 0)
+            if (typeOfLabel != 0)
                 return typeOfLabel;
             int higher = compare(values.get(a)[INDEX_Y],
                     values.get(b)[INDEX_Y]);
@@ -256,16 +264,16 @@ public final class Labelizer {
 
         List<Labelizable> visible = visibleSummits(parameters);
         List<Node> nodes = new ArrayList<>();
-        
+
         BitSet positions = new BitSet(parameters.width() + PIXELS_NEEDED);
         positions.set(0, PIXELS_NEEDED);
         positions.set(parameters.width(), parameters.width() + PIXELS_NEEDED);
 
         int labelPlace = Integer.MAX_VALUE;
-        
-        for(Labelizable l: visible) {
+
+        for (Labelizable l : visible) {
             int y = values.get(l)[INDEX_Y];
-            if(y > PIXEL_THRESHOLD && y < labelPlace)
+            if (y > PIXEL_THRESHOLD && y < labelPlace)
                 labelPlace = y - PIXELS_NEEDED - PIXELS_ROOM;
         }
 
@@ -281,7 +289,7 @@ public final class Labelizer {
                 text.getTransforms().addAll(new Translate(x, labelPlace),
                         new Rotate(TEXT_ANGLE, 0, 0));
                 Line line = new Line(x, labelPlace + PIXELS_ROOM, x, y);
-                if(l.priority() > 0)
+                if (l.priority() > 0)
                     text.setFill(Color.RED);
                 else if (l.priority() < 0)
                     text.setFill(Color.BLUE);

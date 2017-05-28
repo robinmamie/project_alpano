@@ -245,10 +245,12 @@ public final class Alpano extends Application {
         BorderPane root = setRoot(panoPane, paramsGrid, menuBar);
         Scene scene = new Scene(root);
 
-        primaryStage.setTitle("Alpano");
+        primaryStage.setTitle("Alpano - Panorama Painter");
         primaryStage.setScene(scene);
         primaryStage.setWidth(WINDOW_PREF_WIDTH);
         primaryStage.setHeight(WINDOW_PREF_HEIGHT);
+        primaryStage.getIcons().add(
+                new Image(new FileInputStream(new File("res/mainIcon.png"))));
         primaryStage.show();
         primaryStage.setOnCloseRequest(e -> {
             System.out.println("\nGoodbye.");
@@ -460,6 +462,10 @@ public final class Alpano extends Application {
             if (!updateNotice.isVisible())
                 updateNotice.getChildren().setAll(updateText);
         });
+        COMPUTER_B.parametersProperty().addListener((p, o, n) -> {
+            if(!updateNotice.getChildren().contains(updatingGrid))
+                updateNotice.getChildren().setAll(updatingGrid);
+        });
         updateNotice.setOnMouseClicked(e -> {
             COMPUTER_B.setParameters(PARAMETERS_B.parametersProperty().get());
             updateNotice.getChildren().setAll(updatingGrid);
@@ -581,6 +587,11 @@ public final class Alpano extends Application {
 
     private Menu setMenuFile(StackPane panoGroup) {
         Menu menuFile = new Menu("Fichier");
+        MenuItem refresh = new MenuItem("Actualiser");
+        refresh.setOnAction(e -> {
+            COMPUTER_B.setParameters(null);
+            COMPUTER_B.setParameters(PARAMETERS_B.parametersProperty().get());
+        });
         MenuItem save = new MenuItem("Sauvegarder");
         save.setAccelerator(KeyCombination.keyCombination("Ctrl+S"));
         save.setOnAction(e -> openSaveWindow(panoGroup));
@@ -595,6 +606,8 @@ public final class Alpano extends Application {
         exit.setAccelerator(KeyCombination.keyCombination("Ctrl+Q"));
 
         try {
+            refresh.setGraphic(new ImageView(
+                    new Image(new FileInputStream(new File("res/refresh.png")))));
             save.setGraphic(new ImageView(
                     new Image(new FileInputStream(new File("res/save.png")))));
             load.setGraphic(new ImageView(
@@ -605,7 +618,8 @@ public final class Alpano extends Application {
             e1.printStackTrace();
         }
 
-        menuFile.getItems().addAll(save, load, new SeparatorMenuItem(), exit);
+        menuFile.getItems().addAll(refresh, save, load, new SeparatorMenuItem(),
+                exit);
         return menuFile;
     }
 
@@ -622,8 +636,14 @@ public final class Alpano extends Application {
         queryF.setPromptText("Exemple : mon_super_panorama");
 
         Button saveButton = new Button("Sauvegarder");
-        saveButton.setOnAction(
-                f -> saveImageAndParameters(saveStage, queryF, panoGroup));
+        saveButton.setOnAction(f -> {
+            File imgFile = new File("img/" + queryF.getText() + ".png");
+            File saveFile = new File("save/" + queryF.getText() + ".png");
+            if (imgFile.exists() || saveFile.exists())
+                alreadyExistsPrompt(saveStage, queryF, panoGroup);
+            else
+                saveImageAndParameters(saveStage, queryF, panoGroup);
+        });
 
         Button quitButton = new Button("Annuler");
         quitButton.setOnAction(f -> saveStage.close());
@@ -655,26 +675,64 @@ public final class Alpano extends Application {
             imgFolder.mkdirs();
         if (!saveFolder.exists())
             saveFolder.mkdirs();
+        File imgFile = new File("img/" + queryF.getText() + ".png");
+        File saveFile = new File("save/" + queryF.getText() + ".png");
+
         if (queryF.getText() != null && !queryF.getText().isEmpty()) {
             try {
                 WritableImage image = new WritableImage(
                         (int) panoGroup.getWidth(),
                         (int) panoGroup.getHeight());
                 panoGroup.snapshot(null, image);
-                write(fromFXImage(image, null), "png",
-                        new File("img/" + queryF.getText() + ".png"));
+                write(fromFXImage(image, null), "png", imgFile);
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
             try (ObjectOutputStream out = new ObjectOutputStream(
-                    new FileOutputStream(
-                            "save/" + queryF.getText() + ".ser"))) {
+                    new FileOutputStream(saveFile))) {
                 out.writeObject(COMPUTER_B.getParameters());
             } catch (IOException i) {
                 i.printStackTrace();
             }
             saveStage.close();
         }
+    }
+
+    private void alreadyExistsPrompt(Stage saveStage, TextField queryF,
+            StackPane panoGroup) {
+        Stage promptStage = new Stage();
+        GridPane grid = new GridPane();
+        Scene scene = new Scene(grid);
+
+        Label queryL = new Label("Le fichier " + queryF.getText()
+                + " existe déjà.\nQue souhaitez-vous faire ?");
+
+        Button saveButton = new Button("Continuer");
+        saveButton.setOnAction(f -> {
+            promptStage.close();
+            saveImageAndParameters(saveStage, queryF, panoGroup);
+        });
+
+        Button quitButton = new Button("Annuler");
+        quitButton.setOnAction(f -> promptStage.close());
+        GridPane.setHalignment(quitButton, HPos.RIGHT);
+
+        grid.add(queryL, 0, 0, 2, 1);
+        grid.add(saveButton, 0, 1);
+        grid.add(quitButton, 1, 1);
+
+        grid.setVgap(BOTTOM_GRID_VGAP);
+        grid.setHgap(BOTTOM_GRID_HGAP);
+        grid.setAlignment(Pos.CENTER);
+        grid.setPadding(BOTTOM_GRID_PADDING);
+
+        promptStage.setTitle("Save Panorama");
+        promptStage.setScene(scene);
+        promptStage.setResizable(false);
+        promptStage.setAlwaysOnTop(true);
+        promptStage.setWidth(250);
+        promptStage.show();
+
     }
 
     private void openLoadWindow() {
@@ -760,10 +818,16 @@ public final class Alpano extends Application {
         MenuItem addLabel = new MenuItem("Ajouter lieu");
         addLabel.setAccelerator(KeyCombination.keyCombination("Ctrl+I"));
         addLabel.setOnAction(e -> openAddPlaceWindow());
+        // TODO add CEM parameters (build Hilbert,...)
         RadioMenuItem autoAltitude = setAutoAltitude();
         autoAltitude.setAccelerator(KeyCombination.keyCombination("Ctrl+E"));
+        RadioMenuItem hideNonSummits = new RadioMenuItem(
+                "Masquer les étiquettes supplémentaires");
+        COMPUTER_B.hideNonSummitsProperty()
+                .bind(hideNonSummits.selectedProperty());
+        hideNonSummits.setAccelerator(KeyCombination.keyCombination("Ctrl+M"));
         menuParameters.getItems().addAll(addLabel, new SeparatorMenuItem(),
-                autoAltitude);
+                autoAltitude, hideNonSummits);
         try {
             addLabel.setGraphic(new ImageView(
                     new Image(new FileInputStream(new File("res/globe.png")))));
@@ -802,15 +866,15 @@ public final class Alpano extends Application {
         Slider slider = new Slider();
         slider.setMin(-Place.PRIORITY_RANGE);
         slider.setMax(Place.PRIORITY_RANGE);
-        slider.setValue(Place.PRIORITY_RANGE/2);
+        slider.setValue(Place.PRIORITY_RANGE / 2);
         slider.setShowTickLabels(true);
         slider.setShowTickMarks(true);
         slider.setMajorTickUnit(Place.PRIORITY_RANGE);
         slider.setMinorTickCount(Place.PRIORITY_RANGE - 1);
-        slider.valueProperty().addListener(
-                (p, o, n) -> slider.setValue(n.intValue()));
+        slider.valueProperty()
+                .addListener((p, o, n) -> slider.setValue(n.intValue()));
         labelsAndField.add(slider);
-        
+
         Label infoPriority = new Label("Les sommets ont une priorité de 0.");
         GridPane.setHalignment(infoPriority, HPos.CENTER);
 
@@ -856,7 +920,8 @@ public final class Alpano extends Application {
                         Math.toRadians(Double.parseDouble(lon.getText())),
                         Math.toRadians(Double.parseDouble(lat.getText())));
                 out.writeObject(new Place(name.getText(), position,
-                        (int) CEM.elevationAt(position), (int)slider.getValue()));
+                        (int) CEM.elevationAt(position),
+                        (int) slider.getValue()));
             } catch (IOException i) {
                 i.printStackTrace();
             }
