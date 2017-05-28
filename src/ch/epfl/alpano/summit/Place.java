@@ -15,7 +15,7 @@ public class Place extends Labelizable implements Serializable {
      */
     private static final long serialVersionUID = -580071766793003692L;
 
-    private static final int PRIORITY_RANGE = 5;
+    public static final int PRIORITY_RANGE = 5;
 
     private final String name;
     private final GeoPoint position;

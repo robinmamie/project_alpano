@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Locale;
 
 import ch.epfl.alpano.Azimuth;
+import javafx.scene.control.Slider;
 import ch.epfl.alpano.GeoPoint;
 import ch.epfl.alpano.Panorama;
 import ch.epfl.alpano.dem.ContinuousElevationModel;
@@ -190,9 +191,21 @@ public final class Alpano extends Application {
                     "The file 'alps.txt' does not exist or is corrupted.");
         }
 
-        labels.add(new Place("COURTEPIN",
-                new GeoPoint(Math.toRadians(7.13018), Math.toRadians(46.86575)),
-                615, 5));
+        File places = new File("plc/");
+        if (places.exists()) {
+            File[] files = places.listFiles();
+            for (File f : files) {
+                Place p = null;
+                try (ObjectInputStream in = new ObjectInputStream(
+                        new FileInputStream(f))) {
+                    p = (Place) in.readObject();
+                } catch (Exception i) {
+                    i.printStackTrace();
+                    continue;
+                }
+                labels.add(p);
+            }
+        }
 
         System.out.println(" - Summits and labels loaded.");
 
@@ -539,10 +552,14 @@ public final class Alpano extends Application {
         TextField field = new TextField();
         TextFormatter<Integer> formatter = new TextFormatter<>(
                 new FixedPointStringConverter(decimals));
-        formatter.valueProperty()
-                .bindBidirectional(PARAMETERS_B.getProperty(uP));
+        if (uP != null)
+            formatter.valueProperty()
+                    .bindBidirectional(PARAMETERS_B.getProperty(uP));
         field.setTextFormatter(formatter);
-        field.setAlignment(Pos.CENTER_RIGHT);
+        if (uP != null)
+            field.setAlignment(Pos.CENTER_RIGHT);
+        else
+            field.setAlignment(Pos.CENTER_LEFT);
         field.setPrefColumnCount(prefColumnCount);
         return Arrays.asList(label, field);
     }
@@ -741,10 +758,18 @@ public final class Alpano extends Application {
     private Menu setMenuParameters() {
         Menu menuParameters = new Menu("Paramètres");
         MenuItem addLabel = new MenuItem("Ajouter lieu");
+        addLabel.setAccelerator(KeyCombination.keyCombination("Ctrl+I"));
         addLabel.setOnAction(e -> openAddPlaceWindow());
         RadioMenuItem autoAltitude = setAutoAltitude();
         autoAltitude.setAccelerator(KeyCombination.keyCombination("Ctrl+E"));
-        menuParameters.getItems().addAll(addLabel, new SeparatorMenuItem(), autoAltitude);
+        menuParameters.getItems().addAll(addLabel, new SeparatorMenuItem(),
+                autoAltitude);
+        try {
+            addLabel.setGraphic(new ImageView(
+                    new Image(new FileInputStream(new File("res/globe.png")))));
+        } catch (FileNotFoundException e1) {
+            e1.printStackTrace();
+        }
         return menuParameters;
     }
 
@@ -755,37 +780,88 @@ public final class Alpano extends Application {
         Scene scene = new Scene(grid);
 
         Label mainRequest = new Label("Veuillez entrer les données du point :");
-        // TODO compléter avec nom, lon, lat, alt
-        TextField queryF = new TextField();
-        queryF.setPromptText("Exemple : mon_super_panorama");
+        List<Control> labelsAndField = new ArrayList<>();
+        Label nameL = new Label("Nom :");
+        GridPane.setHalignment(nameL, HPos.RIGHT);
+        labelsAndField.add(nameL);
+        TextField nameF = new TextField();
+        nameF.setPromptText("Fribourg");
+        labelsAndField.add(nameF);
+        labelsAndField.addAll(setLabelAndField("Latitude (°)", null,
+                MAXI_COL_COUNT, MAX_DECIMAL_NUMBER));
+        ((TextField) labelsAndField.get(labelsAndField.size() - 1))
+                .setPromptText("46.8062");
+        labelsAndField.addAll(setLabelAndField("Longitude (°)", null,
+                MAXI_COL_COUNT, MAX_DECIMAL_NUMBER));
+        ((TextField) labelsAndField.get(labelsAndField.size() - 1))
+                .setPromptText("7.1628");
+
+        Label sliderName = new Label("Priorité :");
+        GridPane.setHalignment(sliderName, HPos.RIGHT);
+        labelsAndField.add(sliderName);
+        Slider slider = new Slider();
+        slider.setMin(-Place.PRIORITY_RANGE);
+        slider.setMax(Place.PRIORITY_RANGE);
+        slider.setValue(Place.PRIORITY_RANGE/2);
+        slider.setShowTickLabels(true);
+        slider.setShowTickMarks(true);
+        slider.setMajorTickUnit(Place.PRIORITY_RANGE);
+        slider.setMinorTickCount(Place.PRIORITY_RANGE - 1);
+        slider.valueProperty().addListener(
+                (p, o, n) -> slider.setValue(n.intValue()));
+        labelsAndField.add(slider);
+        
+        Label infoPriority = new Label("Les sommets ont une priorité de 0.");
+        GridPane.setHalignment(infoPriority, HPos.CENTER);
 
         Button saveButton = new Button("Sauvegarder");
-        saveButton.setOnAction(e -> savePlace(placeStage, queryF));
+        saveButton.setOnAction(e -> savePlace(placeStage, nameF,
+                (TextField) labelsAndField.get(3),
+                (TextField) labelsAndField.get(5), slider));
 
         Button quitButton = new Button("Annuler");
         quitButton.setOnAction(f -> placeStage.close());
         GridPane.setHalignment(quitButton, HPos.RIGHT);
 
         grid.add(mainRequest, 0, 0, 2, 1);
-        grid.add(queryF, 0, 1, 2, 1);
-        grid.add(saveButton, 0, 2);
-        grid.add(quitButton, 1, 2);
+        for (int i = 0; i < labelsAndField.size(); ++i)
+            grid.add(labelsAndField.get(i), i % 2, 1 + i / 2);
+        grid.add(infoPriority, 0, 5, 2, 1);
+        grid.add(saveButton, 0, 6);
+        grid.add(quitButton, 1, 6);
 
         grid.setVgap(BOTTOM_GRID_VGAP);
         grid.setHgap(BOTTOM_GRID_HGAP);
         grid.setAlignment(Pos.CENTER);
         grid.setPadding(BOTTOM_GRID_PADDING);
 
-        placeStage.setTitle("Save Panorama");
+        placeStage.setTitle("Add place");
         placeStage.setScene(scene);
         placeStage.setResizable(false);
         placeStage.setAlwaysOnTop(true);
-        placeStage.setWidth(250);
         placeStage.show();
     }
 
-    private void savePlace(Stage placeStage, TextField queryF) {
-        
+    private void savePlace(Stage placeStage, TextField name, TextField lat,
+            TextField lon, Slider slider) {
+        File plcFolder = new File("plc/");
+        if (!plcFolder.exists())
+            plcFolder.mkdirs();
+        if (name.getText() != null && !name.getText().isEmpty()
+                && lat.getText() != null && !lat.getText().isEmpty()
+                && lon.getText() != null && !lon.getText().isEmpty()) {
+            try (ObjectOutputStream out = new ObjectOutputStream(
+                    new FileOutputStream("plc/" + name.getText() + ".ser"))) {
+                GeoPoint position = new GeoPoint(
+                        Math.toRadians(Double.parseDouble(lon.getText())),
+                        Math.toRadians(Double.parseDouble(lat.getText())));
+                out.writeObject(new Place(name.getText(), position,
+                        (int) CEM.elevationAt(position), (int)slider.getValue()));
+            } catch (IOException i) {
+                i.printStackTrace();
+            }
+            placeStage.close();
+        }
     }
 
     private RadioMenuItem setAutoAltitude() {
