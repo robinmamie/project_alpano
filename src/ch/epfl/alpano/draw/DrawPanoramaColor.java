@@ -71,7 +71,7 @@ final class DrawPanoramaColor {
 
         ImagePainter l = ImagePainter.hsb(h, s, b, o);
 
-        Image i = PanoramaRenderer.renderPanorama(p, l);
+        Image i = PanoramaRenderer.renderPanorama(p, l, null);
         ImageIO.write(SwingFXUtils.fromFXImage(i, null), "png",
                 new File("niesen-shaded.png"));
         long stop = System.nanoTime();

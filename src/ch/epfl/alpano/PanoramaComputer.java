@@ -56,6 +56,8 @@ public final class PanoramaComputer {
 
     private final DoubleProperty status;
 
+    private final boolean slopeNecessary;
+
     /**
      * Constructeur de la classe PanoramaComputer prenant un MNT continu en
      * argument.
@@ -66,10 +68,16 @@ public final class PanoramaComputer {
      * @throws NullPointerException
      *             si le MNT passé en argument est null.
      */
-    public PanoramaComputer(ContinuousElevationModel dem) {
+    public PanoramaComputer(ContinuousElevationModel dem,
+            boolean slopeNecessary) {
         this.dem = requireNonNull(dem,
                 "The given ContinuousElevationModel is null.");
         status = new SimpleDoubleProperty(0d);
+        this.slopeNecessary = slopeNecessary;
+    }
+    
+    public PanoramaComputer(ContinuousElevationModel dem) {
+        this(dem, true);
     }
 
     /**
@@ -90,8 +98,7 @@ public final class PanoramaComputer {
         for (int i = 0; i < parameters.width(); i += THREAD_SPACING) {
             final int stop = i + THREAD_SPACING > parameters.width()
                     ? parameters.width() : i + THREAD_SPACING;
-            threads.add(
-                    createThread(parameters, pb, i, stop, statusIncrement));
+            threads.add(createThread(parameters, pb, i, stop, statusIncrement));
         }
         for (Thread r : threads)
             r.start();
@@ -125,7 +132,8 @@ public final class PanoramaComputer {
                         float longitude = (float) point.longitude();
                         float latitude = (float) point.latitude();
                         float elevation = (float) dem.elevationAt(point);
-                        float slope = (float) dem.slopeAt(point);
+                        float slope = slopeNecessary
+                                ? (float) dem.slopeAt(point) : 0;
                         synchronized (pb) {
                             pb.setDistanceAt(x, y, distance)
                                     .setLongitudeAt(x, y, longitude)
@@ -161,7 +169,7 @@ public final class PanoramaComputer {
             ElevationProfile profile, double ray0, double raySlope) {
         return x -> ray0 + x * (raySlope + FACTOR * x) - profile.elevationAt(x);
     }
-    
+
     public ReadOnlyDoubleProperty statusProperty() {
         return status;
     }

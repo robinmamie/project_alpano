@@ -1,6 +1,7 @@
 package ch.epfl.alpano;
 
 import static java.lang.Float.POSITIVE_INFINITY;
+import static java.lang.Math.abs;
 import static java.util.Arrays.fill;
 import static java.util.Objects.requireNonNull;
 
@@ -202,6 +203,12 @@ public final class Panorama {
      */
     public float slopeAt(int x, int y) {
         return getParameter(x, y, slope);
+    }
+
+    public float absSlopeeAt(int x, int y, float d) {
+        if (!parameters.isValidSampleIndex(x, y))
+            return d;
+        return abs(slopeAt(x, y));
     }
 
     /**

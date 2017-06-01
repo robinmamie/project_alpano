@@ -1,5 +1,6 @@
 package ch.epfl.alpano.gui;
 
+import static ch.epfl.alpano.gui.ImagePainter.outlinePanorama;
 import static ch.epfl.alpano.gui.ImagePainter.stdPanorama;
 import static ch.epfl.alpano.gui.PanoramaRenderer.renderPanorama;
 import static javafx.application.Platform.runLater;
@@ -12,13 +13,13 @@ import ch.epfl.alpano.Panorama;
 import ch.epfl.alpano.PanoramaComputer;
 import ch.epfl.alpano.dem.ContinuousElevationModel;
 import ch.epfl.alpano.summit.Labelizable;
-import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
@@ -58,6 +59,8 @@ public final class PanoramaComputerBean {
 
     private final BooleanProperty hideNonSummits;
 
+    private final BooleanProperty slopeNecessary;
+
     /**
      * Construit un PanoramaComputerBean en prenant un MNT continu et une liste
      * de sommets en arguments.
@@ -77,6 +80,7 @@ public final class PanoramaComputerBean {
         this.cem = new SimpleObjectProperty<>(cem);
         this.status = new SimpleDoubleProperty();
         this.hideNonSummits = new SimpleBooleanProperty(false);
+        this.slopeNecessary = new SimpleBooleanProperty(true);
 
         this.parameters.addListener((b, o, n) -> {
             if (n == null)
@@ -85,7 +89,8 @@ public final class PanoramaComputerBean {
             new Thread() {
                 @Override
                 public void run() {
-                    PanoramaComputer pc = new PanoramaComputer(cemProperty().get());
+                    PanoramaComputer pc = new PanoramaComputer(
+                            cemProperty().get(), slopeNecessary.get());
                     System.out.println(
                             "\n*************************************************************");
                     if (panorama.get() != null)
@@ -108,16 +113,20 @@ public final class PanoramaComputerBean {
                         e.printStackTrace();
                     }
 
+                    status.unbind();
+                    status.set(0);
                     System.out.printf("Panorama computed after %.3f seconds.%n",
                             (System.nanoTime() - start) * 1e-9);
                     Image i = renderPanorama(panorama.get(),
-                            stdPanorama(panorama.get()));
+                            slopeNecessary.get() ? stdPanorama(panorama.get())
+                                    : outlinePanorama(panorama.get()),
+                            status);
 
                     System.out.printf("Panorama rendered after %.3f seconds.%n",
                             (System.nanoTime() - start) * 1e-9);
 
-                    List<Node> list = new Labelizer(cemProperty().get(), summits,
-                            hideNonSummits.getValue())
+                    List<Node> list = new Labelizer(cemProperty().get(),
+                            summits, hideNonSummits.getValue())
                                     .labels(parameters.get()
                                             .panoramaDisplayParameters());
                     System.out.printf(
@@ -127,8 +136,6 @@ public final class PanoramaComputerBean {
                     runLater(() -> {
                         labels.setAll(list);
                         image.set(i);
-                        status.unbind();
-                        status.set(0);
                         System.out
                                 .println("Computation and rendering finished.");
                         System.out.println(
@@ -212,7 +219,7 @@ public final class PanoramaComputerBean {
     public ObservableList<Node> getLabels() {
         return unmodifiableLabels;
     }
-    
+
     public ObjectProperty<ContinuousElevationModel> cemProperty() {
         return cem;
     }
@@ -223,6 +230,10 @@ public final class PanoramaComputerBean {
 
     public BooleanProperty hideNonSummitsProperty() {
         return hideNonSummits;
+    }
+
+    public BooleanProperty slopeNecessaryProperty() {
+        return slopeNecessary;
     }
 
 }

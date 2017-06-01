@@ -434,16 +434,19 @@ public final class Alpano extends Application {
         Text updateText = setUpdateText(
                 "Les paramètres du panorama ont changé.\nCliquez ici pour mettre le dessin à jour.");
 
-        Text updatingText = setUpdateText("");
+        String panoCompute = "Le panorama est en cours de calcul...";
+        String panoCreation = "Le panorama est en cours de création...";
+        Text updatingText = setUpdateText(panoCompute);
         ProgressBar updatingProcess = new ProgressBar();
         updatingProcess.setPrefWidth(500);
         updatingProcess.setPrefHeight(25);
         updatingProcess.progressProperty().bind(COMPUTER_B.statusProperty());
+        // TODO optimise
         COMPUTER_B.statusProperty().addListener((p, o, n) -> {
-            if (1 - n.doubleValue() < 1e-10)
-                updatingText.setText("Le panorama est en cours de création...");
-            else
-                updatingText.setText("Le panorama est en cours de calcul...");
+            if (1 - o.doubleValue() < 1e-10 && updatingText.getText().equals(panoCompute))
+                updatingText.setText(panoCreation);
+            else if(1 - o.doubleValue() < 1e-10 && updatingText.getText().equals(panoCreation))
+                updatingText.setText(panoCompute);
         });
         GridPane updatingGrid = new GridPane();
         updatingGrid.addRow(0, updatingText);
@@ -669,7 +672,7 @@ public final class Alpano extends Application {
         saveStage.setScene(scene);
         saveStage.setResizable(false);
         saveStage.setAlwaysOnTop(true);
-        saveStage.setWidth(250);
+        saveStage.setWidth(300);
         try {
             saveStage.getIcons().add(
                     new Image(new FileInputStream(new File("res/save.png"))));
@@ -770,8 +773,8 @@ public final class Alpano extends Application {
         choices.setConverter(loadConv);
 
         TextArea parametersInfo = setAreaInfo();
-        parametersInfo.setPrefWidth(230);
-        parametersInfo.setPrefHeight(95);
+        parametersInfo.setPrefWidth(280);
+        parametersInfo.setPrefHeight(120);
 
         choices.setOnAction(e -> parametersInfo
                 .setText(loadParameters(choices).toString()));
@@ -845,8 +848,12 @@ public final class Alpano extends Application {
                 "Masquer les étiquettes supplémentaires");
         COMPUTER_B.hideNonSummitsProperty()
                 .bind(hideNonSummits.selectedProperty());
+        RadioMenuItem lightweight = new RadioMenuItem("Graphismes allégés");
+        COMPUTER_B.slopeNecessaryProperty()
+                .bind(lightweight.selectedProperty().not());
         menuParameters.getItems().addAll(addLabel, changeCem,
-                new SeparatorMenuItem(), autoAltitude, hideNonSummits);
+                new SeparatorMenuItem(), autoAltitude, hideNonSummits,
+                lightweight);
         try {
             addLabel.setGraphic(new ImageView(
                     new Image(new FileInputStream(new File("res/globe.png")))));
@@ -1049,11 +1056,10 @@ public final class Alpano extends Application {
         // TODO Help window
         MenuItem about = new MenuItem("À propos");
         about.setOnAction(e -> setMenuAbout());
-        
 
         try {
-            about.setGraphic(new ImageView(new Image(
-                    new FileInputStream(new File("res/info.png")))));
+            about.setGraphic(new ImageView(
+                    new Image(new FileInputStream(new File("res/info.png")))));
         } catch (FileNotFoundException e1) {
             e1.printStackTrace();
         }
@@ -1067,7 +1073,8 @@ public final class Alpano extends Application {
         GridPane grid = new GridPane();
         Scene scene = new Scene(grid);
 
-        Label mainRequest = new Label("Version 1.0\nProgrammé par M. Jouve et R. Mamie.\nJuin 2017, EPFL.\nmaxence.jouve@epfl.ch\nrobin.mamie@epfl.ch");
+        Label mainRequest = new Label(
+                "Version 1.0\nProgrammé par M. Jouve et R. Mamie.\nJuin 2017, EPFL.\nmaxence.jouve@epfl.ch\nrobin.mamie@epfl.ch");
         mainRequest.setTextAlignment(TextAlignment.CENTER);
 
         grid.add(mainRequest, 0, 0);

@@ -78,6 +78,40 @@ public interface ImagePainter {
         ChannelPainter b = slope.mul(2).div((float) PI).invert().mul(0.7f)
                 .add(0.3f);
         ChannelPainter o = distance.map(d -> d == POSITIVE_INFINITY ? 0 : 1);
-        return ImagePainter.hsb(h, s, b, o);
+        return hsb(h, s, b, o);
+    }
+
+    /**
+     * Returns the outline of the Panorama.
+     * 
+     * @param panorama
+     * @return
+     */
+    static ImagePainter outlinePanorama(Panorama panorama) {
+        ChannelPainter gray = ChannelPainter.maxDistanceToNeighbors(panorama)
+                .sub(500).div(4500).clamp().invert();
+
+        ChannelPainter distance = panorama::distanceAt;
+        ChannelPainter opacity = distance
+                .map(d -> d == Float.POSITIVE_INFINITY ? 0 : 1);
+
+        return gray(gray, opacity);
+    }
+
+    static ImagePainter outlineWithLakesPanorama(Panorama panorama) {
+        ChannelPainter gray = ChannelPainter.maxDistanceToNeighbors(panorama)
+                .sub(500).div(4500).clamp().invert();
+        ChannelPainter distance = panorama::distanceAt;
+        ChannelPainter slopes = ChannelPainter.totalSlopeOfNeigbors(panorama);
+
+        ChannelPainter h = (x, y) -> slopes.valueAt(x, y) == 0 ? 210
+                : gray.valueAt(x, y);
+        ChannelPainter s = slopes.map(v -> v == 0 ? 0.77f : 0);
+        ChannelPainter b = (x, y) -> slopes.valueAt(x, y) == 0 ? 0.4f
+                : gray.valueAt(x, y);
+        ChannelPainter o = distance
+                .map(d -> d == Float.POSITIVE_INFINITY ? 0 : 1);
+
+        return hsb(h, s, b, o);
     }
 }

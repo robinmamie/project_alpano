@@ -57,7 +57,7 @@ final class DrawPanoramaGray {
 
         ImagePainter l = ImagePainter.gray(gray, opacity);
 
-        Image i = PanoramaRenderer.renderPanorama(p, l);
+        Image i = PanoramaRenderer.renderPanorama(p, l, null);
         ImageIO.write(SwingFXUtils.fromFXImage(i, null), "png",
                 new File("niesen-profile.png"));
 
