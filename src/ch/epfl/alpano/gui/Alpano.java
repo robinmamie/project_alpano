@@ -441,7 +441,6 @@ public final class Alpano extends Application {
         updatingProcess.setPrefWidth(500);
         updatingProcess.setPrefHeight(25);
         updatingProcess.progressProperty().bind(COMPUTER_B.statusProperty());
-        // TODO optimise
         COMPUTER_B.statusProperty().addListener((p, o, n) -> {
             if (1 - o.doubleValue() < 1e-10 && updatingText.getText().equals(panoCompute))
                 updatingText.setText(panoCreation);
@@ -622,7 +621,7 @@ public final class Alpano extends Application {
             exit.setGraphic(new ImageView(
                     new Image(new FileInputStream(new File("res/close.png")))));
         } catch (FileNotFoundException e1) {
-            e1.printStackTrace();
+            System.err.println(e1.getMessage());
         }
 
         menuFile.getItems().addAll(refresh, save, load, new SeparatorMenuItem(),
@@ -677,7 +676,7 @@ public final class Alpano extends Application {
             saveStage.getIcons().add(
                     new Image(new FileInputStream(new File("res/save.png"))));
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
         }
         saveStage.show();
     }
@@ -818,7 +817,7 @@ public final class Alpano extends Application {
             loadStage.getIcons().add(
                     new Image(new FileInputStream(new File("res/load.png"))));
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
         }
         loadStage.show();
 
@@ -860,7 +859,7 @@ public final class Alpano extends Application {
             changeCem.setGraphic(new ImageView(
                     new Image(new FileInputStream(new File("res/dem.png")))));
         } catch (FileNotFoundException e1) {
-            e1.printStackTrace();
+            System.err.println(e1.getMessage());
         }
         return menuParameters;
     }
@@ -942,7 +941,7 @@ public final class Alpano extends Application {
             placeStage.getIcons().add(
                     new Image(new FileInputStream(new File("res/globe.png"))));
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
         }
         placeStage.show();
     }
@@ -986,8 +985,6 @@ public final class Alpano extends Application {
         superHGT.setToggleGroup(group);
         superHGT.setSelected(false);
         RadioButton hilbertHGT = new RadioButton("Option Hilbert");
-        // TODO Prendre en compte + de Hilbert ? Se baser sur SuperHgtDEM ? ->
-        // créer constructeur de plus dans SHgtDEM
         hilbertHGT.setUserData(new HilbertDiscreteElevationModel(0, 0));
         hilbertHGT.setToggleGroup(group);
         hilbertHGT.setSelected(false);
@@ -1024,7 +1021,7 @@ public final class Alpano extends Application {
             placeStage.getIcons().add(
                     new Image(new FileInputStream(new File("res/dem.png"))));
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
         }
         placeStage.show();
     }
@@ -1053,7 +1050,6 @@ public final class Alpano extends Application {
 
     private Menu setMenuHelp() {
         Menu menuHelp = new Menu("Aide");
-        // TODO Help window
         MenuItem about = new MenuItem("À propos");
         about.setOnAction(e -> setMenuAbout());
 
@@ -1061,7 +1057,7 @@ public final class Alpano extends Application {
             about.setGraphic(new ImageView(
                     new Image(new FileInputStream(new File("res/info.png")))));
         } catch (FileNotFoundException e1) {
-            e1.printStackTrace();
+            System.out.println(e1.getMessage());
         }
 
         menuHelp.getItems().addAll(about);
@@ -1092,7 +1088,7 @@ public final class Alpano extends Application {
             aboutStage.getIcons().add(
                     new Image(new FileInputStream(new File("res/info.png"))));
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
         }
         aboutStage.show();
     }

@@ -96,6 +96,7 @@ public class HilbertDiscreteElevationModel implements DiscreteElevationModel {
 
     private void createFile() throws FileNotFoundException, IOException {
         DiscreteElevationModel dem = SuperHgtDiscreteElevationModel.FULL;
+        long start = System.nanoTime();
         try (FileOutputStream stream = new FileOutputStream(hilbertHGT)) {
             System.out.println("Creating the file " + hilbertHGT.getName());
             for (int i = 0; i < N_SQUARED; ++i) {
@@ -130,7 +131,8 @@ public class HilbertDiscreteElevationModel implements DiscreteElevationModel {
                 b[1] = (byte) (elevation & 0xff);
                 stream.write(b);
             }
-            System.out.println(hilbertHGT.getName() + " created.");
+            System.out.println(String.format("%s created in %.3f seconds.",
+                    hilbertHGT.getName(), (System.nanoTime() - start) * 1e-9));
         }
     }
 

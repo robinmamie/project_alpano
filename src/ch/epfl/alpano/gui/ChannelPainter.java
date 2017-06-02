@@ -49,7 +49,16 @@ public interface ChannelPainter {
                 - p.distanceAt(x, y);
     }
 
-    // TODO check CEM directly rather than panorama
+    /**
+     * Permet de calculer la pente des voisins afin d'obtenir une approximation
+     * des lacs si = 0.
+     * 
+     * @param p
+     *            Le panorama.
+     *            
+     * @return la pente des voisins afin d'obtenir une approximation des lacs si
+     *         = 0.
+     */
     static ChannelPainter totalSlopeOfNeigbors(Panorama p) {
         return (x, y) -> {
             float value = 0;

@@ -1,6 +1,9 @@
 # Rapport du Projet Alpano, CS 108
 #### Maxence Jouve et Robin Mamie
 
+*Note: des fichiers sont ignorés durant le rendu. Il s'agit des images contenues dans le dossier `res`. Ce dossier fournit toutes les icônes des fenêtres du projet. Il s'agit d'un ajout purement esthétique. Ils sont au pire [disponibles ici](https://drive.switch.ch/index.php/s/hiZHmF9Xjpzx5uv).*
+
+
 ## Parallélisation
 Le projet a en partie été parallélisé.
 Cette implémentation s'est principalement faite dans la classe `PanoramaComputer`, mais aussi dans `PanoramaComputerBean`.
@@ -15,7 +18,7 @@ Les images se trouvent dans le dossier *img* et les paramètres sauvgardés dans
 Il suffit de donner un nom à la sauvegarde.
 Si le nom existe déjà, une fenêtre demandant une confirmation s'affichera.
 
-Le chargement offre à l'utilisateur une vue sur les paramètres sélectionnés, en appelant la méthode `toString()` de `PanoramaUserParameters`.
+La fenêtre de chargement offre à l'utilisateur une vue sur les paramètres sélectionnés, en appelant la méthode `toString()` de `PanoramaUserParameters`.
 
 ## SuperHgtDEM
 Une autre façon de combiner les fichiers Hgt est proposée.
@@ -23,6 +26,7 @@ Le SuperHgtDiscreteElevationModel précharge tous les fichiers *hgt* du projet -
 Ces fichiers sont ensuite chargés dans un tableau.
 L'algorithme retrouvant l'index du fichier correspondant aux coordonnées entrées se fait par soustraction successive de ces dernières.
 L'opération est bien plus rapide qu'une imbrication de CompositeDEM.
+NB: tous les fichiers *hgt* fournis sont nécessaires à son bon fonctionnement !
 
 ## Fichier .hgt - courbe de Hilbert
 
@@ -30,8 +34,8 @@ La classe `HilbertDiscreteElevationModel` s'occupe de créer des fichiers *hhgt*
 
 L'implémentation est peut-être optimisée en ce qui concerne le cache, mais le calcul prend beaucoup de temps, ce qui fait que tout gain éventuellement effectuée auparavant s'en retrouve perdu...
 
-Un fichier *hhgt* est fourni de base, mais d'autres peuvent être créés afin de tester d'autres zones.
-Les CompositeDEM peuvent aussi être utilisés.
+Un fichier *hhgt* [est fourni ici](https://drive.switch.ch/index.php/s/iSqEYSvEK8Vaxnd), mais d'autres peuvent être créés dans un temps raisonnable (un peu plus 2 minutes sur un ordinateur moyen) afin de tester d'autres zones.
+Les CompositeDEM peuvent aussi être utilisés afin de les combiner.
 
 ## Changement dynamique de MNT
 
@@ -47,6 +51,8 @@ Plusieurs données sont nécessaires à leur création :
 - Sa latitude
 - Sa "priorité" : le point est-il prioritaire par rapport aux autres sommets/labels ou non ?
 Échelle allant de -5 à 5, où 0 est la priorité des sommets standards.
+
+Comme pour la sauvegarde du Panorama, une fenêtre demande la confirmation à l'utilisateur en cas d'écrasement de fichier.
 
 Afin de réaliser cela, la classe `Labelizable` a été créée. `Summit` - l'implémentation demandée des sommets - et `Place` en héritent.
 `Labelizer` accepte donc tout `Labelizable`.
