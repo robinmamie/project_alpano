@@ -23,7 +23,7 @@ public class PanoramaComputerTest__Prof {
     }
 
     @Test
-    public void computePanoramaWorksOnFlatTerrain() {
+    public void computePanoramaWorksOnFlatTerrain() throws InterruptedException {
         int w = 50, h = 20;
         GeoPoint o = new GeoPoint(0,0);
         PanoramaParameters pp = new PanoramaParameters(o, 100, toRadians(45), toRadians(h), 300_000, w, h);
@@ -42,7 +42,7 @@ public class PanoramaComputerTest__Prof {
     }
 
     @Test
-    public void computePanoramaWorksOnHillyTerrain() throws IOException {
+    public void computePanoramaWorksOnHillyTerrain() throws IOException, InterruptedException {
         int w = 50, h = 20;
         GeoPoint o = new GeoPoint(0,0);
         PanoramaParameters pp = new PanoramaParameters(o, 2000, toRadians(45), toRadians(h), 300_000, w, h);

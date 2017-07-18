@@ -15,6 +15,7 @@ import static java.lang.Math.sqrt;
 import static java.lang.Math.toDegrees;
 import static java.lang.String.format;
 
+import java.io.Serializable;
 import java.util.Locale;
 
 /**
@@ -24,7 +25,12 @@ import java.util.Locale;
  * @author Robin Mamie (257234)
  * @author Maxence Jouve (269716)
  */
-public final class GeoPoint {
+public final class GeoPoint implements Serializable {
+
+    /**
+     * Serial ID.
+     */
+    private static final long serialVersionUID = -5086585006724787009L;
 
     /**
      * La longitude du point en radians, entre -Pi et Pi compris

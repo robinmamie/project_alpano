@@ -17,6 +17,8 @@ import ch.epfl.alpano.Panorama;
  */
 @FunctionalInterface
 public interface ChannelPainter {
+    
+    int FLATNESS_MARGIN = 3;
 
     /**
      * Valeur du peintre de canal aux index spécifiés.
@@ -45,6 +47,26 @@ public interface ChannelPainter {
                 max(p.distanceAt(x - 1, y, 0), p.distanceAt(x + 1, y, 0)),
                 max(p.distanceAt(x, y - 1, 0), p.distanceAt(x, y + 1, 0)))
                 - p.distanceAt(x, y);
+    }
+
+    /**
+     * Permet de calculer la pente des voisins afin d'obtenir une approximation
+     * des lacs si = 0.
+     * 
+     * @param p
+     *            Le panorama.
+     *            
+     * @return la pente des voisins afin d'obtenir une approximation des lacs si
+     *         = 0.
+     */
+    static ChannelPainter totalSlopeOfNeigbors(Panorama p) {
+        return (x, y) -> {
+            float value = 0;
+            for(int i = -FLATNESS_MARGIN; i <= FLATNESS_MARGIN; ++i)
+                for(int j = -FLATNESS_MARGIN; j <= FLATNESS_MARGIN; ++j)
+                    value += p.absSlopeeAt(x + i, y + i, 0);
+            return value;
+        };
     }
 
     /**

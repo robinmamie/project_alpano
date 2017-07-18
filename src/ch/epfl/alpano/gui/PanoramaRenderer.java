@@ -1,6 +1,8 @@
 package ch.epfl.alpano.gui;
 
 import ch.epfl.alpano.Panorama;
+
+import javafx.beans.property.DoubleProperty;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
@@ -24,13 +26,17 @@ public interface PanoramaRenderer {
      * @return Une image représentant le panorama selon le peintre d'image passé
      *         en argument.
      */
-    static Image renderPanorama(Panorama p, ImagePainter iP) {
+    static Image renderPanorama(Panorama p, ImagePainter iP,
+            DoubleProperty status) {
         WritableImage i = new WritableImage(p.parameters().width(),
                 p.parameters().height());
         PixelWriter pW = i.getPixelWriter();
-        for (int y = 0; y < i.getHeight(); ++y)
-            for (int x = 0; x < i.getWidth(); ++x)
+        double increment = 1d / i.getWidth();
+        for (int x = 0; x < i.getWidth(); ++x) {
+            for (int y = 0; y < i.getHeight(); ++y)
                 pW.setColor(x, y, iP.colorAt(x, y));
+            status.set(status.get() + increment);
+        }
         return i;
     }
 }

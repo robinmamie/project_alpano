@@ -11,7 +11,7 @@ import ch.epfl.alpano.GeoPoint;
  * @author Robin Mamie (257234)
  * @author Maxence Jouve (269716)
  */
-public final class Summit {
+public final class Summit extends Labelizable {
 
     /**
      * Le nom du sommet.
@@ -47,36 +47,24 @@ public final class Summit {
         this.elevation = elevation;
     }
 
-    /**
-     * Retourne le nom du sommet.
-     * 
-     * @return Le nom du sommet.
-     */
+    @Override
     public String name() {
         return name;
     }
 
-    /**
-     * Retourne la position du sommet.
-     * 
-     * @return La position du sommet.
-     */
+    @Override
     public GeoPoint position() {
         return position;
     }
 
-    /**
-     * Retourne l'altitude du sommet.
-     * 
-     * @return L'altitude du sommet.
-     */
+    @Override
     public int elevation() {
         return elevation;
     }
 
     @Override
-    public String toString() {
-        return name() + " " + position() + " " + elevation();
+    public int priority() {
+        return 0;
     }
-
+    
 }
