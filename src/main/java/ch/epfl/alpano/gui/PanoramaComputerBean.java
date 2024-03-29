@@ -28,213 +28,196 @@ import javafx.scene.image.Image;
 /**
  * Représente l'état actuel du panorama actuellement affiché à l'écran.
  *
- * @author Robin Mamie (257234)
- * @author Maxence Jouve (269716)
+ * @author Robin Mamié
  */
 public final class PanoramaComputerBean {
 
-    /**
-     * La propriété du Panorama.
-     */
-    private final ObjectProperty<Panorama> panorama;
+	/**
+	 * La propriété du Panorama.
+	 */
+	private final ObjectProperty<Panorama> panorama;
 
-    /**
-     * La propriété des paramètres utilisateur du Panorama.
-     */
-    private final ObjectProperty<PanoramaUserParameters> parameters;
+	/**
+	 * La propriété des paramètres utilisateur du Panorama.
+	 */
+	private final ObjectProperty<PanoramaUserParameters> parameters;
 
-    /**
-     * La propriété de l'image.
-     */
-    private final ObjectProperty<Image> image;
+	/**
+	 * La propriété de l'image.
+	 */
+	private final ObjectProperty<Image> image;
 
-    /**
-     * La liste non modifiable des sommets.
-     */
-    private final ObservableList<Node> unmodifiableLabels;
+	/**
+	 * La liste non modifiable des sommets.
+	 */
+	private final ObservableList<Node> unmodifiableLabels;
 
-    private final ObjectProperty<ContinuousElevationModel> cem;
+	private final ObjectProperty<ContinuousElevationModel> cem;
 
-    private final DoubleProperty status;
+	private final DoubleProperty status;
 
-    private final BooleanProperty hideNonSummits;
+	private final BooleanProperty hideNonSummits;
 
-    private final BooleanProperty slopeNecessary;
+	private final BooleanProperty slopeNecessary;
 
-    /**
-     * Construit un PanoramaComputerBean en prenant un MNT continu et une liste
-     * de sommets en arguments.
-     * 
-     * @param cem
-     *            Un MNT conitnu.
-     * @param summits
-     *            Une liste de sommets.
-     */
-    public PanoramaComputerBean(ContinuousElevationModel cem,
-            List<Labelizable> summits) {
-        this.panorama = new SimpleObjectProperty<>(null);
-        this.parameters = new SimpleObjectProperty<>(null);
-        this.image = new SimpleObjectProperty<>(null);
-        ObservableList<Node> labels = observableArrayList();
-        this.unmodifiableLabels = unmodifiableObservableList(labels);
-        this.cem = new SimpleObjectProperty<>(cem);
-        this.status = new SimpleDoubleProperty();
-        this.hideNonSummits = new SimpleBooleanProperty(false);
-        this.slopeNecessary = new SimpleBooleanProperty(true);
+	/**
+	 * Construit un PanoramaComputerBean en prenant un MNT continu et une liste de
+	 * sommets en arguments.
+	 * 
+	 * @param cem     Un MNT conitnu.
+	 * @param summits Une liste de sommets.
+	 */
+	public PanoramaComputerBean(final ContinuousElevationModel cem, final List<Labelizable> summits) {
+		this.panorama = new SimpleObjectProperty<>(null);
+		this.parameters = new SimpleObjectProperty<>(null);
+		this.image = new SimpleObjectProperty<>(null);
+		final ObservableList<Node> labels = observableArrayList();
+		this.unmodifiableLabels = unmodifiableObservableList(labels);
+		this.cem = new SimpleObjectProperty<>(cem);
+		this.status = new SimpleDoubleProperty();
+		this.hideNonSummits = new SimpleBooleanProperty(false);
+		this.slopeNecessary = new SimpleBooleanProperty(true);
 
-        this.parameters.addListener((b, o, n) -> {
-            if (n == null)
-                return;
-            labels.clear();
-            new Thread() {
-                @Override
-                public void run() {
-                    PanoramaComputer pc = new PanoramaComputer(
-                            cemProperty().get(), slopeNecessary.get());
-                    System.out.println(
-                            "\n*************************************************************");
-                    if (panorama.get() != null)
-                        System.out.println("Erasing previous panorama...");
-                    panorama.set(null);
-                    image.set(null);
-                    System.out.println(
-                            "Launching computation with the following parameters:");
-                    System.out.println(
-                            "-------------------------------------------");
-                    System.out.println(parameters.get());
-                    System.out.println(
-                            "-------------------------------------------");
-                    status.bind(pc.statusProperty());
-                    long start = System.nanoTime();
-                    try {
-                        panorama.set(pc.computePanorama(
-                                parameters.get().panoramaParameters()));
-                    } catch (final InterruptedException e) {
-                        e.printStackTrace();
-                        Thread.currentThread().interrupt();
-                    }
+		this.parameters.addListener((b, o, n) -> {
+			if (n == null) {
+				return;
+			}
+			labels.clear();
+			new Thread() {
+				@Override
+				public void run() {
+					PanoramaComputer pc = new PanoramaComputer(cemProperty().get(), slopeNecessary.get());
+					System.out.println("\n*************************************************************");
+					if (panorama.get() != null) {
+						System.out.println("Erasing previous panorama...");
+					}
+					panorama.set(null);
+					image.set(null);
+					System.out.println("Launching computation with the following parameters:");
+					System.out.println("-------------------------------------------");
+					System.out.println(parameters.get());
+					System.out.println("-------------------------------------------");
+					status.bind(pc.statusProperty());
+					long start = System.nanoTime();
+					try {
+						panorama.set(pc.computePanorama(parameters.get().panoramaParameters()));
+					} catch (final InterruptedException e) {
+						e.printStackTrace();
+						Thread.currentThread().interrupt();
+					}
 
-                    status.unbind();
-                    status.set(0);
-                    System.out.printf("Panorama computed after %.3f seconds.%n",
-                            (System.nanoTime() - start) * 1e-9);
-                    Image i = renderPanorama(panorama.get(),
-                            slopeNecessary.get() ? stdPanorama(panorama.get())
-                                    : outlinePanorama(panorama.get()),
-                            status);
+					status.unbind();
+					status.set(0);
+					System.out.printf("Panorama computed after %.3f seconds.%n", (System.nanoTime() - start) * 1e-9);
+					final var i = renderPanorama(panorama.get(),
+							slopeNecessary.get() ? stdPanorama(panorama.get()) : outlinePanorama(panorama.get()),
+							status);
 
-                    System.out.printf("Panorama rendered after %.3f seconds.%n",
-                            (System.nanoTime() - start) * 1e-9);
+					System.out.printf("Panorama rendered after %.3f seconds.%n", (System.nanoTime() - start) * 1e-9);
 
-                    List<Node> list = new Labelizer(cemProperty().get(),
-                            summits, hideNonSummits.getValue())
-                                    .labels(parameters.get()
-                                            .panoramaDisplayParameters());
-                    System.out.printf(
-                            "Panorama's labels computed after %.3f seconds.%n",
-                            (System.nanoTime() - start) * 1e-9);
+					final var list = new Labelizer(cemProperty().get(), summits, hideNonSummits.getValue())
+							.labels(parameters.get().panoramaDisplayParameters());
+					System.out.printf("Panorama's labels computed after %.3f seconds.%n",
+							(System.nanoTime() - start) * 1e-9);
 
-                    runLater(() -> {
-                        labels.setAll(list);
-                        image.set(i);
-                        System.out
-                                .println("Computation and rendering finished.");
-                        System.out.println(
-                                "*************************************************************\n");
-                    });
-                }
-            }.start();
+					runLater(() -> {
+						labels.setAll(list);
+						image.set(i);
+						System.out.println("Computation and rendering finished.");
+						System.out.println("*************************************************************\n");
+					});
+				}
+			}.start();
 
-        });
-    }
+		});
+	}
 
-    /**
-     * Retourne la propriété des paramètres utilisateur du Panorama.
-     * 
-     * @return La propriété des paramètres utilisateur du Panorama.
-     */
-    public ObjectProperty<PanoramaUserParameters> parametersProperty() {
-        return parameters;
-    }
+	/**
+	 * Retourne la propriété des paramètres utilisateur du Panorama.
+	 * 
+	 * @return La propriété des paramètres utilisateur du Panorama.
+	 */
+	public ObjectProperty<PanoramaUserParameters> parametersProperty() {
+		return parameters;
+	}
 
-    /**
-     * Retourne les paramètres utilisateur du Panorama.
-     * 
-     * @return Les paramètres utilisateur du Panorama.
-     */
-    public PanoramaUserParameters getParameters() {
-        return parameters.get();
-    }
+	/**
+	 * Retourne les paramètres utilisateur du Panorama.
+	 * 
+	 * @return Les paramètres utilisateur du Panorama.
+	 */
+	public PanoramaUserParameters getParameters() {
+		return parameters.get();
+	}
 
-    /**
-     * Modifie la propriété des paramètres utilisateur du Panorama.
-     * 
-     * @param newParameters
-     *            Les nouveaux paramètres utilisateur.
-     */
-    public void setParameters(PanoramaUserParameters newParameters) {
-        parameters.set(newParameters);
-    }
+	/**
+	 * Modifie la propriété des paramètres utilisateur du Panorama.
+	 * 
+	 * @param newParameters Les nouveaux paramètres utilisateur.
+	 */
+	public void setParameters(PanoramaUserParameters newParameters) {
+		parameters.set(newParameters);
+	}
 
-    /**
-     * Retourne la propriété en lecture seule du Panorama.
-     * 
-     * @return la propriété en lecture seule du Panorama.
-     */
-    public ReadOnlyObjectProperty<Panorama> panoramaProperty() {
-        return panorama;
-    }
+	/**
+	 * Retourne la propriété en lecture seule du Panorama.
+	 * 
+	 * @return la propriété en lecture seule du Panorama.
+	 */
+	public ReadOnlyObjectProperty<Panorama> panoramaProperty() {
+		return panorama;
+	}
 
-    /**
-     * Retourne le Panorama.
-     * 
-     * @return le panorama.
-     */
-    public Panorama getPanorama() {
-        return panorama.get();
-    }
+	/**
+	 * Retourne le Panorama.
+	 * 
+	 * @return le panorama.
+	 */
+	public Panorama getPanorama() {
+		return panorama.get();
+	}
 
-    /**
-     * Retourne la propriété en lecture seule de l'image.
-     * 
-     * @return la propriété en lecture seule de l'image.
-     */
-    public ReadOnlyObjectProperty<Image> imageProperty() {
-        return image;
-    }
+	/**
+	 * Retourne la propriété en lecture seule de l'image.
+	 * 
+	 * @return la propriété en lecture seule de l'image.
+	 */
+	public ReadOnlyObjectProperty<Image> imageProperty() {
+		return image;
+	}
 
-    /**
-     * Retourne l'image.
-     * 
-     * @return l'image.
-     */
-    public Image getImage() {
-        return image.get();
-    }
+	/**
+	 * Retourne l'image.
+	 * 
+	 * @return l'image.
+	 */
+	public Image getImage() {
+		return image.get();
+	}
 
-    /**
-     * Retourne la liste des sommets visibles observables.
-     * 
-     * @return la liste des sommets visibles observables.
-     */
-    public ObservableList<Node> getLabels() {
-        return unmodifiableLabels;
-    }
+	/**
+	 * Retourne la liste des sommets visibles observables.
+	 * 
+	 * @return la liste des sommets visibles observables.
+	 */
+	public ObservableList<Node> getLabels() {
+		return unmodifiableLabels;
+	}
 
-    public ObjectProperty<ContinuousElevationModel> cemProperty() {
-        return cem;
-    }
+	public ObjectProperty<ContinuousElevationModel> cemProperty() {
+		return cem;
+	}
 
-    public ReadOnlyDoubleProperty statusProperty() {
-        return status;
-    }
+	public ReadOnlyDoubleProperty statusProperty() {
+		return status;
+	}
 
-    public BooleanProperty hideNonSummitsProperty() {
-        return hideNonSummits;
-    }
+	public BooleanProperty hideNonSummitsProperty() {
+		return hideNonSummits;
+	}
 
-    public BooleanProperty slopeNecessaryProperty() {
-        return slopeNecessary;
-    }
+	public BooleanProperty slopeNecessaryProperty() {
+		return slopeNecessary;
+	}
 
 }

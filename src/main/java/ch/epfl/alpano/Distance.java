@@ -5,8 +5,7 @@ package ch.epfl.alpano;
  * convertir des radians en mètres en suivant le rayon de la Terre, défini à
  * 6.371.800 mètres.
  * 
- * @author Robin Mamie (257234)
- * @author Maxence Jouve (269716)
+ * @author Robin Mamié
  */
 public interface Distance {
 

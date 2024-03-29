@@ -20,7 +20,7 @@ import javafx.embed.swing.SwingFXUtils;
 /**
  * Dessine un panorama en couleurs.
  *
- * @author Robin Mamie
+ * @author Robin Mamié
  */
 final class DrawPanoramaColor {
 	private static final File HGT_FILE = new File("N46E007.hgt");

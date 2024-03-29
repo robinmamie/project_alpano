@@ -20,7 +20,7 @@ import ch.epfl.alpano.dem.ContinuousElevationModel;
 /**
  * Dessine un MNT test.
  *
- * @author Robin Mamie
+ * @author Robin Mamié
  */
 public final class DrawDEM {
 

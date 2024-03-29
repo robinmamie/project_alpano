@@ -14,8 +14,7 @@ import static java.util.Objects.requireNonNull;
  * <p>
  * Classe immuable ne pouvant être construite qu'à l'aide de son Builder.
  *
- * @author Robin Mamie (257234)
- * @author Maxence Jouve (269716)
+ * @author Robin Mamié
  */
 public final class Panorama {
 
@@ -215,8 +214,7 @@ public final class Panorama {
      * Classe utilitaire non immuable permettant de construire un panorama qui
      * lui sera immuable.
      *
-     * @author Robin Mamie (257234)
-     * @author Maxence Jouve (269716)
+     * @author Robin Mamié
      */
     public static final class Builder {
 

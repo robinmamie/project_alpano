@@ -12,8 +12,7 @@ import java.util.function.DoubleUnaryOperator;
  * Fournit des outils mathématiques utiles à ce projet complémentaires à
  * java.Lang.Math.
  * 
- * @author Robin Mamie (257234)
- * @author Maxence Jouve (269716)
+ * @author Robin Mamié
  * @see java.lang.Math
  */
 public interface Math2 {

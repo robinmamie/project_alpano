@@ -19,7 +19,7 @@ import ch.epfl.alpano.dem.HgtDiscreteElevationModel;
 /**
  * Dessine un panorama test.
  *
- * @author Robin Mamie
+ * @author Robin Mamié
  */
 final class DrawPanorama {
 

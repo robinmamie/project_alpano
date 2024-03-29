@@ -8,8 +8,7 @@ import static java.util.Objects.requireNonNull;
  * Représente un intervalle bidimensionnel d'entiers, composé du produit
  * cartésien de deux intervalles unidimensionnels. Classe immuable.
  *
- * @author Robin Mamie (257234)
- * @author Maxence Jouve (269716)
+ * @author Robin Mamié
  */
 public final class Interval2D {
 

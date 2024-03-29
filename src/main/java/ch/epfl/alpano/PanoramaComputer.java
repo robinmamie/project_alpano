@@ -22,8 +22,7 @@ import javafx.beans.property.SimpleDoubleProperty;
  * Classe permettant de calculer un Panorama à l'aide d'un MNT continu. Classe
  * immuable.
  *
- * @author Robin Mamie (257234)
- * @author Maxence Jouve (269716)
+ * @author Robin Mamié
  */
 public final class PanoramaComputer {
 

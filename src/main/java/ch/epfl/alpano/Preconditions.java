@@ -4,8 +4,7 @@ package ch.epfl.alpano;
  * Interface permettant de lancer facilement IllegalArgumentException avec un
  * éventuel message d'erreur l'accompagnant.
  * 
- * @author Robin Mamie (257234)
- * @author Maxence Jouve (269716)
+ * @author Robin Mamié
  */
 public interface Preconditions {
 

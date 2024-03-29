@@ -21,7 +21,7 @@ import ch.epfl.alpano.GeoPoint;
  * Représente un profil altimétrique suivant un arc de grand cercle sur la
  * surface de la Terre. Classe immuable.
  *
- * @author Robin Mamie
+ * @author Robin Mamié
  */
 public final class ElevationProfile {
 

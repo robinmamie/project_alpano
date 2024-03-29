@@ -16,7 +16,7 @@ import ch.epfl.alpano.dem.HgtDiscreteElevationModel;
 /**
  * Dessine un ElevationProfile.
  *
- * @author Robin Mamie
+ * @author Robin Mamié
  */
 final class DrawElevationProfile {
 

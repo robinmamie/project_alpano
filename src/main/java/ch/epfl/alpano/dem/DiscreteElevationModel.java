@@ -7,7 +7,7 @@ import static java.lang.Math.toDegrees;
 /**
  * Représente un MNT (modèle numérique du terrain) discret.
  *
- * @author Robin Mamie
+ * @author Robin Mamié
  */
 public interface DiscreteElevationModel {
 

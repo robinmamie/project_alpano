@@ -10,7 +10,7 @@ import ch.epfl.alpano.dem.DiscreteElevationModel;
 /**
  * Définit un MNT test.
  *
- * @author Robin Mamie
+ * @author Robin Mamié
  */
 public final class WavyDEM implements DiscreteElevationModel {
 

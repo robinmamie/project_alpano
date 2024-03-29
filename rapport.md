@@ -1,5 +1,5 @@
 # Rapport du Projet Alpano, CS 108
-#### Maxence Jouve et Robin Mamie
+#### Robin Mamié
 
 *Note: des fichiers sont ignorés durant le rendu. Il s'agit des images contenues dans le dossier `res`. Ce dossier fournit toutes les icônes des fenêtres du projet. Il s'agit d'un ajout purement esthétique. Ils sont au pire [disponibles ici](https://drive.switch.ch/index.php/s/hiZHmF9Xjpzx5uv).*
 

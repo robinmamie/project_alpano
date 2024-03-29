@@ -18,7 +18,7 @@ import ch.epfl.alpano.Interval2D;
  * Représente un MNT discret obtenu d'un fichier au format HGT (Hilbert). Classe
  * immuable.
  *
- * @author Robin Mamie
+ * @author Robin Mamié
  */
 public final class HilbertDiscreteElevationModel implements DiscreteElevationModel {
 

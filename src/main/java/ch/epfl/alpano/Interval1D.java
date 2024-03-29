@@ -8,8 +8,7 @@ import static java.util.Objects.hash;
 /**
  * Représente un intervalle unidimensionnel d'entiers. Classe immuable.
  *
- * @author Robin Mamie (257234)
- * @author Maxence Jouve (269716)
+ * @author Robin Mamié
  */
 public final class Interval1D {
 

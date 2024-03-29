@@ -19,8 +19,7 @@ import ch.epfl.alpano.GeoPoint;
  * Importe un fichier spécifique contenant les coordonnées des sommets alpins.
  * Classe non instantiable.
  *
- * @author Robin Mamie (257234)
- * @author Maxence Jouve (269716)
+ * @author Robin Mamié
  */
 public final class GazetteerParser {
 

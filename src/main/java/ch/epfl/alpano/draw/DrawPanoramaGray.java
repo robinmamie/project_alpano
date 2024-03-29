@@ -19,7 +19,7 @@ import javafx.embed.swing.SwingFXUtils;
 /**
  * Dessine un panorama en niveaux de gris.
  *
- * @author Robin Mamie
+ * @author Robin Mamié
  */
 final class DrawPanoramaGray {
 

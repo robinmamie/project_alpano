@@ -17,7 +17,7 @@ import ch.epfl.alpano.dem.HgtDiscreteElevationModel;
 /**
  * Dessine un HgtDEM.
  *
- * @author Robin Mamie
+ * @author Robin Mamié
  */
 final class DrawHgtDEM {
 

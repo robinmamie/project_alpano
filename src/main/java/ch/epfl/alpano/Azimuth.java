@@ -13,8 +13,7 @@ import static java.lang.Math.abs;
 /**
  * Fournit des opérations nécessaires aux différents calculs de l'azimut.
  * 
- * @author Robin Mamie (257234)
- * @author Maxence Jouve (269716)
+ * @author Robin Mamié
  */
 public interface Azimuth {
 

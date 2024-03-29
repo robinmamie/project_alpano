@@ -7,7 +7,7 @@ import ch.epfl.alpano.Interval2D;
 /**
  * Représente l'union de deux MNT discrets. Classe immuable.
  * 
- * @author Robin Mamie
+ * @author Robin Mamié
  */
 final class CompositeDiscreteElevationModel implements DiscreteElevationModel {
 

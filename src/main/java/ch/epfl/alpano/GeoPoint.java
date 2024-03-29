@@ -22,8 +22,7 @@ import java.util.Locale;
  * Représente un point géographique sur Terre. Il est défini par sa longitude
  * puis sa latitude. Classe immuable.
  *
- * @author Robin Mamie (257234)
- * @author Maxence Jouve (269716)
+ * @author Robin Mamié
  */
 public final class GeoPoint implements Serializable {
 

@@ -17,7 +17,7 @@ import ch.epfl.alpano.GeoPoint;
 /**
  * Représente un MNT continu. Classe immuable.
  *
- * @author Robin Mamie
+ * @author Robin Mamié
  */
 public final class ContinuousElevationModel {
 

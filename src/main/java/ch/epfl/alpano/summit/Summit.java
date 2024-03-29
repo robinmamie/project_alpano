@@ -8,8 +8,7 @@ import ch.epfl.alpano.GeoPoint;
  * Représente un sommet alpin par son nom, sa position et son altitude. Classe
  * immuable.
  *
- * @author Robin Mamie (257234)
- * @author Maxence Jouve (269716)
+ * @author Robin Mamié
  */
 public final class Summit extends Labelizable {
 
