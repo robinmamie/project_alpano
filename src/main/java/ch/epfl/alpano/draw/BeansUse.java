@@ -16,7 +16,7 @@ public final class BeansUse extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         long start = System.nanoTime();
-        PanoramaParametersBean bean = new PanoramaParametersBean(NIESEN);
+        PanoramaParametersBean bean = new PanoramaParametersBean(NIESEN.parameters());
         ObjectProperty<Integer> prop = bean.observerLatitudeProperty();
 
         prop.addListener((o, oV, nV) -> System.out.printf("  %d -> %d (%s)%n",

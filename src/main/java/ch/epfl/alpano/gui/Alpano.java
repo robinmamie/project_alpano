@@ -95,7 +95,7 @@ public final class Alpano extends Application {
     /**
      * Les paramètres de panorama à précharger.
      */
-    private final static PanoramaUserParameters PRELOAD = PredefinedPanoramas.JURA;
+    private final static PanoramaUserParameters PRELOAD = PredefinedPanoramas.JURA.parameters();
 
     /**
      * Valeur préférée de prefRowCount pour l'aire de texte des infos sous le
@@ -178,6 +178,12 @@ public final class Alpano extends Application {
      * Nombre minimal de colonnes dans les paramètres.
      */
     private static final int MINI_COL_COUNT = 3;
+
+    private static final String SAVE_LABEL = "Sauvegarder";
+
+    private static final String SAVE_PATH = "save/";
+
+    private static final String CANCEL_LABEL = "Annuler";
 
     /**
      * Constructeur statique de la classe.
@@ -598,7 +604,7 @@ public final class Alpano extends Application {
             COMPUTER_B.setParameters(null);
             COMPUTER_B.setParameters(PARAMETERS_B.parametersProperty().get());
         });
-        MenuItem save = new MenuItem("Sauvegarder");
+        MenuItem save = new MenuItem(SAVE_LABEL);
         save.setAccelerator(KeyCombination.keyCombination("Ctrl+S"));
         save.setOnAction(e -> openSaveWindow(panoGroup));
         MenuItem load = new MenuItem("Charger");
@@ -641,10 +647,10 @@ public final class Alpano extends Application {
         TextField queryF = new TextField();
         queryF.setPromptText("Exemple : mon_super_panorama");
 
-        Button saveButton = new Button("Sauvegarder");
+        Button saveButton = new Button(SAVE_LABEL);
         saveButton.setOnAction(f -> {
             File imgFile = new File("img/" + queryF.getText() + ".png");
-            File saveFile = new File("save/" + queryF.getText() + ".png");
+            File saveFile = new File(SAVE_PATH + queryF.getText() + ".png");
             Runnable save = () -> saveImageAndParameters(saveStage, queryF,
                     panoGroup);
             if (imgFile.exists() || saveFile.exists())
@@ -653,7 +659,7 @@ public final class Alpano extends Application {
                 save.run();
         });
 
-        Button quitButton = new Button("Annuler");
+        Button quitButton = new Button(CANCEL_LABEL);
         quitButton.setOnAction(f -> saveStage.close());
         GridPane.setHalignment(quitButton, HPos.RIGHT);
 
@@ -684,13 +690,13 @@ public final class Alpano extends Application {
     private void saveImageAndParameters(Stage saveStage, TextField queryF,
             StackPane panoGroup) {
         File imgFolder = new File("img/");
-        File saveFolder = new File("save/");
+        File saveFolder = new File(SAVE_PATH);
         if (!imgFolder.exists())
             imgFolder.mkdirs();
         if (!saveFolder.exists())
             saveFolder.mkdirs();
         File imgFile = new File("img/" + queryF.getText() + ".png");
-        File saveFile = new File("save/" + queryF.getText() + ".ser");
+        File saveFile = new File(SAVE_PATH + queryF.getText() + ".ser");
 
         if (queryF.getText() != null && !queryF.getText().isEmpty()) {
             try {
@@ -730,7 +736,7 @@ public final class Alpano extends Application {
             action.run();
         });
 
-        Button quitButton = new Button("Annuler");
+        Button quitButton = new Button(CANCEL_LABEL);
         quitButton.setOnAction(f -> promptStage.close());
         GridPane.setHalignment(quitButton, HPos.RIGHT);
 
@@ -758,7 +764,7 @@ public final class Alpano extends Application {
         GridPane grid = new GridPane();
         Scene scene = new Scene(grid);
 
-        File saveFolder = new File("save/");
+        File saveFolder = new File(SAVE_PATH);
         if (!saveFolder.exists())
             return;
 
@@ -796,7 +802,7 @@ public final class Alpano extends Application {
             loadStage.close();
         });
 
-        Button quitButton = new Button("Annuler");
+        Button quitButton = new Button(CANCEL_LABEL);
         quitButton.setOnAction(f -> loadStage.close());
 
         grid.add(choices, 0, 0, 2, 1);
@@ -905,7 +911,7 @@ public final class Alpano extends Application {
         Label infoPriority = new Label("Les sommets ont une priorité de 0.");
         GridPane.setHalignment(infoPriority, HPos.CENTER);
 
-        Button saveButton = new Button("Sauvegarder");
+        Button saveButton = new Button(SAVE_LABEL);
         saveButton.setOnAction(f -> {
             File plcFile = new File("plc/" + nameF.getText() + ".ser");
             Runnable save = () -> savePlace(placeStage, nameF,
@@ -917,7 +923,7 @@ public final class Alpano extends Application {
                 save.run();
         });
 
-        Button quitButton = new Button("Annuler");
+        Button quitButton = new Button(CANCEL_LABEL);
         quitButton.setOnAction(f -> placeStage.close());
         GridPane.setHalignment(quitButton, HPos.RIGHT);
 

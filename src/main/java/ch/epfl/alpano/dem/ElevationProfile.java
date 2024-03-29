@@ -26,6 +26,9 @@ import ch.epfl.alpano.GeoPoint;
  */
 public final class ElevationProfile {
 
+    private static final String POSITION_NOT_DEFINED_MESSAGE =
+        "The position is not defined in the ElevationProfile.";
+
     /**
      * La distance entre le calcul de chaque point de l'ElevationProfile.
      */
@@ -119,8 +122,7 @@ public final class ElevationProfile {
      *             profil altimétrique
      */
     public GeoPoint positionAt(double x) {
-        checkArgument(0 <= x && x <= length,
-                "The position is not defined in the ElevationProfile.");
+        checkArgument(0 <= x && x <= length, POSITION_NOT_DEFINED_MESSAGE);
         double div = scalb(x, -12);
         int v = (int) div;
         if (v == pointsCalculated.size() - 1)
@@ -147,8 +149,7 @@ public final class ElevationProfile {
      *             profil altimétrique
      */
     public double elevationAt(double x) {
-        checkArgument(0 <= x && x <= length,
-                "The position is not defined in the ElevationProfile.");
+        checkArgument(0 <= x && x <= length, POSITION_NOT_DEFINED_MESSAGE);
         return cem.elevationAt(positionAt(x));
     }
 
@@ -166,8 +167,7 @@ public final class ElevationProfile {
      *             profil altimétrique
      */
     public double slopeAt(double x) {
-        checkArgument(0 <= x && x <= length,
-                "The position is not defined in the ElevationProfile.");
+        checkArgument(0 <= x && x <= length, POSITION_NOT_DEFINED_MESSAGE);
         return cem.slopeAt(positionAt(x));
     }
 
