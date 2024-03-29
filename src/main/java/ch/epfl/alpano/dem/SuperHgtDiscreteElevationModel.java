@@ -41,8 +41,10 @@ public final class SuperHgtDiscreteElevationModel implements DiscreteElevationMo
 		checkArgument(BASE_LAT <= latMin && latMax <= MAX_LAT);
 		this.sources = new HgtDiscreteElevationModel[size];
 		for (var i = 0; i < size; ++i) {
-			final var file = this.getClass().getResource("/" + "N" + (latMin + i / sizeHor) + "E" + String.format("%03d", (lonMin + (i % sizeHor))) + ".hgt").getFile();
-			sources[i] = new HgtDiscreteElevationModel(new File(file));
+			final var file = new File(this.getClass()
+					.getResource(String.format("/N%02dE%03d.hgt", latMin + i / sizeHor, lonMin + (i % sizeHor)))
+					.getFile());
+			sources[i] = new HgtDiscreteElevationModel(file);
 		}
 
 		final var lonIndex = lonMin * SAMPLES_PER_DEGREE;
