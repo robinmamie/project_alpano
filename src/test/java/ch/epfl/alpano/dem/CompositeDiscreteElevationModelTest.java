@@ -3,16 +3,17 @@ package ch.epfl.alpano.dem;
 import static ch.epfl.test.TestRandomizer.RANDOM_ITERATIONS;
 import static ch.epfl.test.TestRandomizer.newRandom;
 import static java.lang.Math.toRadians;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Random;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import ch.epfl.alpano.Interval1D;
 import ch.epfl.alpano.Interval2D;
 
-public class CompositeDiscreteElevationModelTest {
+class CompositeDiscreteElevationModelTest {
 
 	private final static Interval2D ext1 = new Interval2D(
 			new Interval1D(-100_000, 100_000),
@@ -28,12 +29,12 @@ public class CompositeDiscreteElevationModelTest {
 			new Interval1D(0, 100_001));
 
 	@Test
-	public void samplesPerRadiansHasCorrectValue() {
+	void samplesPerRadiansHasCorrectValue() {
 		assertEquals(206264.80624709636, DiscreteElevationModel.SAMPLES_PER_RADIAN, 1e-8);
 	}
 
 	@Test
-	public void sampleIndexWorksOnRandomValues() {
+	void sampleIndexWorksOnRandomValues() {
 		Random rng = newRandom();
 		for (int i = 0; i < RANDOM_ITERATIONS; ++i) {
 			int arcSeconds = rng.nextInt(2_000_000) - 1_000_000;
@@ -42,31 +43,31 @@ public class CompositeDiscreteElevationModelTest {
 		}
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void unionFailsIfExtentsNotUnionable() {
+	@Test
+	void unionFailsIfExtentsNotUnionable() {
 		ConstantElevationDEM__Prof dem1 = new ConstantElevationDEM__Prof(ext1, 0);
 		ConstantElevationDEM__Prof dem2 = new ConstantElevationDEM__Prof(ext3, 0);
-		dem1.union(dem2);
+		assertThrows(IllegalArgumentException.class, () -> dem1.union(dem2));
 	}
 
 	@Test
-	public void extentOfUnionIsUnionOfExtent() {
+	void extentOfUnionIsUnionOfExtent() {
 		ConstantElevationDEM__Prof dem1 = new ConstantElevationDEM__Prof(ext1, 0);
 		ConstantElevationDEM__Prof dem2 = new ConstantElevationDEM__Prof(ext2, 0);
 		DiscreteElevationModel dem12 = dem1.union(dem2);
 		assertEquals(ext12, dem12.extent());
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void elevationSampleFailsWhenOutsideOfExtent() {
+	@Test
+	void elevationSampleFailsWhenOutsideOfExtent() {
 		ConstantElevationDEM__Prof dem1 = new ConstantElevationDEM__Prof(ext1, 0);
 		ConstantElevationDEM__Prof dem2 = new ConstantElevationDEM__Prof(ext2, 0);
 		DiscreteElevationModel dem12 = dem1.union(dem2);
-		dem12.elevationSample(0, 200_001);
+		assertThrows(IllegalArgumentException.class, () -> dem12.elevationSample(0, 200_001));
 	}
 
 	@Test
-	public void elevationSampleWorksOnBothSubDEMs() {
+	void elevationSampleWorksOnBothSubDEMs() {
 		ConstantElevationDEM__Prof dem1 = new ConstantElevationDEM__Prof(ext1, 1);
 		ConstantElevationDEM__Prof dem2 = new ConstantElevationDEM__Prof(ext2, 2);
 		DiscreteElevationModel dem12 = dem1.union(dem2);
@@ -79,17 +80,6 @@ public class CompositeDiscreteElevationModelTest {
 		assertEquals(2, dem12.elevationSample(100_000, 200_000), 0);
 		assertEquals(2, dem12.elevationSample(-100_000, 200_000), 0);
 	}
-
-	// @SuppressWarnings("resource")
-	// @Test
-	// public void closeClosesBothSubDEMs() throws Exception {
-	// ConstantElevationDEM__Prof dem1 = new ConstantElevationDEM__Prof(ext1, 0);
-	// ConstantElevationDEM__Prof dem2 = new ConstantElevationDEM__Prof(ext2, 0);
-	// DiscreteElevationModel dem12 = dem1.union(dem2);
-	// dem12.close();
-	// assertTrue(dem1.isClosed);
-	// assertTrue(dem2.isClosed);
-	// }
 }
 
 class ConstantElevationDEM__Prof implements DiscreteElevationModel {

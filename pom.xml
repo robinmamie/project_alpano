@@ -22,8 +22,8 @@
 		<!-- https://mvnrepository.com/artifact/org.openjfx/javafx-graphics -->
 		<!-- https://mvnrepository.com/artifact/org.openjfx/javafx-swing -->
 		<javafx.version>21.0.2</javafx.version>
-		<!-- https://mvnrepository.com/artifact/junit/junit -->
-		<junit.version>4.13.2</junit.version>
+		<!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
+		<junit.version>5.10.2</junit.version>
 		<!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-clean-plugin -->
 		<maven-clean.version>3.3.2</maven-clean.version>
 		<!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-resources-plugin -->
@@ -45,6 +45,8 @@
 		<maven-project-info.version>3.5.0</maven-project-info.version>
 		<!-- https://mvnrepository.com/artifact/org.openjfx/javafx-maven-plugin -->
 		<javafx-maven.version>0.0.8</javafx-maven.version>
+		<!-- https://mvnrepository.com/artifact/org.jacoco/jacoco-maven-plugin -->
+		<jacoco.version>0.8.11</jacoco.version>
 	</properties>
 
 	<dependencies>
@@ -69,8 +71,8 @@
 			<version>${javafx.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
 			<version>${junit.version}</version>
 			<scope>test</scope>
 		</dependency>
@@ -122,6 +124,26 @@
 					<configuration>
 						<mainClass>ch.epfl.alpano.gui.Alpano</mainClass>
 					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.jacoco</groupId>
+					<artifactId>jacoco-maven-plugin</artifactId>
+					<version>${jacoco.version}</version>
+					<executions>
+						<execution>
+							<id>prepare-agent</id>
+							<goals>
+								<goal>prepare-agent</goal>
+							</goals>
+						</execution>
+						<execution>
+							<id>report</id>
+							<phase>test</phase>
+							<goals>
+								<goal>report</goal>
+							</goals>
+						</execution>
+					</executions>
 				</plugin>
 			</plugins>
 		</pluginManagement>

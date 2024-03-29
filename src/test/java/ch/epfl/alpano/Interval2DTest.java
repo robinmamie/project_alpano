@@ -2,13 +2,17 @@ package ch.epfl.alpano;
 
 import static ch.epfl.test.ObjectTest.hashCodeIsCompatibleWithEquals;
 import static ch.epfl.test.TestRandomizer.newRandom;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Random;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class Interval2DTest {
+class Interval2DTest {
 
 	private static final int RANDOM_ITERATIONS = 0;
 
@@ -44,13 +48,13 @@ public class Interval2DTest {
 		return newInterval2D(2, 2, 2, 2);
 	}
 
-	@Test(expected = NullPointerException.class)
-	public void constructorFailsOnInvalidInterval() {
-		new Interval2D(null, null);
+	@Test
+	void constructorFailsOnInvalidInterval() {
+		assertThrows(NullPointerException.class, () -> new Interval2D(null, null));
 	}
 
 	@Test
-	public void containsWorksOnKnownIntervals() {
+	void containsWorksOnKnownIntervals() {
 		Interval2D i = i_2_2_2_2();
 		for (int x = 1; x <= 3; ++x) {
 			for (int y = 1; y <= 3; ++y) {
@@ -60,20 +64,20 @@ public class Interval2DTest {
 	}
 
 	@Test
-	public void sizeWorksOnKnownIntervals() {
+	void sizeWorksOnKnownIntervals() {
 		assertEquals(1, i_2_2_2_2().size());
 		assertEquals(21 * 11, i_0_20_0_10().size());
 		assertEquals(10 * 11, i_11_20_0_10().size());
 	}
 
 	@Test
-	public void sizeOfIntersectionWorksOnNonIntersectingIntervals() {
+	void sizeOfIntersectionWorksOnNonIntersectingIntervals() {
 		assertEquals(0, i_2_2_2_2().sizeOfIntersectionWith(i_11_20_0_10()));
 		assertEquals(0, i_11_20_0_10().sizeOfIntersectionWith(i_2_2_2_2()));
 	}
 
 	@Test
-	public void sizeOfIntersectionWorksOnIntersectingIntervals() {
+	 void sizeOfIntersectionWorksOnIntersectingIntervals() {
 		assertEquals(1, i_2_2_2_2().sizeOfIntersectionWith(i_2_2_2_2()));
 		assertEquals(21 * 11, i_0_20_0_10().sizeOfIntersectionWith(i_0_20_0_10()));
 		assertEquals(1, i_2_2_2_2().sizeOfIntersectionWith(i_0_20_0_10()));
@@ -82,7 +86,7 @@ public class Interval2DTest {
 	}
 
 	@Test
-	public void boudingUnionWorksOnKnownIntervals() {
+	void boudingUnionWorksOnKnownIntervals() {
 		assertEquals(i_2_2_2_2(), i_2_2_2_2().boundingUnion(i_2_2_2_2()));
 
 		Interval2D i1 = i_0_10_0_10().boundingUnion(i_0_9_0_11());
@@ -99,7 +103,7 @@ public class Interval2DTest {
 	}
 
 	@Test
-	public void isUnionableWorksOnKnownUnionableIntervals() {
+	void isUnionableWorksOnKnownUnionableIntervals() {
 		assertTrue(i_0_10_0_10().isUnionableWith(i_0_10_0_10()));
 		assertTrue(i_0_10_0_10().isUnionableWith(i_0_10_11_20()));
 		assertTrue(i_0_10_11_20().isUnionableWith(i_0_10_0_10()));
@@ -110,7 +114,7 @@ public class Interval2DTest {
 	}
 
 	@Test
-	public void isUnionableWorksOnKnownNonUnionableIntervals() {
+	void isUnionableWorksOnKnownNonUnionableIntervals() {
 		assertFalse(i_2_2_2_2().isUnionableWith(i_11_20_0_10()));
 		assertFalse(i_11_20_0_10().isUnionableWith(i_2_2_2_2()));
 		assertFalse(i_0_9_0_11().isUnionableWith(i_0_10_0_10()));
@@ -118,7 +122,7 @@ public class Interval2DTest {
 	}
 
 	@Test
-	public void isUnionableWithIsReflexive() {
+	void isUnionableWithIsReflexive() {
 		Random rng = newRandom();
 		for (int i = 0; i < RANDOM_ITERATIONS; ++i) {
 			Interval2D interval = nextInterval(rng, 500, 1000);
@@ -127,7 +131,7 @@ public class Interval2DTest {
 	}
 
 	@Test
-	public void isUnionableWithIsSymmetric() {
+	void isUnionableWithIsSymmetric() {
 		Random rng = newRandom();
 		for (int i = 0; i < RANDOM_ITERATIONS; ++i) {
 			Interval2D i1 = nextInterval(rng, 5, 10);
@@ -136,18 +140,20 @@ public class Interval2DTest {
 		}
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void unionFailsOnNonUnionableIntervals() {
-		i_2_2_2_2().union(i_11_20_0_10());
+	@Test
+	void unionFailsOnNonUnionableIntervals() {
+		final var i1 = i_2_2_2_2();
+		final var i2 = i_11_20_0_10();
+		assertThrows(IllegalArgumentException.class, () -> i1.union(i2));
 	}
 
 	@Test
-	public void unionWorksOnASingleInterval() {
+	void unionWorksOnASingleInterval() {
 		assertEquals(i_0_10_0_10(), i_0_10_0_10().union(i_0_10_0_10().union(i_0_10_0_10())));
 	}
 
 	@Test
-	public void unionWorksOnKnownIntervals() {
+	void unionWorksOnKnownIntervals() {
 		assertEquals(i_0_10_0_10(), i_0_10_0_10().union(i_2_2_2_2()));
 		assertEquals(i_0_10_0_10(), i_2_2_2_2().union(i_0_10_0_10()));
 
@@ -159,7 +165,7 @@ public class Interval2DTest {
 	}
 
 	@Test
-	public void unionIsCommutative() {
+	void unionIsCommutative() {
 		Random rng = newRandom();
 		for (int i = 0; i < RANDOM_ITERATIONS; ++i) {
 			Interval2D i1 = nextInterval(rng, 5, 10);
@@ -170,7 +176,7 @@ public class Interval2DTest {
 	}
 
 	@Test
-	public void equalsIsStructural() {
+	void equalsIsStructural() {
 		Random rng = newRandom();
 		for (int i = 0; i < RANDOM_ITERATIONS; ++i) {
 			int x1 = rng.nextInt(1000) - 500;
@@ -188,7 +194,7 @@ public class Interval2DTest {
 	}
 
 	@Test
-	public void hashCodeAndEqualsAreCompatible() {
+	void hashCodeAndEqualsAreCompatible() {
 		Random rng = newRandom();
 		for (int i = 0; i < RANDOM_ITERATIONS; ++i) {
 			int a = rng.nextInt(1000) - 500, b = a + rng.nextInt(20);
@@ -207,37 +213,35 @@ public class Interval2DTest {
 		return newInterval2D(-offsetX, sizeX - offsetX, -offsetY, sizeY - offsetY);
 	}
 
-	@Test(expected = NullPointerException.class)
-	public void constructorThrowsErrorIfIncorrectArgumentsGiven() {
-		new Interval2D(null, null);
+	@Test
+	void constructorThrowsErrorIfIncorrectArgumentsGiven() {
+		assertThrows(NullPointerException.class, () -> new Interval2D(null, null));
 	}
 
-	@Test
-	public void containsWorksOnMiddleValue() {
+	private void testContains(final int i, final int j) {
 		Interval1D a = new Interval1D(0, 2);
 		Interval1D b = new Interval1D(5, 8);
 		Interval2D c = new Interval2D(a, b);
-		assertTrue(c.contains(1, 7));
+		assertTrue(c.contains(i, j));
 	}
 
 	@Test
-	public void containsWorksOnLowerBound() {
-		Interval1D a = new Interval1D(0, 2);
-		Interval1D b = new Interval1D(5, 8);
-		Interval2D c = new Interval2D(a, b);
-		assertTrue(c.contains(0, 5));
+	void containsWorksOnMiddleValue() {
+		testContains(1, 7);
 	}
 
 	@Test
-	public void containsWorksOnUpperBound() {
-		Interval1D a = new Interval1D(0, 2);
-		Interval1D b = new Interval1D(5, 8);
-		Interval2D c = new Interval2D(a, b);
-		assertTrue(c.contains(2, 8));
+	void containsWorksOnLowerBound() {
+		testContains(0, 5);
 	}
 
 	@Test
-	public void containsFailsOnOtherValue() {
+	void containsWorksOnUpperBound() {
+		testContains(2, 8);
+	}
+
+	@Test
+	void containsFailsOnOtherValue() {
 		Interval1D a = new Interval1D(0, 2);
 		Interval1D b = new Interval1D(5, 8);
 		Interval2D c = new Interval2D(a, b);
@@ -245,7 +249,7 @@ public class Interval2DTest {
 	}
 
 	@Test
-	public void sizeWorksOnRandomInterval() {
+	void sizeWorksOnRandomInterval() {
 		Interval1D a = new Interval1D(0, 2);
 		Interval1D b = new Interval1D(5, 8);
 		Interval2D c = new Interval2D(a, b);
@@ -255,7 +259,7 @@ public class Interval2DTest {
 	}
 
 	@Test
-	public void sizeOfIntersectionWithWorksWithRandomIntervals() {
+	void sizeOfIntersectionWithWorksWithRandomIntervals() {
 		Interval1D a1 = new Interval1D(0, 2);
 		Interval1D b1 = new Interval1D(5, 8);
 		Interval2D c1 = new Interval2D(a1, b1);
@@ -270,7 +274,7 @@ public class Interval2DTest {
 	}
 
 	@Test
-	public void sizeOfIntersectionWithWorksWithDisjointIntervals() {
+	void sizeOfIntersectionWithWorksWithDisjointIntervals() {
 		Interval1D a1 = new Interval1D(0, 2);
 		Interval1D b1 = new Interval1D(5, 8);
 		Interval2D c1 = new Interval2D(a1, b1);
@@ -285,7 +289,7 @@ public class Interval2DTest {
 	}
 
 	@Test
-	public void unionWorksWithUnionableIntervals() {
+	void unionWorksWithUnionableIntervals() {
 		Interval1D a1 = new Interval1D(0, 2);
 		Interval1D b1 = new Interval1D(5, 8);
 		Interval2D c1 = new Interval2D(a1, b1);
@@ -300,8 +304,8 @@ public class Interval2DTest {
 		assertEquals(expectedInterval, actualInterval);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void unionFailsWithNonUnionableIntervals() {
+	@Test
+	void unionFailsWithNonUnionableIntervals() {
 		Interval1D a1 = new Interval1D(0, 2);
 		Interval1D b1 = new Interval1D(5, 8);
 		Interval2D c1 = new Interval2D(a1, b1);
@@ -310,11 +314,11 @@ public class Interval2DTest {
 		Interval1D b2 = new Interval1D(3, 8);
 		Interval2D c2 = new Interval2D(a2, b2);
 
-		c1.union(c2);
+		assertThrows(IllegalArgumentException.class, () -> c1.union(c2));
 	}
 
 	@Test
-	public void toStringWorksWithRandomInterval() {
+	void toStringWorksWithRandomInterval() {
 		Interval1D a1 = new Interval1D(-1, 14);
 		Interval1D b1 = new Interval1D(0, 22);
 		Interval2D c1 = new Interval2D(a1, b1);

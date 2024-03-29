@@ -4,7 +4,8 @@ import static ch.epfl.alpano.summit.GazetteerParser.readSummitsFrom;
 import static java.lang.Math.toDegrees;
 import static java.lang.Math.toRadians;
 import static java.nio.charset.StandardCharsets.US_ASCII;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -18,48 +19,54 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import ch.epfl.alpano.GeoPoint;
 
-public class GazetteerParserTest {
+class GazetteerParserTest {
 
-	@Test(expected = IOException.class)
-	public void parserFailsOnNonExistantFile() throws IOException {
-		readSummitsFrom(new File("/   /d:/ééé"));
-	}
-
-	@Test(expected = IOException.class)
-	public void parserFailsOnGarbageLine() throws IOException {
-		readSummitsFrom(tempFileWithLines("blabla"));
-	}
-
-	@Test(expected = IOException.class)
-	public void parserFailsOnInvalidLongitude() throws IOException {
-		String l = "  7:25:1x 45:08:25  1325  R0 E07 BA MONTE CURT";
-		readSummitsFrom(tempFileWithLines(l));
-	}
-
-	@Test(expected = IOException.class)
-	public void parserFailsOnInvalidLatitude() throws IOException {
-		String l = "  7:25:12 45:08:2_  1325  R0 E07 BA MONTE CURT";
-		readSummitsFrom(tempFileWithLines(l));
-	}
-
-	@Test(expected = IOException.class)
-	public void parserFailsOnInvalidElevation() throws IOException {
-		String l = "  7:25:12 45:08:25  leet  R0 E07 BA MONTE CURT";
-		readSummitsFrom(tempFileWithLines(l));
-	}
-
-	@Test(expected = UnsupportedOperationException.class)
-	public void summitListIsUnmodifiable() throws IOException {
-		String l = "  7:01:02 46:32:56  2002  H1 B01 D7 LE MOLESON";
-		readSummitsFrom(tempFileWithLines(l)).clear();
+	@Test
+	void parserFailsOnNonExistantFile() throws IOException {
+		final var f = new File("/   /d:/ééé");
+		assertThrows(IOException.class, () -> readSummitsFrom(f));
 	}
 
 	@Test
-	public void parserWorksOnValidFile() throws IOException {
+	void parserFailsOnGarbageLine() throws IOException {
+		final var f = tempFileWithLines("blabla");
+		assertThrows(IOException.class, () -> readSummitsFrom(f));
+	}
+
+	private void paserFailsOnInvalidInfo(final String info) throws IOException {
+		final var f = tempFileWithLines(info);
+		assertThrows(IOException.class, () -> readSummitsFrom(f));
+	}
+
+	@Test
+	void parserFailsOnInvalidLongitude() throws IOException {
+		paserFailsOnInvalidInfo("  7:25:1x 45:08:25  1325  R0 E07 BA MONTE CURT");
+	}
+
+	@Test
+	void parserFailsOnInvalidLatitude() throws IOException {
+		paserFailsOnInvalidInfo("  7:25:12 45:08:2_  1325  R0 E07 BA MONTE CURT");
+	}
+
+	@Test
+	void parserFailsOnInvalidElevation() throws IOException {
+		paserFailsOnInvalidInfo("  7:25:12 45:08:25  leet  R0 E07 BA MONTE CURT");
+	}
+
+	@Test
+	void summitListIsUnmodifiable() throws IOException {
+		String l = "  7:01:02 46:32:56  2002  H1 B01 D7 LE MOLESON";
+		final var f = tempFileWithLines(l);
+		final var list = readSummitsFrom(f);
+		assertThrows(UnsupportedOperationException.class, () -> list.clear());
+	}
+
+	@Test
+	void parserWorksOnValidFile() throws IOException {
 		List<Summit> summits = Arrays.asList(
 				new Summit("A MONT UN", hmsPoint(7, 30, 00, 15, 16, 17), 30),
 				new Summit("B MONT ZWEI", hmsPoint(6, 12, 34, 1, 23, 45), 10),

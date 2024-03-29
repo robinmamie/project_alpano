@@ -14,47 +14,48 @@ import static java.lang.Math.round;
 import static java.lang.Math.scalb;
 import static java.lang.Math.toDegrees;
 import static java.lang.Math.toRadians;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class AzimuthTest {
+class AzimuthTest {
 
 	@Test
-	public void isCanonicalIsTrueFor0() {
+	void isCanonicalIsTrueFor0() {
 		assertTrue(isCanonical(0));
 	}
 
 	@Test
-	public void isCanonicalIsFalseFor0Pred() {
+	void isCanonicalIsFalseFor0Pred() {
 		assertFalse(isCanonical(nextDown(0)));
 	}
 
 	@Test
-	public void isCanonicalIsTrueFor2PiPred() {
+	void isCanonicalIsTrueFor2PiPred() {
 		assertTrue(isCanonical(nextDown(scalb(PI, 1))));
 	}
 
 	@Test
-	public void isCanonicalIsFalseFor2Pi() {
+	void isCanonicalIsFalseFor2Pi() {
 		assertFalse(isCanonical(scalb(PI, 1)));
 	}
 
 	@Test
-	public void isCanonicalIsTrueForRandomCanonicalAzimuths() {
+	void isCanonicalIsTrueForRandomCanonicalAzimuths() {
 		Random rng = newRandom();
 		for (int i = 0; i < RANDOM_ITERATIONS; ++i)
 			assertTrue(isCanonical(rng.nextDouble() * scalb(PI, 1)));
 	}
 
 	@Test
-	public void canonicalizeCorrectlyCanonicalizesRoundedRandomAngles() {
+	void canonicalizeCorrectlyCanonicalizesRoundedRandomAngles() {
 		Random rng = newRandom();
 		for (int i = 0; i < RANDOM_ITERATIONS; ++i) {
 			int aDeg = rng.nextInt(10_000) - 5_000;
@@ -69,17 +70,17 @@ public class AzimuthTest {
 	}
 
 	@Test
-	public void toMathCorrectlyHandles0() {
+	void toMathCorrectlyHandles0() {
 		assertEquals(0d, toMath(0d), 0d);
 	}
 
 	@Test
-	public void fromMathCorrectlyHandles0() {
+	void fromMathCorrectlyHandles0() {
 		assertEquals(0d, fromMath(0d), 0d);
 	}
 
 	@Test
-	public void toMathWorksForKnownValues() {
+	void toMathWorksForKnownValues() {
 		int[] vs = new int[] {
 				0, 0,
 				90, 270,
@@ -93,7 +94,7 @@ public class AzimuthTest {
 	}
 
 	@Test
-	public void fromMathWorksForKnownValues() {
+	void fromMathWorksForKnownValues() {
 		int[] vs = new int[] {
 				0, 0,
 				90, 270,
@@ -107,7 +108,7 @@ public class AzimuthTest {
 	}
 
 	@Test
-	public void toMathAndFromMathAreInverseForRandomValues() {
+	void toMathAndFromMathAreInverseForRandomValues() {
 		Random rng = newRandom();
 		for (int i = 0; i < RANDOM_ITERATIONS; ++i) {
 			double a = rng.nextDouble() * scalb(PI, 1);
@@ -119,23 +120,25 @@ public class AzimuthTest {
 		}
 	}
 
-	@Test(expected = java.lang.IllegalArgumentException.class)
-	public void toMathThrowsFor2Pi() {
-		toMath(scalb(PI, 1));
-	}
-
-	@Test(expected = java.lang.IllegalArgumentException.class)
-	public void fromMathThrowsFor2Pi() {
-		fromMath(scalb(PI, 1));
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void toOctantStringThrowsForNonCanonicalAzimuth() {
-		toOctantString(-1, null, null, null, null);
+	@Test
+	void toMathThrowsFor2Pi() {
+		final var scalb = scalb(PI, 1);
+		assertThrows(IllegalArgumentException.class, () -> toMath(scalb));
 	}
 
 	@Test
-	public void toOctantStringCorrectlyCyclesThroughValues() {
+	void fromMathThrowsFor2Pi() {
+		final var scalb = scalb(PI, 1);
+		assertThrows(IllegalArgumentException.class, () -> fromMath(scalb));
+	}
+
+	@Test
+	void toOctantStringThrowsForNonCanonicalAzimuth() {
+		assertThrows(IllegalArgumentException.class, () -> toOctantString(-1, null, null, null, null));
+	}
+
+	@Test
+	void toOctantStringCorrectlyCyclesThroughValues() {
 		String n = "north", e = "east", s = "south", w = "west";
 		ArrayList<String> expected = new ArrayList<>();
 		expected.addAll(Collections.nCopies(45, n));

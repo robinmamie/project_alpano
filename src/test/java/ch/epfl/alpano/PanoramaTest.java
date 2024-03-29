@@ -2,14 +2,15 @@ package ch.epfl.alpano;
 
 import static ch.epfl.test.TestRandomizer.newRandom;
 import static java.lang.Math.toRadians;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Random;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class PanoramaTest {
+class PanoramaTest {
 
 	private static PanoramaParameters PARAMS() {
 		return new PanoramaParameters(
@@ -22,13 +23,13 @@ public class PanoramaTest {
 				7);
 	}
 
-	@Test(expected = NullPointerException.class)
-	public void builderFailsWithNullParameters() {
-		new Panorama.Builder(null);
+	@Test
+	void builderFailsWithNullParameters() {
+		assertThrows(NullPointerException.class, () -> new Panorama.Builder(null));
 	}
 
 	@Test
-	public void builderConstructorCorrectlyInitializesSamples() {
+	void builderConstructorCorrectlyInitializesSamples() {
 		Panorama p = new Panorama.Builder(PARAMS()).build();
 		assertEquals(Float.POSITIVE_INFINITY, p.distanceAt(0, 0), 0);
 		assertEquals(0, p.longitudeAt(0, 0), 0);
@@ -37,41 +38,41 @@ public class PanoramaTest {
 		assertEquals(0, p.slopeAt(0, 0), 0);
 	}
 
-	@Test(expected = IndexOutOfBoundsException.class)
-	public void setDistanceAtFailsWithInvalidIndex() {
+	@Test
+	void setDistanceAtFailsWithInvalidIndex() {
 		Panorama.Builder b = new Panorama.Builder(PARAMS());
-		b.setDistanceAt(10, 0, 1);
+		assertThrows(IndexOutOfBoundsException.class, () -> b.setDistanceAt(10, 0, 1));
 	}
 
 	@Test
-	public void setLongitudeAtReturnsThis() {
+	void setLongitudeAtReturnsThis() {
 		Panorama.Builder b = new Panorama.Builder(PARAMS());
 		assertSame(b, b.setLongitudeAt(0, 0, 1));
 	}
 
-	@Test(expected = IllegalStateException.class)
-	public void setSlopeAtFailsAfterBuild() {
+	@Test
+	void setSlopeAtFailsAfterBuild() {
 		Panorama.Builder b = new Panorama.Builder(PARAMS());
 		b.build();
-		b.setSlopeAt(0, 0, 0);
-	}
-
-	@Test(expected = IllegalStateException.class)
-	public void buildFailsAfterBuild() {
-		Panorama.Builder b = new Panorama.Builder(PARAMS());
-		b.build();
-		b.build();
+		assertThrows(IllegalStateException.class, () -> b.setSlopeAt(0, 0, 0));
 	}
 
 	@Test
-	public void parametersReturnsParameters() {
+	void buildFailsAfterBuild() {
+		Panorama.Builder b = new Panorama.Builder(PARAMS());
+		b.build();
+		assertThrows(IllegalStateException.class, b::build);
+	}
+
+	@Test
+	void parametersReturnsParameters() {
 		PanoramaParameters ps = PARAMS();
 		Panorama p = new Panorama.Builder(ps).build();
 		assertSame(ps, p.parameters());
 	}
 
 	@Test
-	public void builderSettersWork() {
+	void builderSettersWork() {
 		PanoramaParameters ps = PARAMS();
 		float[] values = new float[ps.width() * ps.height()];
 		Random rng = newRandom();

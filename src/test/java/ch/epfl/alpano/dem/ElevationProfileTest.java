@@ -2,44 +2,51 @@ package ch.epfl.alpano.dem;
 
 import static java.lang.Math.PI;
 import static java.lang.Math.toRadians;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import ch.epfl.alpano.GeoPoint;
 import ch.epfl.alpano.Interval1D;
 import ch.epfl.alpano.Interval2D;
 
-public class ElevationProfileTest {
+class ElevationProfileTest {
 
-	@Test(expected = NullPointerException.class)
-	public void constructorFailsWhenElevationModelIsNull() {
-		new ElevationProfile(null, new GeoPoint(0, 0), 0, 100);
-	}
-
-	@Test(expected = NullPointerException.class)
-	public void constructorFailsWhenOriginIsNull() {
-		new ElevationProfile(newConstantSlopeDEM(), null, 0, 100);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void constructorFailsWhenAzimuthIsNotCanonical() {
-		new ElevationProfile(newConstantSlopeDEM(), new GeoPoint(0, 0), 6.3, 100);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void constructorFailsWhenLengthIsZero() {
-		new ElevationProfile(newConstantSlopeDEM(), new GeoPoint(0, 0), 0, 0);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void elevationAtFailsWhenXIsTooBig() {
-		ElevationProfile p = new ElevationProfile(newConstantSlopeDEM(), new GeoPoint(0, 0), 0, 100);
-		p.elevationAt(101);
+	@Test
+	void constructorFailsWhenElevationModelIsNull() {
+		final var p = new GeoPoint(0, 0);
+		assertThrows(NullPointerException.class, () -> new ElevationProfile(null, p, 0, 100));
 	}
 
 	@Test
-	public void elevationAtWorksOnConstantSlopeDEMGoingNorth() {
+	void constructorFailsWhenOriginIsNull() {
+		final var dem = newConstantSlopeDEM();
+		assertThrows(NullPointerException.class, () -> new ElevationProfile(dem, null, 0, 100));
+	}
+
+	@Test
+	void constructorFailsWhenAzimuthIsNotCanonical() {
+		final var dem = newConstantSlopeDEM();
+		final var p = new GeoPoint(0, 0);
+		assertThrows(IllegalArgumentException.class, () -> new ElevationProfile(dem, p, 6.3, 100));
+	}
+
+	@Test
+	void constructorFailsWhenLengthIsZero() {
+		final var dem = newConstantSlopeDEM();
+		final var p = new GeoPoint(0, 0);
+		assertThrows(IllegalArgumentException.class, () -> new ElevationProfile(dem, p, 0, 0));
+	}
+
+	@Test
+	void elevationAtFailsWhenXIsTooBig() {
+		ElevationProfile p = new ElevationProfile(newConstantSlopeDEM(), new GeoPoint(0, 0), 0, 100);
+		assertThrows(IllegalArgumentException.class, () -> p.elevationAt(101));
+	}
+
+	@Test
+	void elevationAtWorksOnConstantSlopeDEMGoingNorth() {
 		ElevationProfile p = new ElevationProfile(newConstantSlopeDEM(), new GeoPoint(0, 0), 0, 100_000);
 		for (int i = 0; i < 100; ++i) {
 			double x = 100d * i;
@@ -48,7 +55,7 @@ public class ElevationProfileTest {
 	}
 
 	@Test
-	public void elevationAtWorksOnConstantSlopeDEMGoingSouth() {
+	void elevationAtWorksOnConstantSlopeDEMGoingSouth() {
 		ElevationProfile p = new ElevationProfile(newConstantSlopeDEM(), new GeoPoint(0, 0), PI, 100_000);
 		for (int i = 0; i < 100; ++i) {
 			double x = 100d * i;
@@ -57,7 +64,7 @@ public class ElevationProfileTest {
 	}
 
 	@Test
-	public void elevationAtWorksOnConstantSlopeDEMGoingEast() {
+	void elevationAtWorksOnConstantSlopeDEMGoingEast() {
 		ElevationProfile p = new ElevationProfile(newConstantSlopeDEM(), new GeoPoint(0, 0), PI / 2d, 100_000);
 		for (int i = 0; i < 100; ++i) {
 			double x = 100d * i;
@@ -66,7 +73,7 @@ public class ElevationProfileTest {
 	}
 
 	@Test
-	public void elevationAtWorksOnConstantSlopeDEMGoingWest() {
+	void elevationAtWorksOnConstantSlopeDEMGoingWest() {
 		ElevationProfile p = new ElevationProfile(newConstantSlopeDEM(), new GeoPoint(0, 0), 3d * PI / 2d, 100_000);
 		for (int i = 0; i < 100; ++i) {
 			double x = 100d * i;
@@ -74,14 +81,14 @@ public class ElevationProfileTest {
 		}
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void positionAtFailsWhenXIsTooBig() {
+	@Test
+	void positionAtFailsWhenXIsTooBig() {
 		ElevationProfile p = new ElevationProfile(newConstantSlopeDEM(), new GeoPoint(0, 0), 0, 100);
-		p.positionAt(101);
+		assertThrows(IllegalArgumentException.class, () -> p.positionAt(101));
 	}
 
 	@Test
-	public void positionAtProducesConstantLongitudeWhenGoingNorth() {
+	void positionAtProducesConstantLongitudeWhenGoingNorth() {
 		double lon = toRadians(3);
 		ElevationProfile p = new ElevationProfile(newConstantSlopeDEM(), new GeoPoint(lon, toRadians(40)), 0, 100_000);
 		for (int i = 0; i < 100; ++i) {
@@ -91,7 +98,7 @@ public class ElevationProfileTest {
 	}
 
 	@Test
-	public void positionAtProducesConstantLongitudeWhenGoingSouth() {
+	void positionAtProducesConstantLongitudeWhenGoingSouth() {
 		double lon = toRadians(3);
 		ElevationProfile p = new ElevationProfile(newConstantSlopeDEM(), new GeoPoint(lon, toRadians(40)), PI, 100_000);
 		for (int i = 0; i < 100; ++i) {
@@ -101,7 +108,7 @@ public class ElevationProfileTest {
 	}
 
 	@Test
-	public void positionAtProducesConstantLatitudeWhenGoingEast() {
+	void positionAtProducesConstantLatitudeWhenGoingEast() {
 		double lat = toRadians(40);
 		ElevationProfile p = new ElevationProfile(newConstantSlopeDEM(), new GeoPoint(toRadians(3), lat), PI / 2d,
 				100_000);
@@ -112,7 +119,7 @@ public class ElevationProfileTest {
 	}
 
 	@Test
-	public void positionAtProducesConstantLatitudeWhenGoingWest() {
+	void positionAtProducesConstantLatitudeWhenGoingWest() {
 		double lat = toRadians(40);
 		ElevationProfile p = new ElevationProfile(newConstantSlopeDEM(), new GeoPoint(toRadians(3), lat), 3d * PI / 2d,
 				100_000);
@@ -122,10 +129,10 @@ public class ElevationProfileTest {
 		}
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void slopeAtFailsWhenXIsNegative() {
+	@Test
+	void slopeAtFailsWhenXIsNegative() {
 		ElevationProfile p = new ElevationProfile(newConstantSlopeDEM(), new GeoPoint(0, 0), 0, 100);
-		p.positionAt(-1);
+		assertThrows(IllegalArgumentException.class, () -> p.positionAt(-1));
 	}
 
 	private static ContinuousElevationModel newConstantSlopeDEM() {

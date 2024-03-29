@@ -4,18 +4,19 @@ import static ch.epfl.test.TestRandomizer.RANDOM_ITERATIONS;
 import static ch.epfl.test.TestRandomizer.newRandom;
 import static java.lang.Math.toDegrees;
 import static java.lang.Math.toRadians;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Random;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import ch.epfl.alpano.GeoPoint;
 import ch.epfl.alpano.Interval1D;
 import ch.epfl.alpano.Interval2D;
 
-public class ContinuousElevationModelTest {
+class ContinuousElevationModelTest {
 
 	private final static Interval2D EXT_100_100 = new Interval2D(
 			new Interval1D(0, 100),
@@ -25,20 +26,20 @@ public class ContinuousElevationModelTest {
 			new Interval1D(0, 13),
 			new Interval1D(0, 13));
 
-	@Test(expected = NullPointerException.class)
-	public void constructorFailsWithNullDEM() {
-		new ContinuousElevationModel(null);
+	@Test
+	void constructorFailsWithNullDEM() {
+		assertThrows(NullPointerException.class, () -> new ContinuousElevationModel(null));
 	}
 
 	@Test
-	public void elevationAtReturns0OutsideOfExtent() {
+	void elevationAtReturns0OutsideOfExtent() {
 		DiscreteElevationModel dDEM = new ConstantElevationDEM__Prof(EXT_100_100, 1000);
 		ContinuousElevationModel cDEM = new ContinuousElevationModel(dDEM);
 		assertEquals(0, cDEM.elevationAt(pointForSampleIndex(101, 0)), 0);
 	}
 
 	@Test
-	public void elevationAtReturnsCorrectElevationInsideExtent() {
+	void elevationAtReturnsCorrectElevationInsideExtent() {
 		double elevation = 1000;
 		DiscreteElevationModel dDEM = new ConstantElevationDEM__Prof(EXT_100_100, elevation);
 		ContinuousElevationModel cDEM = new ContinuousElevationModel(dDEM);
@@ -50,14 +51,14 @@ public class ContinuousElevationModelTest {
 	}
 
 	@Test
-	public void elevationAtInterpolatesJustOutsideExtent() {
+	void elevationAtInterpolatesJustOutsideExtent() {
 		DiscreteElevationModel dDEM = new ConstantElevationDEM__Prof(EXT_100_100, 1000);
 		ContinuousElevationModel cDEM = new ContinuousElevationModel(dDEM);
 		assertEquals(500, cDEM.elevationAt(pointForSampleIndex(100.5, 10)), 1e-10);
 	}
 
 	@Test
-	public void elevationAtReturnsCorrectInterpolatedElevation() {
+	void elevationAtReturnsCorrectInterpolatedElevation() {
 		DiscreteElevationModel dDEM = new ConstantSlopeDEM(EXT_100_100);
 		ContinuousElevationModel cDEM = new ContinuousElevationModel(dDEM);
 		Random rng = new Random();
@@ -70,7 +71,7 @@ public class ContinuousElevationModelTest {
 	}
 
 	@Test
-	public void elevationAtStaysWithinBoundsOnRandomTerrain() {
+	void elevationAtStaysWithinBoundsOnRandomTerrain() {
 		int maxElevation = 1000;
 		DiscreteElevationModel dDEM = new RandomElevationDEM(EXT_13_13, maxElevation);
 		ContinuousElevationModel cDEM = new ContinuousElevationModel(dDEM);
@@ -84,7 +85,7 @@ public class ContinuousElevationModelTest {
 	}
 
 	@Test
-	public void slopeAtReturnsCorrectInterpolatedSlope() {
+	void slopeAtReturnsCorrectInterpolatedSlope() {
 		DiscreteElevationModel dDEM = new ConstantSlopeDEM(EXT_100_100);
 		ContinuousElevationModel cDEM = new ContinuousElevationModel(dDEM);
 		Random rng = new Random();
@@ -97,7 +98,7 @@ public class ContinuousElevationModelTest {
 	}
 
 	@Test
-	public void slopeAtStaysWithinBoundsOnRandomTerrain() {
+	void slopeAtStaysWithinBoundsOnRandomTerrain() {
 		int maxElevation = 1000;
 		DiscreteElevationModel dDEM = new RandomElevationDEM(EXT_13_13, maxElevation);
 		ContinuousElevationModel cDEM = new ContinuousElevationModel(dDEM);

@@ -17,18 +17,19 @@ import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.lang.Math.sin;
 import static java.lang.Math.toRadians;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Random;
 import java.util.function.DoubleUnaryOperator;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class Math2Test {
+class Math2Test {
 
 	@Test
-	public void sqSquaresRandomValues() {
+	void sqSquaresRandomValues() {
 		Random rng = newRandom();
 		for (int i = 0; i < RANDOM_ITERATIONS; ++i) {
 			double x = rng.nextDouble() * 1_000d - 500d;
@@ -37,7 +38,7 @@ public class Math2Test {
 	}
 
 	@Test
-	public void floorModWorksOnRandomValues() {
+	void floorModWorksOnRandomValues() {
 		Random rng = newRandom();
 		for (int i = 0; i < RANDOM_ITERATIONS; ++i) {
 			double n = rng.nextDouble() * 1_000d - 500d;
@@ -51,7 +52,7 @@ public class Math2Test {
 	}
 
 	@Test
-	public void haversinWorksOnRandomAngles() {
+	void haversinWorksOnRandomAngles() {
 		Random rng = newRandom();
 		for (int i = 0; i < RANDOM_ITERATIONS; ++i) {
 			double a = nextAngle(rng);
@@ -61,7 +62,7 @@ public class Math2Test {
 	}
 
 	@Test
-	public void angularDistanceWorksOnKnownAngles() {
+	void angularDistanceWorksOnKnownAngles() {
 		double data[] = {
 				0, 45, 45,
 				45, 0, -45,
@@ -79,7 +80,7 @@ public class Math2Test {
 	}
 
 	@Test
-	public void angularDistanceIsInExpectedRange() {
+	void angularDistanceIsInExpectedRange() {
 		Random rng = newRandom();
 		for (int i = 0; i < RANDOM_ITERATIONS; ++i) {
 			double a1 = nextAngle(rng);
@@ -90,7 +91,7 @@ public class Math2Test {
 	}
 
 	@Test
-	public void angularDistanceIsSymmetric() {
+	void angularDistanceIsSymmetric() {
 		Random rng = newRandom();
 		for (int i = 0; i < RANDOM_ITERATIONS; ++i) {
 			double a1 = nextAngle(rng);
@@ -100,7 +101,7 @@ public class Math2Test {
 	}
 
 	@Test
-	public void lerpIsFirstValueAtStart() {
+	void lerpIsFirstValueAtStart() {
 		Random rng = newRandom();
 		for (int i = 0; i < RANDOM_ITERATIONS; ++i) {
 			double v1 = (rng.nextDouble() - 0.5) * 1000d;
@@ -110,7 +111,7 @@ public class Math2Test {
 	}
 
 	@Test
-	public void lerpIsAverageValueAtMiddle() {
+	void lerpIsAverageValueAtMiddle() {
 		Random rng = newRandom();
 		for (int i = 0; i < RANDOM_ITERATIONS; ++i) {
 			double v1 = (rng.nextDouble() - 0.5) * 1000d;
@@ -120,7 +121,7 @@ public class Math2Test {
 	}
 
 	@Test
-	public void lerpIsSecondValueAtEnd() {
+	void lerpIsSecondValueAtEnd() {
 		Random rng = newRandom();
 		for (int i = 0; i < RANDOM_ITERATIONS; ++i) {
 			double v1 = (rng.nextDouble() - 0.5) * 1000d;
@@ -130,7 +131,7 @@ public class Math2Test {
 	}
 
 	@Test
-	public void lerpIsInExpectedRange() {
+	void lerpIsInExpectedRange() {
 		Random rng = newRandom();
 		for (int i = 0; i < RANDOM_ITERATIONS; ++i) {
 			double v1 = (rng.nextDouble() - 0.5) * 1000d;
@@ -142,7 +143,7 @@ public class Math2Test {
 	}
 
 	@Test
-	public void bilerpIsInExpectedRange() {
+	void bilerpIsInExpectedRange() {
 		Random rng = newRandom();
 		for (int i = 0; i < RANDOM_ITERATIONS; ++i) {
 			double v1 = (rng.nextDouble() - 0.5) * 1000d;
@@ -157,7 +158,7 @@ public class Math2Test {
 	}
 
 	@Test
-	public void bilerpIsCorrectInCorners() {
+	void bilerpIsCorrectInCorners() {
 		Random rng = newRandom();
 		for (int i = 0; i < RANDOM_ITERATIONS; ++i) {
 			double v0 = rng.nextDouble(), v1 = rng.nextDouble();
@@ -170,7 +171,7 @@ public class Math2Test {
 	}
 
 	@Test
-	public void bilerpLerpsAlongSides() {
+	void bilerpLerpsAlongSides() {
 		Random rng = newRandom();
 		for (int i = 0; i < RANDOM_ITERATIONS; ++i) {
 			double v0 = rng.nextDouble(), v1 = rng.nextDouble();
@@ -183,7 +184,7 @@ public class Math2Test {
 	}
 
 	@Test
-	public void firstIntervalContainingRootWorksOnSin() {
+	void firstIntervalContainingRootWorksOnSin() {
 		double i1 = firstIntervalContainingRoot(new Sin(), -1d, 1d, 0.1 + 1e-11);
 		assertEquals(-0.1, i1, 1e-10);
 
@@ -191,13 +192,14 @@ public class Math2Test {
 		assertEquals(3, i2, 0);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void improveRootFailsWhenIntervalDoesNotContainRoot() {
-		improveRoot(new Sin(), 1, 2, 1e-10);
+	@Test
+	void improveRootFailsWhenIntervalDoesNotContainRoot() {
+		final var sin = new Sin();
+		assertThrows(IllegalArgumentException.class, () -> improveRoot(sin, 1, 2, 1e-10));
 	}
 
 	@Test
-	public void improveRootWorksOnSin() {
+	void improveRootWorksOnSin() {
 		double pi = improveRoot(new Sin(), 3.1, 3.2, 1e-10);
 		assertEquals(PI, pi, 1e-10);
 

@@ -1,13 +1,13 @@
 package ch.epfl.alpano.gui;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class LabeledListStringConverterTest {
+class LabeledListStringConverterTest {
 
 	@Test
-	public void exampleOfProfWorks() {
+	void exampleOfProfWorks() {
 		LabeledListStringConverter c = new LabeledListStringConverter("zéro", "un", "deux");
 		assertEquals(2, (int) c.fromString("deux"));
 		assertEquals("zéro", c.toString(0));

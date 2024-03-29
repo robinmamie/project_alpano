@@ -5,26 +5,27 @@ import static java.lang.Math.PI;
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 import static java.lang.Math.toRadians;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
 import java.util.function.DoubleUnaryOperator;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import ch.epfl.alpano.dem.ContinuousElevationModel;
 import ch.epfl.alpano.dem.DiscreteElevationModel;
 import ch.epfl.alpano.dem.ElevationProfile;
 
-public class PanoramaComputerTest {
+class PanoramaComputerTest {
 
-	@Test(expected = NullPointerException.class)
-	public void constructorFailsWithNullDEM() {
-		new PanoramaComputer(null);
+	@Test
+	void constructorFailsWithNullDEM() {
+		assertThrows(NullPointerException.class, () ->new PanoramaComputer(null));
 	}
 
 	@Test
-	public void computePanoramaWorksOnFlatTerrain() throws InterruptedException {
+	void computePanoramaWorksOnFlatTerrain() throws InterruptedException {
 		int w = 50, h = 20;
 		GeoPoint o = new GeoPoint(0, 0);
 		PanoramaParameters pp = new PanoramaParameters(o, 100, toRadians(45), toRadians(h), 300_000, w, h);
@@ -43,7 +44,7 @@ public class PanoramaComputerTest {
 	}
 
 	@Test
-	public void computePanoramaWorksOnHillyTerrain() throws IOException, InterruptedException {
+	void computePanoramaWorksOnHillyTerrain() throws IOException, InterruptedException {
 		int w = 50, h = 20;
 		GeoPoint o = new GeoPoint(0, 0);
 		PanoramaParameters pp = new PanoramaParameters(o, 2000, toRadians(45), toRadians(h), 300_000, w, h);
@@ -62,7 +63,7 @@ public class PanoramaComputerTest {
 	}
 
 	@Test
-	public void rayToGroundDistanceAccountsForEarthCurvatureAndRefraction() {
+	void rayToGroundDistanceAccountsForEarthCurvatureAndRefraction() {
 		double dropPerM2 = (1d - 0.13d) / (2d * 6_371_000d);
 		double startingElevation = 1_000;
 		ElevationProfile p = new ElevationProfile(zeroContDEM(), new GeoPoint(0, 0), toRadians(45), 100_000);

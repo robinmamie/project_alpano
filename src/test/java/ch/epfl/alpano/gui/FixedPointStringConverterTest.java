@@ -1,13 +1,13 @@
 package ch.epfl.alpano.gui;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class FixedPointStringConverterTest {
+class FixedPointStringConverterTest {
 
 	@Test
-	public void exampleOfProfWorks() {
+	void exampleOfProfWorks() {
 		FixedPointStringConverter c = new FixedPointStringConverter(1);
 
 		assertEquals(120, (int) c.fromString("12"));
