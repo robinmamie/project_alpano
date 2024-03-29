@@ -26,96 +26,86 @@ import java.util.Locale;
  */
 public final class GeoPoint implements Serializable {
 
-    /**
-     * Serial ID.
-     */
-    private static final long serialVersionUID = -5086585006724787009L;
+	/**
+	 * Serial ID.
+	 */
+	private static final long serialVersionUID = -5086585006724787009L;
 
-    /**
-     * La longitude du point en radians, entre -Pi et Pi compris
-     */
-    private final double longitude;
+	/**
+	 * La longitude du point en radians, entre -Pi et Pi compris
+	 */
+	private final double longitude;
 
-    /**
-     * La latitude du point, entre -Pi/2 et Pi/2 compris
-     */
-    private final double latitude;
+	/**
+	 * La latitude du point, entre -Pi/2 et Pi/2 compris
+	 */
+	private final double latitude;
 
-    /**
-     * Construit un point géographique terrestre à l'aide de deux angles en
-     * radians passés en argument.
-     * 
-     * @param longitude
-     *            La longitude du point, en radians, entre -Pi et Pi compris.
-     * @param latitude
-     *            La latitude du point, en radians, entre -Pi/2 et Pi/2 compris.
-     */
-    public GeoPoint(double longitude, double latitude) {
-        checkArgument(-PI <= longitude && longitude <= PI,
-                "The given longitude is not defined between -Pi and Pi.");
-        checkArgument(-HALF_PI <= latitude && latitude <= HALF_PI,
-                "The given latitude is not defined between -Pi/2 and Pi/2.");
+	/**
+	 * Construit un point géographique terrestre à l'aide de deux angles en radians
+	 * passés en argument.
+	 * 
+	 * @param longitude La longitude du point, en radians, entre -Pi et Pi compris.
+	 * @param latitude  La latitude du point, en radians, entre -Pi/2 et Pi/2
+	 *                  compris.
+	 */
+	public GeoPoint(final double longitude, final double latitude) {
+		checkArgument(-PI <= longitude && longitude <= PI, "The given longitude is not defined between -Pi and Pi.");
+		checkArgument(-HALF_PI <= latitude && latitude <= HALF_PI,
+				"The given latitude is not defined between -Pi/2 and Pi/2.");
+		this.longitude = longitude;
+		this.latitude = latitude;
+	}
 
-        this.longitude = longitude;
-        this.latitude = latitude;
-    }
+	/**
+	 * Retourne la longitude du point en radians.
+	 * 
+	 * @return La longitude du point en radians.
+	 */
+	public double longitude() {
+		return longitude;
+	}
 
-    /**
-     * Retourne la longitude du point en radians.
-     * 
-     * @return La longitude du point en radians.
-     */
-    public double longitude() {
-        return longitude;
-    }
+	/**
+	 * Retourne la latitude du point en radians.
+	 * 
+	 * @return La latitude du point en radians.
+	 */
+	public double latitude() {
+		return latitude;
+	}
 
-    /**
-     * Retourne la latitude du point en radians.
-     * 
-     * @return La latitude du point en radians.
-     */
-    public double latitude() {
-        return latitude;
-    }
+	/**
+	 * Calcule la distance en mètres entre deux points géographiques.
+	 * 
+	 * @param that L'autre point géographique dont on souhaite connaître la distance
+	 *             par rapport au premier.
+	 * 
+	 * @return La distance en mètres entre les deux points géographiques.
+	 */
+	public double distanceTo(final GeoPoint that) {
+		return toMeters(2 * asin(sqrt(haversin(this.latitude() - that.latitude())
+				+ cos(this.latitude()) * cos(that.latitude()) * haversin(this.longitude() - that.longitude()))));
+	}
 
-    /**
-     * Calcule la distance en mètres entre deux points géographiques.
-     * 
-     * @param that
-     *            L'autre point géographique dont on souhaite connaître la
-     *            distance par rapport au premier.
-     * 
-     * @return La distance en mètres entre les deux points géographiques.
-     */
-    public double distanceTo(GeoPoint that) {
-        return toMeters(2 * asin(sqrt(haversin(
-                this.latitude() - that.latitude())
-                + cos(this.latitude()) * cos(that.latitude())
-                        * haversin(this.longitude() - that.longitude()))));
-    }
+	/**
+	 * Calcule à quel azimuth se trouve un point d'un autre.
+	 * 
+	 * @param that L'autre point géographique dont on souhaite savoir à quel azimut
+	 *             il se trouve du premier.
+	 * 
+	 * @return L'azimuth en radians à partir du premier point jusqu'au second point
+	 *         géographique.
+	 */
+	public double azimuthTo(final GeoPoint that) {
+		return fromMath(canonicalize(atan2(sin(this.longitude() - that.longitude()) * cos(that.latitude()),
+				cos(this.latitude()) * sin(that.latitude())
+						- sin(this.latitude()) * cos(that.latitude()) * cos(this.longitude() - that.longitude()))));
+	}
 
-    /**
-     * Calcule à quel azimuth se trouve un point d'un autre.
-     * 
-     * @param that
-     *            L'autre point géographique dont on souhaite savoir à quel
-     *            azimut il se trouve du premier.
-     * 
-     * @return L'azimuth en radians à partir du premier point jusqu'au second
-     *         point géographique.
-     */
-    public double azimuthTo(GeoPoint that) {
-        return fromMath(canonicalize(atan2(
-                sin(this.longitude() - that.longitude()) * cos(that.latitude()),
-                cos(this.latitude()) * sin(that.latitude())
-                        - sin(this.latitude()) * cos(that.latitude())
-                                * cos(this.longitude() - that.longitude()))));
-    }
-
-    @Override
-    public String toString() {
-        return format((Locale) null, "(%.4f,%.4f)", toDegrees(longitude()),
-                toDegrees(latitude()));
-    }
+	@Override
+	public String toString() {
+		return format((Locale) null, "(%.4f,%.4f)", toDegrees(longitude()), toDegrees(latitude()));
+	}
 
 }
