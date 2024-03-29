@@ -1,12 +1,12 @@
 package ch.epfl.alpano.dem;
 
 import static ch.epfl.alpano.Preconditions.checkArgument;
+import static ch.epfl.alpano.dem.SuperHgtDiscreteElevationModel.MAX_LAT;
+import static ch.epfl.alpano.dem.SuperHgtDiscreteElevationModel.MAX_LON;
 import static java.nio.channels.FileChannel.MapMode.READ_ONLY;
-import static ch.epfl.alpano.dem.SuperHgtDiscreteElevationModel.*;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ShortBuffer;
@@ -14,126 +14,121 @@ import java.nio.ShortBuffer;
 import ch.epfl.alpano.Interval1D;
 import ch.epfl.alpano.Interval2D;
 
-public class HilbertDiscreteElevationModel implements DiscreteElevationModel {
+/**
+ * Représente un MNT discret obtenu d'un fichier au format HGT (Hilbert). Classe
+ * immuable.
+ *
+ * @author Robin Mamie
+ */
+public final class HilbertDiscreteElevationModel implements DiscreteElevationModel {
 
-    private final static int N = 8192;
-    private final static int N_SQUARED = N * N;
+	private static final int N = 8192;
+	private static final long N_SQUARED = (long) N * N;
 
-    private final static int BASE_LON = SuperHgtDiscreteElevationModel.BASE_LON
-            * SAMPLES_PER_DEGREE;
-    private final static int BASE_LAT = SuperHgtDiscreteElevationModel.BASE_LAT
-            * SAMPLES_PER_DEGREE;
+	private static final int BASE_LON = SuperHgtDiscreteElevationModel.BASE_LON * SAMPLES_PER_DEGREE;
+	private static final int BASE_LAT = SuperHgtDiscreteElevationModel.BASE_LAT * SAMPLES_PER_DEGREE;
 
-    private final File hilbertHGT;
-    private final ShortBuffer source;
-    private final Interval2D extent;
+	private final File hilbertHGT;
+	private final ShortBuffer source;
+	private final Interval2D extent;
 
-    public HilbertDiscreteElevationModel(int x, int y) {
-        checkArgument(
-                0 <= x && x <= (MAX_LON * SAMPLES_PER_DEGREE - BASE_LON) / N
-                        && 0 <= y
-                        && y <= (MAX_LAT * SAMPLES_PER_DEGREE - BASE_LAT) / N,
-                "Invalid .hhgt file number.");
-        hilbertHGT = new File(getFileName(x, y));
-        Interval1D iX = new Interval1D(BASE_LON + x * N,
-                BASE_LON + (x + 1) * N - 1);
-        Interval1D iY = new Interval1D(BASE_LAT + y * N,
-                BASE_LAT + (y + 1) * N - 1);
-        this.extent = new Interval2D(iX, iY);
+	public HilbertDiscreteElevationModel(final int x, final int y) {
+		checkArgument(0 <= x && x <= (MAX_LON * SAMPLES_PER_DEGREE - BASE_LON) / N && 0 <= y
+				&& y <= (MAX_LAT * SAMPLES_PER_DEGREE - BASE_LAT) / N, "Invalid .hhgt file number.");
+		this.hilbertHGT = new File(getFileName(x, y));
 
-        if (!hilbertHGT.exists() || hilbertHGT.length() != N_SQUARED * 2) {
-            try {
-                createFile();
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
-        }
+		final var iX = new Interval1D(BASE_LON + x * N, BASE_LON + (x + 1) * N - 1);
+		final var iY = new Interval1D(BASE_LAT + y * N, BASE_LAT + (y + 1) * N - 1);
+		this.extent = new Interval2D(iX, iY);
 
-        try (FileInputStream stream = new FileInputStream(hilbertHGT)) {
-            source = stream.getChannel().map(READ_ONLY, 0, N_SQUARED * 2)
-                    .asShortBuffer();
-        } catch (IOException e) {
-            throw new IllegalArgumentException(
-                    "The file is either invalid, corrupt, or not found.");
-        }
+		if (!hilbertHGT.exists() || hilbertHGT.length() != N_SQUARED * 2) {
+			try {
+				createFile();
+			} catch (final IOException e) {
+				throw new IllegalArgumentException("The file is either invalid, corrupt, or not found.");
+			}
+		}
 
-    }
+		try (final var stream = new FileInputStream(hilbertHGT)) {
+			this.source = stream.getChannel().map(READ_ONLY, 0, N_SQUARED * 2).asShortBuffer();
+		} catch (final IOException e) {
+			throw new IllegalArgumentException("The file is either invalid, corrupt, or not found.");
+		}
 
-    private String getFileName(int x, int y) {
-        return String.format("alpano%d%d.hhgt", x, y);
-    }
+	}
 
-    @Override
-    public Interval2D extent() {
-        return extent;
-    }
+	private String getFileName(final int x, final int y) {
+		return String.format("alpano%d%d.hhgt", x, y);
+	}
 
-    @Override
-    public double elevationSample(int x, int y) {
-        checkArgument(extent().contains(x, y),
-                "The HilbertDEM does not contain the given index.");
-        x -= extent().iX().includedFrom();
-        y -= extent().iY().includedFrom();
-        int rx, ry, s, d = 0;
-        for (s = N / 2; s > 0; s /= 2) {
-            rx = (x & s) > 0 ? 1 : 0;
-            ry = (y & s) > 0 ? 1 : 0;
-            d += s * s * ((3 * rx) ^ ry);
-            if (ry == 0) {
-                if (rx == 1) {
-                    x = s - 1 - x;
-                    y = s - 1 - y;
-                }
+	@Override
+	public Interval2D extent() {
+		return extent;
+	}
 
-                // Swap x and y
-                int t = x;
-                x = y;
-                y = t;
-            }
-        }
-        return source.get(d);
-    }
+	@Override
+	public double elevationSample(int x, int y) {
+		checkArgument(extent().contains(x, y), "The HilbertDEM does not contain the given index.");
+		x -= extent().iX().includedFrom();
+		y -= extent().iY().includedFrom();
+		var rx = 0;
+		var ry = 0;
+		var s = 0;
+		var d = 0;
+		for (s = N / 2; s > 0; s /= 2) {
+			rx = (x & s) > 0 ? 1 : 0;
+			ry = (y & s) > 0 ? 1 : 0;
+			d += s * s * ((3 * rx) ^ ry);
+			if (ry == 0) {
+				if (rx == 1) {
+					x = s - 1 - x;
+					y = s - 1 - y;
+				}
+				// Swap x and y
+				final var temp = x;
+				x = y;
+				y = temp;
+			}
+		}
+		return source.get(d);
+	}
 
-    private void createFile() throws FileNotFoundException, IOException {
-        DiscreteElevationModel dem = SuperHgtDiscreteElevationModel.FULL;
-        long start = System.nanoTime();
-        try (FileOutputStream stream = new FileOutputStream(hilbertHGT)) {
-            System.out.println("Creating the file " + hilbertHGT.getName());
-            for (int i = 0; i < N_SQUARED; ++i) {
-                int rx, ry, s, t = i, x = 0, y = 0;
-                for (s = 1; s < N; s *= 2) {
-                    rx = 1 & (t / 2);
-                    ry = 1 & (t ^ rx);
-
-                    // ROT
-                    if (ry == 0) {
-                        if (rx == 1) {
-                            x = s - 1 - x;
-                            y = s - 1 - y;
-                        }
-
-                        // Swap x and y
-                        int temp = x;
-                        x = y;
-                        y = temp;
-                    }
-
-                    x += s * rx;
-                    y += s * ry;
-                    t /= 4;
-                }
-                x += BASE_LON;
-                y += BASE_LAT;
-                short elevation = dem.extent().contains(x, y)
-                        ? (short) dem.elevationSample(x, y) : 0;
-                byte[] b = new byte[2];
-                b[0] = (byte) (elevation >> 8);
-                b[1] = (byte) (elevation & 0xff);
-                stream.write(b);
-            }
-            System.out.println(String.format("%s created in %.3f seconds.",
-                    hilbertHGT.getName(), (System.nanoTime() - start) * 1e-9));
-        }
-    }
+	private void createFile() throws IOException {
+		final var dem = SuperHgtDiscreteElevationModel.FULL;
+		final var start = System.nanoTime();
+		try (final var stream = new FileOutputStream(hilbertHGT)) {
+			System.out.println("Creating the file " + hilbertHGT.getName());
+			for (var i = 0; i < N_SQUARED; ++i) {
+				var t = i;
+				var x = 0;
+				var y = 0;
+				for (var s = 1; s < N; s *= 2) {
+					var rx = 1 & (t / 2);
+					var ry = 1 & (t ^ rx);
+					// ROT
+					if (ry == 0) {
+						if (rx == 1) {
+							x = s - 1 - x;
+							y = s - 1 - y;
+						}
+						// Swap x and y
+						var temp = x;
+						x = y;
+						y = temp;
+					}
+					x += s * rx;
+					y += s * ry;
+					t /= 4;
+				}
+				x += BASE_LON;
+				y += BASE_LAT;
+				final var elevation = dem.extent().contains(x, y) ? (short) dem.elevationSample(x, y) : 0;
+				final var b = new byte[] { (byte) (elevation >> 8), (byte) (elevation & 0xff) };
+				stream.write(b);
+			}
+			System.out.println(String.format("%s created in %.3f seconds.",
+					hilbertHGT.getName(), (System.nanoTime() - start) * 1e-9));
+		}
+	}
 
 }
