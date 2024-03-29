@@ -10,50 +10,48 @@ import javax.imageio.ImageIO;
 
 import ch.epfl.alpano.GeoPoint;
 import ch.epfl.alpano.dem.ContinuousElevationModel;
-import ch.epfl.alpano.dem.DiscreteElevationModel;
 import ch.epfl.alpano.dem.ElevationProfile;
 import ch.epfl.alpano.dem.HgtDiscreteElevationModel;
 
 /**
  * Dessine un ElevationProfile.
  *
- * @author Robin Mamie (257234)
- * @author Maxence Jouve (269716)
+ * @author Robin Mamie
  */
 final class DrawElevationProfile {
-    final static File HGT_FILE = new File("N46E006.hgt");
-    final static double MAX_ELEVATION = 1_500;
-    final static int LENGTH = 111_000;
-    final static double AZIMUTH = toRadians(27.97);
-    final static double LONGITUDE = toRadians(6.15432);
-    final static double LATITUDE = toRadians(46.20562);
-    final static int WIDTH = 800, HEIGHT = 100;
 
-    public static void main(String[] as) throws Exception {
-        long startTime = System.nanoTime();
+	private static final File HGT_FILE = new File("N46E006.hgt");
+	private static final double MAX_ELEVATION = 1_500;
+	private static final int LENGTH = 111_000;
+	private static final double AZIMUTH = toRadians(27.97);
+	private static final double LONGITUDE = toRadians(6.15432);
+	private static final double LATITUDE = toRadians(46.20562);
+	private static final int WIDTH = 800;
+	private static final int HEIGHT = 100;
+	private static final int BLACK = 0x00_00_00;
+	private static final int WHITE = 0xFF_FF_FF;
 
-        DiscreteElevationModel dDEM = new HgtDiscreteElevationModel(HGT_FILE);
-        ContinuousElevationModel cDEM = new ContinuousElevationModel(dDEM);
-        GeoPoint o = new GeoPoint(LONGITUDE, LATITUDE);
-        ElevationProfile p = new ElevationProfile(cDEM, o, AZIMUTH, LENGTH);
+	public static void main(final String[] args) throws Exception {
+		final var startTime = System.nanoTime();
 
-        int BLACK = 0x00_00_00, WHITE = 0xFF_FF_FF;
+		final var dDEM = new HgtDiscreteElevationModel(HGT_FILE);
+		final var cDEM = new ContinuousElevationModel(dDEM);
+		final var o = new GeoPoint(LONGITUDE, LATITUDE);
+		final var p = new ElevationProfile(cDEM, o, AZIMUTH, LENGTH);
 
-        BufferedImage i = new BufferedImage(WIDTH, HEIGHT, TYPE_INT_RGB);
-        for (int x = 0; x < WIDTH; ++x) {
-            double pX = x * (double) LENGTH / (WIDTH - 1);
-            double pY = p.elevationAt(pX);
-            int yL = (int) ((pY / MAX_ELEVATION) * (HEIGHT - 1));
-            for (int y = 0; y < HEIGHT; ++y) {
-                int color = y < yL ? BLACK : WHITE;
-                i.setRGB(x, HEIGHT - 1 - y, color);
-            }
-        }
+		final var i = new BufferedImage(WIDTH, HEIGHT, TYPE_INT_RGB);
+		for (var x = 0; x < WIDTH; ++x) {
+			final var pX = x * (double) LENGTH / (WIDTH - 1);
+			final var pY = p.elevationAt(pX);
+			final var yL = (int) ((pY / MAX_ELEVATION) * (HEIGHT - 1));
+			for (var y = 0; y < HEIGHT; ++y) {
+				final var color = y < yL ? BLACK : WHITE;
+				i.setRGB(x, HEIGHT - 1 - y, color);
+			}
+		}
+		ImageIO.write(i, "png", new File("profile.png"));
 
-        ImageIO.write(i, "png", new File("profile.png"));
-
-        long endTime = System.nanoTime();
-        System.out.printf("DrawElevationProfile took %.3f ms.%n",
-                (endTime - startTime) / 1e6);
-    }
+		final var endTime = System.nanoTime();
+		System.out.printf("DrawElevationProfile took %.3f ms.%n", (endTime - startTime) / 1e6);
+	}
 }
