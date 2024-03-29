@@ -328,4 +328,23 @@ class Interval2DTest {
 		assertEquals(expectedString, actualString);
 	}
 
+	@Test
+	void equalsGivesConsistentResults() {
+		final var i1 = i_0_10_0_10();
+		final var i2 = i_0_10_0_20();
+		final var i3 = i_0_20_0_10();
+		final var i1D = new Interval1D(0, 10);
+		assertEquals(i1, i1);
+		assertNotEquals(i1, i2);
+		assertNotEquals(i2, i1);
+		assertNotEquals(i1, i3);
+		assertNotEquals(i3, i1);
+		assertNotEquals(i1, i1D);
+		assertEquals(i1.hashCode(), i1.hashCode());
+		assertNotEquals(i1.hashCode(), i2.hashCode());
+		assertNotEquals(i2.hashCode(), i1.hashCode());
+		assertNotEquals(i1.hashCode(), i3.hashCode());
+		assertNotEquals(i3.hashCode(), i1.hashCode());
+		assertNotEquals(i1.hashCode(), i1D.hashCode());
+	}
 }

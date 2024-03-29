@@ -5,7 +5,9 @@ import static java.lang.Math.toDegrees;
 import static java.lang.Math.toRadians;
 import static java.nio.charset.StandardCharsets.US_ASCII;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -66,6 +68,14 @@ class GazetteerParserTest {
 	}
 
 	@Test
+	void parserSucceedsWithNegativeValue() throws IOException {
+		String l = " -7:01:02 46:32:56  2002  H1 B01 D7 LA MALMESON";
+		final var f = tempFileWithLines(l);
+		final var list = readSummitsFrom(f);
+		assertTrue(list.get(0).position().longitude() < 0);
+	}
+
+	@Test
 	void parserWorksOnValidFile() throws IOException {
 		List<Summit> summits = Arrays.asList(
 				new Summit("A MONT UN", hmsPoint(7, 30, 00, 15, 16, 17), 30),
@@ -98,7 +108,6 @@ class GazetteerParserTest {
 					toRadians(1d / 3600d));
 		}
 	}
-
 	private String formatSummit(Summit s) {
 		double lon = s.position().longitude();
 		double lat = s.position().latitude();
