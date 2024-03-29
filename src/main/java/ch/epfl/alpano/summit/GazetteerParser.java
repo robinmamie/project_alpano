@@ -52,9 +52,10 @@ public final class GazetteerParser {
 	 * @throws ArrayIndexOutOfBoundsException si l'angle est composé de moins de 3
 	 *                                        valeurs.
 	 */
-	private static double hmsToRadians(String degrees) throws NumberFormatException, ArrayIndexOutOfBoundsException {
+	private static double hmsToRadians(final String degrees)
+			throws NumberFormatException, ArrayIndexOutOfBoundsException {
 		final var hmsS = degrees.split(":");
-		final var hms = new int[] { parseInt(hmsS[0]), parseInt(hmsS[1]), parseInt(hmsS[2]) };
+		final var hms = new double[] { parseInt(hmsS[0]), parseInt(hmsS[1]), parseInt(hmsS[2]) };
 		hms[0] += (degrees.charAt(0) == '-' ? -1 : 1) * ((hms[1] + hms[2] / 60.0) / 60.0);
 		return toRadians(hms[0]);
 	}
