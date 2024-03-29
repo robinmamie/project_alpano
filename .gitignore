@@ -1,7 +1,2 @@
-/bin/
-
-/doc/
-
-/test_shared/
-
-/alpano00.hhgt
+bin/
+target/
