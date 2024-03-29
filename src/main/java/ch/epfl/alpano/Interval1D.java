@@ -7,53 +7,20 @@ import static java.util.Objects.hash;
 
 /**
  * Représente un intervalle unidimensionnel d'entiers. Classe immuable.
+ * 
+ * @param includedFrom Entier représentant la borne inférieure de l'intervalle.
+ * @param includedTo   Entier représentant la borne supérieure de l'intervalle.
+ * 
+ * @throws IllegalArgumentException si la borne inférieure de l'intervalle
+ *                                  passée en argument est supérieure à la borne
+ *                                  supérireure.
  *
  * @author Robin Mamié
  */
-public final class Interval1D {
+public record Interval1D(int includedFrom, int includedTo) {
 
-	/**
-	 * La borne inférieure de l'intervalle.
-	 */
-	private final int includedFrom;
-
-	/**
-	 * La borne supérieure de l'intervalle.
-	 */
-	private final int includedTo;
-
-	/**
-	 * Construit un intervalle unidimensionnel d'entiers.
-	 * 
-	 * @param includedFrom Entier représentant la borne inférieure de l'intervalle.
-	 * @param includedTo   Entier représentant la borne supérieure de l'intervalle.
-	 * 
-	 * @throws IllegalArgumentException si la borne inférieure de l'intervalle
-	 *                                  passée en argument est supérieure à la borne
-	 *                                  supérireure.
-	 */
-	public Interval1D(int includedFrom, int includedTo) {
+	public Interval1D {
 		checkArgument(includedFrom <= includedTo, "The upper bound is lower than the lower bound.");
-		this.includedFrom = includedFrom;
-		this.includedTo = includedTo;
-	}
-
-	/**
-	 * Retourne la borne inférieure de l'intervalle.
-	 * 
-	 * @return La borne inférieure de l'intervalle.
-	 */
-	public int includedFrom() {
-		return includedFrom;
-	}
-
-	/**
-	 * Retourne la borne supérieure de l'intervalle.
-	 * 
-	 * @return La borne supérieure de l'intervalle.
-	 */
-	public int includedTo() {
-		return includedTo;
 	}
 
 	/**

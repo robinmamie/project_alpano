@@ -7,53 +7,20 @@ import static java.util.Objects.requireNonNull;
 /**
  * Représente un intervalle bidimensionnel d'entiers, composé du produit
  * cartésien de deux intervalles unidimensionnels. Classe immuable.
+ * 
+ * @param iX Le premier intervalle unidimensionnel.
+ * @param iY Le second intervalle unidimensionnel.
+ * 
+ * @throws NullPointerException si l'un des deux intervalles donnés en arguments
+ *                              est null.
  *
  * @author Robin Mamié
  */
-public final class Interval2D {
+public record Interval2D(Interval1D iX, Interval1D iY) {
 
-	/**
-	 * Premier intervalle du produit cartésien.
-	 */
-	private final Interval1D iX;
-
-	/**
-	 * Second intervalle du produit cartésien.
-	 */
-	private final Interval1D iY;
-
-	/**
-	 * Construit un intervalle bidimensionnel.
-	 * 
-	 * @param iX Le premier intervalle unidimensionnel.
-	 * @param iY Le second intervalle unidimensionnel.
-	 * 
-	 * @throws NullPointerException si l'un des deux intervalles donnés en arguments
-	 *                              est null.
-	 */
-	public Interval2D(final Interval1D iX, final Interval1D iY) {
-		this.iX = requireNonNull(iX, "The first Interval1D given is null.");
-		this.iY = requireNonNull(iY, "The second Interval1D given is null.");
-	}
-
-	/**
-	 * Retourne le premier intervalle du produit cartésien.
-	 * 
-	 * @return Le premier intervalle du produit cartésien de l'intervalle
-	 *         bidimensionnel.
-	 */
-	public Interval1D iX() {
-		return iX;
-	}
-
-	/**
-	 * Retourne le second intervalle du produit cartésien.
-	 * 
-	 * @return Le second intervalle du produit cartésien de l'intervalle
-	 *         bidimensionnel.
-	 */
-	public Interval1D iY() {
-		return iY;
+	public Interval2D {
+		requireNonNull(iX, "The first Interval1D given is null.");
+		requireNonNull(iY, "The second Interval1D given is null.");
 	}
 
 	/**

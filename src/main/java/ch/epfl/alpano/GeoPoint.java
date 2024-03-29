@@ -21,58 +21,24 @@ import java.util.Locale;
 /**
  * Représente un point géographique sur Terre. Il est défini par sa longitude
  * puis sa latitude. Classe immuable.
+ * 
+ * @param longitude La longitude du point, en radians, entre -Pi et Pi compris.
+ * @param latitude  La latitude du point, en radians, entre -Pi/2 et Pi/2
+ *                  compris.
  *
  * @author Robin Mamié
  */
-public final class GeoPoint implements Serializable {
+public record GeoPoint(double longitude, double latitude) implements Serializable {
 
 	/**
 	 * Serial ID.
 	 */
 	private static final long serialVersionUID = -5086585006724787009L;
 
-	/**
-	 * La longitude du point en radians, entre -Pi et Pi compris
-	 */
-	private final double longitude;
-
-	/**
-	 * La latitude du point, entre -Pi/2 et Pi/2 compris
-	 */
-	private final double latitude;
-
-	/**
-	 * Construit un point géographique terrestre à l'aide de deux angles en radians
-	 * passés en argument.
-	 * 
-	 * @param longitude La longitude du point, en radians, entre -Pi et Pi compris.
-	 * @param latitude  La latitude du point, en radians, entre -Pi/2 et Pi/2
-	 *                  compris.
-	 */
-	public GeoPoint(final double longitude, final double latitude) {
+	public GeoPoint {
 		checkArgument(-PI <= longitude && longitude <= PI, "The given longitude is not defined between -Pi and Pi.");
 		checkArgument(-HALF_PI <= latitude && latitude <= HALF_PI,
 				"The given latitude is not defined between -Pi/2 and Pi/2.");
-		this.longitude = longitude;
-		this.latitude = latitude;
-	}
-
-	/**
-	 * Retourne la longitude du point en radians.
-	 * 
-	 * @return La longitude du point en radians.
-	 */
-	public double longitude() {
-		return longitude;
-	}
-
-	/**
-	 * Retourne la latitude du point en radians.
-	 * 
-	 * @return La latitude du point en radians.
-	 */
-	public double latitude() {
-		return latitude;
 	}
 
 	/**

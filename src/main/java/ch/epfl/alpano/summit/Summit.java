@@ -7,54 +7,23 @@ import ch.epfl.alpano.GeoPoint;
 /**
  * Représente un sommet alpin par son nom, sa position et son altitude. Classe
  * immuable.
+ * 
+ * @param name      Le nom du sommet.
+ * @param position  La position du sommet.
+ * @param elevation L'altitude du sommet.
  *
  * @author Robin Mamié
  */
-public final class Summit extends Labelizable {
-
-	/**
-	 * Le nom du sommet.
-	 */
-	private final String name;
-
-	/**
-	 * La position du sommet.
-	 */
-	private final GeoPoint position;
-
-	/**
-	 * L'élévation du sommet.
-	 */
-	private final int elevation;
+public record Summit(String name, GeoPoint position, int elevation) implements Labelizable {
 
 	/**
 	 * Construit un sommet.
 	 * 
-	 * @param name      Le nom du sommet.
-	 * @param position  La position du sommet.
-	 * @param elevation L'altitude du sommet.
-	 * 
 	 * @throws NullPointerException si le nom ou la position sont null
 	 */
-	public Summit(final String name, final GeoPoint position, final int elevation) {
-		this.name = requireNonNull(name, "The given name is null.");
-		this.position = requireNonNull(position, "The given position is null.");
-		this.elevation = elevation;
-	}
-
-	@Override
-	public String name() {
-		return name;
-	}
-
-	@Override
-	public GeoPoint position() {
-		return position;
-	}
-
-	@Override
-	public int elevation() {
-		return elevation;
+	public Summit {
+		requireNonNull(name, "The given name is null.");
+		requireNonNull(position, "The given position is null.");
 	}
 
 	@Override

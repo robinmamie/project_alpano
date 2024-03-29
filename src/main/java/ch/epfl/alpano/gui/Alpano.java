@@ -822,13 +822,13 @@ public final class Alpano extends Application {
 		GridPane.setHalignment(sliderName, HPos.RIGHT);
 		labelsAndField.add(sliderName);
 		final var slider = new Slider();
-		slider.setMin(-Place.PRIORITY_RANGE);
-		slider.setMax(Place.PRIORITY_RANGE);
-		slider.setValue(Place.PRIORITY_RANGE / 2d);
+		slider.setMin(-Labelizable.PRIORITY_RANGE);
+		slider.setMax(Labelizable.PRIORITY_RANGE);
+		slider.setValue(Labelizable.PRIORITY_RANGE / 2d);
 		slider.setShowTickLabels(true);
 		slider.setShowTickMarks(true);
-		slider.setMajorTickUnit(Place.PRIORITY_RANGE);
-		slider.setMinorTickCount(Place.PRIORITY_RANGE - 1);
+		slider.setMajorTickUnit(Labelizable.PRIORITY_RANGE);
+		slider.setMinorTickCount(Labelizable.PRIORITY_RANGE - 1);
 		slider.valueProperty().addListener((p, o, n) -> slider.setValue(n.intValue()));
 		labelsAndField.add(slider);
 
