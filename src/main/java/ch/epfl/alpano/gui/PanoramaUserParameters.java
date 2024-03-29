@@ -105,19 +105,16 @@ public final class PanoramaUserParameters implements Serializable {
     public PanoramaUserParameters(int observerLongitude, int observerLatitude,
             int observerElevation, int centerAzimuth, int horizontalFieldOfView,
             int maxDistance, int width, int height, int superSamplingExponent) {
-        this(new EnumMap<UserParameter, Integer>(UserParameter.class) {
-            {
-                put(OBSERVER_LONGITUDE, observerLongitude);
-                put(OBSERVER_LATITUDE, observerLatitude);
-                put(OBSERVER_ELEVATION, observerElevation);
-                put(CENTER_AZIMUTH, centerAzimuth);
-                put(HORIZONTAL_FIELD_OF_VIEW, horizontalFieldOfView);
-                put(MAX_DISTANCE, maxDistance);
-                put(WIDTH, width);
-                put(HEIGHT, height);
-                put(SUPER_SAMPLING_EXPONENT, superSamplingExponent);
-            }
-        });
+        this(new EnumMap<>(Map.ofEntries(
+            Map.entry(OBSERVER_LONGITUDE, observerLongitude),
+            Map.entry(OBSERVER_LATITUDE, observerLatitude),
+            Map.entry(OBSERVER_ELEVATION, observerElevation),
+            Map.entry(CENTER_AZIMUTH, centerAzimuth),
+            Map.entry(HORIZONTAL_FIELD_OF_VIEW, horizontalFieldOfView),
+            Map.entry(MAX_DISTANCE, maxDistance),
+            Map.entry(WIDTH, width),
+            Map.entry(HEIGHT, height),
+            Map.entry(SUPER_SAMPLING_EXPONENT, superSamplingExponent))));
     }
 
     /**

@@ -109,8 +109,9 @@ public final class PanoramaComputerBean {
                     try {
                         panorama.set(pc.computePanorama(
                                 parameters.get().panoramaParameters()));
-                    } catch (InterruptedException e) {
+                    } catch (final InterruptedException e) {
                         e.printStackTrace();
+                        Thread.currentThread().interrupt();
                     }
 
                     status.unbind();

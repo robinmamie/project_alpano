@@ -288,7 +288,7 @@ public final class Labelizer {
                 Text text = new Text(l.name() + " (" + l.elevation() + " m)");
                 text.getTransforms().addAll(new Translate(x, labelPlace),
                         new Rotate(TEXT_ANGLE, 0, 0));
-                Line line = new Line(x, labelPlace + PIXELS_ROOM, x, y);
+                Line line = new Line(x, (double) labelPlace + PIXELS_ROOM, x, y);
                 if (l.priority() > 0)
                     text.setFill(Color.RED);
                 else if (l.priority() < 0)

@@ -134,7 +134,7 @@ public final class PanoramaComputer {
                         float elevation = (float) dem.elevationAt(point);
                         float slope = slopeNecessary
                                 ? (float) dem.slopeAt(point) : 0;
-                        synchronized (pb) {
+                        synchronized (dem) {
                             pb.setDistanceAt(x, y, distance)
                                     .setLongitudeAt(x, y, longitude)
                                     .setLatitudeAt(x, y, latitude)

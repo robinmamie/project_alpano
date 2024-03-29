@@ -899,7 +899,7 @@ public final class Alpano extends Application {
         Slider slider = new Slider();
         slider.setMin(-Place.PRIORITY_RANGE);
         slider.setMax(Place.PRIORITY_RANGE);
-        slider.setValue(Place.PRIORITY_RANGE / 2);
+        slider.setValue(Place.PRIORITY_RANGE / 2d);
         slider.setShowTickLabels(true);
         slider.setShowTickMarks(true);
         slider.setMajorTickUnit(Place.PRIORITY_RANGE);
