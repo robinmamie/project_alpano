@@ -12,58 +12,54 @@ import ch.epfl.alpano.GeoPoint;
  */
 public final class Summit extends Labelizable {
 
-    /**
-     * Le nom du sommet.
-     */
-    private final String name;
-    
-    /**
-     * La position du sommet.
-     */
-    private final GeoPoint position;
-    
-    /**
-     * L'élévation du sommet.
-     */
-    private final int elevation;
+	/**
+	 * Le nom du sommet.
+	 */
+	private final String name;
 
-    /**
-     * Construit un sommet.
-     * 
-     * @param name
-     *            Le nom du sommet.
-     * @param position
-     *            La position du sommet.
-     * @param elevation
-     *            L'altitude du sommet.
-     * 
-     * @throws NullPointerException
-     *             si le nom ou la position sont null
-     */
-    public Summit(String name, GeoPoint position, int elevation) {
-        this.name = requireNonNull(name, "The given name is null.");
-        this.position = requireNonNull(position, "The given position is null.");
-        this.elevation = elevation;
-    }
+	/**
+	 * La position du sommet.
+	 */
+	private final GeoPoint position;
 
-    @Override
-    public String name() {
-        return name;
-    }
+	/**
+	 * L'élévation du sommet.
+	 */
+	private final int elevation;
 
-    @Override
-    public GeoPoint position() {
-        return position;
-    }
+	/**
+	 * Construit un sommet.
+	 * 
+	 * @param name      Le nom du sommet.
+	 * @param position  La position du sommet.
+	 * @param elevation L'altitude du sommet.
+	 * 
+	 * @throws NullPointerException si le nom ou la position sont null
+	 */
+	public Summit(final String name, final GeoPoint position, final int elevation) {
+		this.name = requireNonNull(name, "The given name is null.");
+		this.position = requireNonNull(position, "The given position is null.");
+		this.elevation = elevation;
+	}
 
-    @Override
-    public int elevation() {
-        return elevation;
-    }
+	@Override
+	public String name() {
+		return name;
+	}
 
-    @Override
-    public int priority() {
-        return 0;
-    }
-    
+	@Override
+	public GeoPoint position() {
+		return position;
+	}
+
+	@Override
+	public int elevation() {
+		return elevation;
+	}
+
+	@Override
+	public int priority() {
+		return 0;
+	}
+
 }
