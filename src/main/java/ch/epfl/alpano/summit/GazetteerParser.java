@@ -37,6 +37,9 @@ public final class GazetteerParser {
 	 * @return Le nom du sommet.
 	 */
 	private static String getName(String line) {
+		if (line.length() < 36) {
+			return "";
+		}
 		return line.substring(36);
 	}
 
@@ -99,9 +102,9 @@ public final class GazetteerParser {
 				final var elements = s.trim().split("\\s+");
 				summits.add(new Summit(getName(s), getPoint(elements[0], elements[1]), parseInt(elements[2])));
 			}
-		} catch (NumberFormatException e) {
+		} catch (final NumberFormatException e) {
 			throw new IOException("One of the angles given is not formed of letters.");
-		} catch (ArrayIndexOutOfBoundsException e) {
+		} catch (final ArrayIndexOutOfBoundsException e) {
 			throw new IOException("One of the angles given is too short.");
 		}
 
