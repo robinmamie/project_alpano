@@ -3,7 +3,6 @@ package ch.epfl.alpano.draw;
 import static java.awt.image.BufferedImage.TYPE_INT_RGB;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
-import static java.lang.Math.toRadians;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -13,42 +12,19 @@ import javax.imageio.ImageIO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import ch.epfl.alpano.GeoPoint;
-import ch.epfl.alpano.PanoramaComputer;
-import ch.epfl.alpano.PanoramaParameters;
-import ch.epfl.alpano.dem.ContinuousElevationModel;
-import ch.epfl.alpano.dem.HgtDiscreteElevationModel;
-
 /**
  * Dessine un panorama test.
  *
  * @author Robin Mamié
  */
-final class DrawPanorama {
+final class DrawPanorama extends AbstractDrawPanorama {
 
 	private static final Logger logger = LogManager.getLogger(DrawPanorama.class);
 
-	private static final File HGT_FILE = new File(DrawPanorama.class.getResource("/N46E007.hgt").getFile());
-
-	private static final int IMAGE_WIDTH = 500;
-	private static final int IMAGE_HEIGHT = 200;
-
-	private static final double ORIGIN_LON = toRadians(7.65);
-	private static final double ORIGIN_LAT = toRadians(46.73);
-	private static final int ELEVATION = 600;
-	private static final double CENTER_AZIMUTH = toRadians(180);
-	private static final double HORIZONTAL_FOV = toRadians(60);
-	private static final int MAX_DISTANCE = 100_000;
-
-	private static final PanoramaParameters PARAMS = new PanoramaParameters(new GeoPoint(ORIGIN_LON, ORIGIN_LAT),
-			ELEVATION, CENTER_AZIMUTH, HORIZONTAL_FOV, MAX_DISTANCE, IMAGE_WIDTH, IMAGE_HEIGHT);
-
 	public static void main(final String[] args) throws Exception {
 		final var start = System.nanoTime();
-		final var dDEM = new HgtDiscreteElevationModel(HGT_FILE);
-		final var cDEM = new ContinuousElevationModel(dDEM);
-		final var p = new PanoramaComputer(cDEM).computePanorama(PARAMS);
 
+		final var p = panorama();
 		final var i = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, TYPE_INT_RGB);
 
 		for (var x = 0; x < IMAGE_WIDTH; ++x) {
