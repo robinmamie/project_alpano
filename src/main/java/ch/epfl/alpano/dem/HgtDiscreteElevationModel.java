@@ -68,7 +68,7 @@ public final class HgtDiscreteElevationModel implements DiscreteElevationModel {
 		try {
 			lat = Integer.parseInt(fileName.substring(1, 3));
 			lon = Integer.parseInt(fileName.substring(4, 7));
-		} catch (NumberFormatException e) {
+		} catch (final NumberFormatException e) {
 			throw new IllegalArgumentException(
 					"The file name is invalid: it does not contain numbers at the right places.");
 		}
