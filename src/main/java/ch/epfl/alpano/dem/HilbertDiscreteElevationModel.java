@@ -11,6 +11,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ShortBuffer;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import ch.epfl.alpano.Interval1D;
 import ch.epfl.alpano.Interval2D;
 
@@ -21,6 +24,8 @@ import ch.epfl.alpano.Interval2D;
  * @author Robin Mamié
  */
 public final class HilbertDiscreteElevationModel implements DiscreteElevationModel {
+
+	private static final Logger logger = LogManager.getLogger(HilbertDiscreteElevationModel.class);
 
 	private static final int N = 8192;
 	private static final long N_SQUARED = (long) N * N;
@@ -97,7 +102,7 @@ public final class HilbertDiscreteElevationModel implements DiscreteElevationMod
 		final var dem = SuperHgtDiscreteElevationModel.FULL;
 		final var start = System.nanoTime();
 		try (final var stream = new FileOutputStream(hilbertHGT)) {
-			System.out.println("Creating the file " + hilbertHGT.getName());
+			logger.info("Creating the file {}", hilbertHGT.getName());
 			for (var i = 0; i < N_SQUARED; ++i) {
 				var t = i;
 				var x = 0;
@@ -126,8 +131,7 @@ public final class HilbertDiscreteElevationModel implements DiscreteElevationMod
 				final var b = new byte[] { (byte) (elevation >> 8), (byte) (elevation & 0xff) };
 				stream.write(b);
 			}
-			System.out.println(String.format("%s created in %.3f seconds.",
-					hilbertHGT.getName(), (System.nanoTime() - start) * 1e-9));
+			logger.info("{} created in {} seconds.", hilbertHGT.getName(), (System.nanoTime() - start) * 1e-9);
 		}
 	}
 

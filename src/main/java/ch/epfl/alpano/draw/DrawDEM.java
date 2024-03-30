@@ -12,6 +12,9 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import ch.epfl.alpano.GeoPoint;
 import ch.epfl.alpano.Interval1D;
 import ch.epfl.alpano.Interval2D;
@@ -23,6 +26,8 @@ import ch.epfl.alpano.dem.ContinuousElevationModel;
  * @author Robin Mamié
  */
 public final class DrawDEM {
+
+	private static final Logger logger = LogManager.getLogger(DrawDEM.class);
 
 	public static void main(final String[] args) throws IOException {
 		final var startTime = System.nanoTime();
@@ -51,7 +56,7 @@ public final class DrawDEM {
 		ImageIO.write(slI, "png", new File("slope.png"));
 
 		final var endTime = System.nanoTime();
-		System.out.printf("DrawDEM took %.3f ms.%n", (endTime - startTime) / 1e6);
+		logger.info("DrawDEM took {} ms.", (endTime - startTime) / 1e6);
 	}
 
 	private static int gray(final double v) {

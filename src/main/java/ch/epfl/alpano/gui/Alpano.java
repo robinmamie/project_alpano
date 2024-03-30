@@ -38,7 +38,7 @@ import ch.epfl.alpano.dem.ContinuousElevationModel;
 import ch.epfl.alpano.dem.DiscreteElevationModel;
 import ch.epfl.alpano.dem.HilbertDiscreteElevationModel;
 import ch.epfl.alpano.dem.SuperHgtDiscreteElevationModel;
-import ch.epfl.alpano.draw.Test;
+import ch.epfl.alpano.draw.GazetteerParserTest;
 import ch.epfl.alpano.summit.GazetteerParser;
 import ch.epfl.alpano.summit.Labelizable;
 import ch.epfl.alpano.summit.Place;
@@ -192,7 +192,7 @@ public final class Alpano extends Application {
 
 		final var labels = new ArrayList<Labelizable>();
 		try {
-			final var file = new File(Test.class.getResource("/alps.txt").getFile());
+			final var file = new File(GazetteerParserTest.class.getResource("/alps.txt").getFile());
 			labels.addAll(GazetteerParser.readSummitsFrom(file));
 		} catch (final IOException e) {
 			throw new IllegalArgumentException("The file 'alps.txt' does not exist or is corrupted.");

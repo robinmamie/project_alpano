@@ -17,6 +17,8 @@
 		<maven.compiler.source>21</maven.compiler.source>
 		<maven.compiler.target>21</maven.compiler.target>
 
+		<!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
+		<log4j.version>2.23.1</log4j.version>
 		<!-- https://mvnrepository.com/artifact/org.openjfx/javafx-base -->
 		<!-- https://mvnrepository.com/artifact/org.openjfx/javafx-controls -->
 		<!-- https://mvnrepository.com/artifact/org.openjfx/javafx-graphics -->
@@ -50,6 +52,16 @@
 	</properties>
 
 	<dependencies>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+			<version>${log4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-slf4j-impl</artifactId>
+			<version>${log4j.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>org.openjfx</groupId>
 			<artifactId>javafx-base</artifactId>

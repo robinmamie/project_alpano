@@ -6,6 +6,9 @@ import java.io.File;
 
 import javax.imageio.ImageIO;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import ch.epfl.alpano.GeoPoint;
 import ch.epfl.alpano.PanoramaComputer;
 import ch.epfl.alpano.PanoramaParameters;
@@ -23,7 +26,9 @@ import javafx.embed.swing.SwingFXUtils;
  */
 final class DrawPanoramaGray {
 
-	private static final File HGT_FILE = new File("N46E007.hgt");
+	private static final Logger logger = LogManager.getLogger(DrawPanoramaGray.class);
+
+	private static final File HGT_FILE = new File(DrawPanoramaGray.class.getResource("/N46E007.hgt").getFile());
 
 	private static final int IMAGE_WIDTH = 500;
 	private static final int IMAGE_HEIGHT = 200;
@@ -56,6 +61,6 @@ final class DrawPanoramaGray {
 		ImageIO.write(SwingFXUtils.fromFXImage(i, null), "png", new File("niesen-profile.png"));
 
 		final var stop = System.nanoTime();
-		System.out.printf("DrawPanoramaGray took %.3f ms.%n", (stop - start) * 1e-6);
+		logger.info("DrawPanoramaGray took {} ms.", (stop - start) * 1e-6);
 	}
 }

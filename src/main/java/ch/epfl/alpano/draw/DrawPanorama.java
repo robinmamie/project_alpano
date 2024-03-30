@@ -10,6 +10,9 @@ import java.io.File;
 
 import javax.imageio.ImageIO;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import ch.epfl.alpano.GeoPoint;
 import ch.epfl.alpano.PanoramaComputer;
 import ch.epfl.alpano.PanoramaParameters;
@@ -23,7 +26,9 @@ import ch.epfl.alpano.dem.HgtDiscreteElevationModel;
  */
 final class DrawPanorama {
 
-	private static final File HGT_FILE = new File("N46E007.hgt");
+	private static final Logger logger = LogManager.getLogger(DrawPanorama.class);
+
+	private static final File HGT_FILE = new File(DrawPanorama.class.getResource("/N46E007.hgt").getFile());
 
 	private static final int IMAGE_WIDTH = 500;
 	private static final int IMAGE_HEIGHT = 200;
@@ -56,7 +61,7 @@ final class DrawPanorama {
 		ImageIO.write(i, "png", new File("niesen.png"));
 
 		final var stop = System.nanoTime();
-		System.out.printf("DrawPanorama took %.3f ms.%n", (stop - start) * 1e-6);
+		logger.info("DrawPanorama took {} ms.", (stop - start) * 1e-6);
 	}
 
 	private static int gray(final double v) {

@@ -29,7 +29,9 @@ public interface PanoramaRenderer {
 			for (var y = 0; y < i.getHeight(); ++y) {
 				pW.setColor(x, y, iP.colorAt(x, y));
 			}
-			status.set(status.get() + increment);
+			if (status != null) {
+				status.set(status.get() + increment);
+			}
 		}
 		return i;
 	}

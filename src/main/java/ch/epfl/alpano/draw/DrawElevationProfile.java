@@ -8,6 +8,9 @@ import java.io.File;
 
 import javax.imageio.ImageIO;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import ch.epfl.alpano.GeoPoint;
 import ch.epfl.alpano.dem.ContinuousElevationModel;
 import ch.epfl.alpano.dem.ElevationProfile;
@@ -20,7 +23,9 @@ import ch.epfl.alpano.dem.HgtDiscreteElevationModel;
  */
 final class DrawElevationProfile {
 
-	private static final File HGT_FILE = new File("N46E006.hgt");
+	private static final Logger logger = LogManager.getLogger(DrawElevationProfile.class);
+
+	private static final File HGT_FILE = new File(DrawElevationProfile.class.getResource("/N46E006.hgt").getFile());
 	private static final double MAX_ELEVATION = 1_500;
 	private static final int LENGTH = 111_000;
 	private static final double AZIMUTH = toRadians(27.97);
@@ -52,6 +57,6 @@ final class DrawElevationProfile {
 		ImageIO.write(i, "png", new File("profile.png"));
 
 		final var endTime = System.nanoTime();
-		System.out.printf("DrawElevationProfile took %.3f ms.%n", (endTime - startTime) / 1e6);
+		logger.info("DrawElevationProfile took {} ms.", (endTime - startTime) / 1e6);
 	}
 }

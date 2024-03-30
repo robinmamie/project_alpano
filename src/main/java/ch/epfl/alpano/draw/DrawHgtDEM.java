@@ -10,6 +10,9 @@ import java.io.File;
 
 import javax.imageio.ImageIO;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import ch.epfl.alpano.GeoPoint;
 import ch.epfl.alpano.dem.ContinuousElevationModel;
 import ch.epfl.alpano.dem.HgtDiscreteElevationModel;
@@ -21,7 +24,9 @@ import ch.epfl.alpano.dem.HgtDiscreteElevationModel;
  */
 final class DrawHgtDEM {
 
-	private static final File HGT_FILE = new File("N46E006.hgt");
+	private static final Logger logger = LogManager.getLogger(DrawHgtDEM.class);
+
+	private static final File HGT_FILE = new File(DrawHgtDEM.class.getResource("/N46E006.hgt").getFile());
 	private static final double ORIGIN_LON = toRadians(6);
 	private static final double ORIGIN_LAT = toRadians(45);
 	private static final double WIDTH = toRadians(3);
@@ -48,7 +53,7 @@ final class DrawHgtDEM {
 		ImageIO.write(i, "png", new File("dem.png"));
 
 		final var endTime = System.nanoTime();
-		System.out.printf("DrawHgtDEM took %.3f ms.%n", (endTime - startTime) / 1e6);
+		logger.info("DrawHgtDEM took {} ms.", (endTime - startTime) / 1e6);
 	}
 
 	private static int gray(final double v) {
