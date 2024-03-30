@@ -806,6 +806,25 @@ public final class Alpano extends Application {
 		return menuParameters;
 	}
 
+	private void configueAndSpawnStage(final Stage placeStage, final GridPane grid, final Scene scene,
+			final String title, final String iconFilepath) {
+		grid.setVgap(BOTTOM_GRID_VGAP);
+		grid.setHgap(BOTTOM_GRID_HGAP);
+		grid.setAlignment(Pos.CENTER);
+		grid.setPadding(BOTTOM_GRID_PADDING);
+
+		placeStage.setTitle(title);
+		placeStage.setScene(scene);
+		placeStage.setResizable(false);
+		placeStage.setAlwaysOnTop(true);
+		try {
+			placeStage.getIcons().add(new Image(new FileInputStream(new File(iconFilepath))));
+		} catch (final FileNotFoundException e) {
+			logger.error(e.getMessage(), e);
+		}
+		placeStage.show();
+	}
+
 	private void openAddPlaceWindow() {
 		final var placeStage = new Stage();
 		final var grid = new GridPane();
@@ -865,21 +884,7 @@ public final class Alpano extends Application {
 		grid.add(saveButton, 0, 6);
 		grid.add(quitButton, 1, 6);
 
-		grid.setVgap(BOTTOM_GRID_VGAP);
-		grid.setHgap(BOTTOM_GRID_HGAP);
-		grid.setAlignment(Pos.CENTER);
-		grid.setPadding(BOTTOM_GRID_PADDING);
-
-		placeStage.setTitle("Add place");
-		placeStage.setScene(scene);
-		placeStage.setResizable(false);
-		placeStage.setAlwaysOnTop(true);
-		try {
-			placeStage.getIcons().add(new Image(new FileInputStream(new File("res/globe.png"))));
-		} catch (final FileNotFoundException e) {
-			logger.error(e.getMessage(), e);
-		}
-		placeStage.show();
+		configueAndSpawnStage(placeStage, grid, scene, "Add place", "res/globe.png");
 	}
 
 	private void savePlace(final Stage placeStage, final TextField name, final TextField lat, final TextField lon,
@@ -938,21 +943,7 @@ public final class Alpano extends Application {
 		grid.add(hilbertHGT, 0, 2);
 		grid.add(okButton, 0, 3);
 
-		grid.setVgap(BOTTOM_GRID_VGAP);
-		grid.setHgap(BOTTOM_GRID_HGAP);
-		grid.setAlignment(Pos.CENTER);
-		grid.setPadding(BOTTOM_GRID_PADDING);
-
-		placeStage.setTitle("Change DEM");
-		placeStage.setScene(scene);
-		placeStage.setResizable(false);
-		placeStage.setAlwaysOnTop(true);
-		try {
-			placeStage.getIcons().add(new Image(new FileInputStream(new File("res/dem.png"))));
-		} catch (final FileNotFoundException e) {
-			logger.error(e.getMessage(), e);
-		}
-		placeStage.show();
+		configueAndSpawnStage(placeStage, grid, scene, "Change DEM", "res/dem.png");
 	}
 
 	private RadioMenuItem setAutoAltitude() {
