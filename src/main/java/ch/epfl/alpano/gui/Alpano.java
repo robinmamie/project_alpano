@@ -32,6 +32,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Locale;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import ch.epfl.alpano.Azimuth;
 import ch.epfl.alpano.GeoPoint;
 import ch.epfl.alpano.dem.ContinuousElevationModel;
@@ -90,6 +93,8 @@ import javafx.stage.Stage;
  * @author Robin Mamié
  */
 public final class Alpano extends Application {
+
+	private static final Logger logger = LogManager.getLogger(Alpano.class);
 
 	/**
 	 * Les paramètres de panorama à précharger.
@@ -188,7 +193,7 @@ public final class Alpano extends Application {
 	 * Constructeur statique de la classe.
 	 */
 	static {
-		System.out.println("\nAlpano launching...");
+		logger.info("Alpano launching...");
 
 		final var labels = new ArrayList<Labelizable>();
 		try {
@@ -204,23 +209,23 @@ public final class Alpano extends Application {
 			for (final var f : files) {
 				try (final var in = new ObjectInputStream(new FileInputStream(f))) {
 					labels.add((Place) in.readObject());
-				} catch (final Exception i) {
-					i.printStackTrace();
+				} catch (final Exception e) {
+					logger.error(e.getMessage(), e);
 				}
 			}
 		}
 
-		System.out.println(" - Summits and labels loaded.");
+		logger.info(" - Summits and labels loaded.");
 
 		final var dem = SuperHgtDiscreteElevationModel.FULL;
 
-		System.out.println(" - DEMs loaded.");
+		logger.info(" - DEMs loaded.");
 
 		CEM = new ContinuousElevationModel(dem);
 		PARAMETERS_B = new PanoramaParametersBean(PRELOAD);
 		COMPUTER_B = new PanoramaComputerBean(CEM, labels);
 
-		System.out.println(" - Beans created.");
+		logger.info(" - Beans created.");
 	}
 
 	/**
@@ -254,13 +259,13 @@ public final class Alpano extends Application {
 		primaryStage.getIcons().add(new Image(new FileInputStream(new File("res/mainIcon.png"))));
 		primaryStage.show();
 		primaryStage.setOnCloseRequest(e -> {
-			System.out.println("\nGoodbye.");
+			logger.info("Goodbye.");
 			System.exit(0);
 		});
 
-		System.out.println(" - Graphical interface loaded.");
+		logger.info(" - Graphical interface loaded.");
 
-		System.out.println("\nWelcome!\n");
+		logger.info("Welcome!");
 	}
 
 	/**
@@ -344,9 +349,9 @@ public final class Alpano extends Application {
 					final var osmURI = new URI("http", "www.openstreetmap.org", "/", qy, fg);
 					Desktop.getDesktop().browse(osmURI);
 				} catch (final URISyntaxException ex) {
-					System.err.println("Could not parse URI.");
+					logger.error("Could not parse URI.", ex);
 				} catch (final IOException ey) {
-					System.err.println("Could not get to browser.");
+					logger.error("Could not get to browser.", ey);
 				}
 			} else if (e.getButton() == MouseButton.SECONDARY) {
 				final var p = COMPUTER_B.getPanorama();
@@ -566,7 +571,7 @@ public final class Alpano extends Application {
 		load.setAccelerator(KeyCombination.keyCombination("Ctrl+L"));
 		final var exit = new MenuItem("Quitter");
 		exit.setOnAction(e -> {
-			System.out.println("Goodbye.");
+			logger.info("Goodbye.");
 			System.exit(0);
 		});
 		exit.setAccelerator(KeyCombination.keyCombination("Ctrl+Q"));
@@ -577,7 +582,7 @@ public final class Alpano extends Application {
 			load.setGraphic(new ImageView(new Image(new FileInputStream(new File("res/load.png")))));
 			exit.setGraphic(new ImageView(new Image(new FileInputStream(new File("res/close.png")))));
 		} catch (final FileNotFoundException e1) {
-			System.err.println(e1.getMessage());
+			logger.error(e1.getMessage(), e1);
 		}
 
 		menuFile.getItems().addAll(refresh, save, load, new SeparatorMenuItem(), exit);
@@ -631,7 +636,7 @@ public final class Alpano extends Application {
 		try {
 			saveStage.getIcons().add(new Image(new FileInputStream(new File("res/save.png"))));
 		} catch (final FileNotFoundException e) {
-			System.err.println(e.getMessage());
+			logger.error(e.getMessage(), e);
 		}
 		saveStage.show();
 	}
@@ -653,15 +658,15 @@ public final class Alpano extends Application {
 				final var image = new WritableImage((int) panoGroup.getWidth(), (int) panoGroup.getHeight());
 				panoGroup.snapshot(null, image);
 				write(fromFXImage(image, null), "png", imgFile);
-				System.out.println("Image saved in:       " + imgFile.getPath());
+				logger.info("Image saved in:       {}", imgFile.getPath());
 			} catch (final IOException e) {
-				e.printStackTrace();
+				logger.error(e.getMessage(), e);
 			}
 			try (final var out = new ObjectOutputStream(new FileOutputStream(saveFile))) {
 				out.writeObject(COMPUTER_B.getParameters());
-				System.out.println("Parameters saved in:  " + saveFile.getPath());
+				logger.info("Parameters saved in:  {}", saveFile.getPath());
 			} catch (final IOException e) {
-				e.printStackTrace();
+				logger.error(e.getMessage(), e);
 			}
 			saveStage.close();
 		}
@@ -763,7 +768,7 @@ public final class Alpano extends Application {
 		try {
 			loadStage.getIcons().add(new Image(new FileInputStream(new File("res/load.png"))));
 		} catch (final FileNotFoundException e) {
-			System.err.println(e.getMessage());
+			logger.error(e.getMessage(), e);
 		}
 		loadStage.show();
 
@@ -774,7 +779,7 @@ public final class Alpano extends Application {
 		try (final var in = new ObjectInputStream(new FileInputStream(load))) {
 			return (PanoramaUserParameters) in.readObject();
 		} catch (final Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 			return null;
 		}
 	}
@@ -796,7 +801,7 @@ public final class Alpano extends Application {
 			addLabel.setGraphic(new ImageView(new Image(new FileInputStream(new File("res/globe.png")))));
 			changeCem.setGraphic(new ImageView(new Image(new FileInputStream(new File("res/dem.png")))));
 		} catch (final FileNotFoundException e) {
-			System.err.println(e.getMessage());
+			logger.error(e.getMessage(), e);
 		}
 		return menuParameters;
 	}
@@ -872,7 +877,7 @@ public final class Alpano extends Application {
 		try {
 			placeStage.getIcons().add(new Image(new FileInputStream(new File("res/globe.png"))));
 		} catch (final FileNotFoundException e) {
-			System.err.println(e.getMessage());
+			logger.error(e.getMessage(), e);
 		}
 		placeStage.show();
 	}
@@ -891,9 +896,9 @@ public final class Alpano extends Application {
 						Math.toRadians(Double.parseDouble(lat.getText())));
 				out.writeObject(
 						new Place(name.getText(), position, (int) CEM.elevationAt(position), (int) slider.getValue()));
-				System.out.println("Label saved in:       " + plcFile.getPath());
+				logger.info("Label saved in:       {}", plcFile.getPath());
 			} catch (final IOException e) {
-				e.printStackTrace();
+				logger.error(e.getMessage(), e);
 			}
 			placeStage.close();
 		}
@@ -920,7 +925,7 @@ public final class Alpano extends Application {
 			if (group.getSelectedToggle() != null) {
 				COMPUTER_B.cemProperty().set(
 						new ContinuousElevationModel((DiscreteElevationModel) group.getSelectedToggle().getUserData()));
-				System.out.println("DEM changed.");
+				logger.info("DEM changed.");
 			}
 		});
 
@@ -945,7 +950,7 @@ public final class Alpano extends Application {
 		try {
 			placeStage.getIcons().add(new Image(new FileInputStream(new File("res/dem.png"))));
 		} catch (final FileNotFoundException e) {
-			System.err.println(e.getMessage());
+			logger.error(e.getMessage(), e);
 		}
 		placeStage.show();
 	}
@@ -977,7 +982,7 @@ public final class Alpano extends Application {
 		try {
 			about.setGraphic(new ImageView(new Image(new FileInputStream(new File("res/info.png")))));
 		} catch (final FileNotFoundException e) {
-			System.out.println(e.getMessage());
+			logger.error(e.getMessage(), e);
 		}
 
 		menuHelp.getItems().addAll(about);
@@ -989,7 +994,7 @@ public final class Alpano extends Application {
 		final var grid = new GridPane();
 		final var scene = new Scene(grid);
 
-		final var mainRequest = new Label("Version 1.0.0\nProgrammé par R. Mamié.\nJuin 2017, EPFL.\nrobin@mamie.one");
+		final var mainRequest = new Label("Version 1.0.0\nProgrammé par R. Mamié.\n2017-2024, EPFL.\nrobin@mamie.one");
 		mainRequest.setTextAlignment(TextAlignment.CENTER);
 
 		grid.add(mainRequest, 0, 0);
@@ -1005,8 +1010,8 @@ public final class Alpano extends Application {
 		aboutStage.setAlwaysOnTop(true);
 		try {
 			aboutStage.getIcons().add(new Image(new FileInputStream(new File("res/info.png"))));
-		} catch (FileNotFoundException e) {
-			System.err.println(e.getMessage());
+		} catch (final FileNotFoundException e) {
+			logger.error(e.getMessage(), e);
 		}
 		aboutStage.show();
 	}

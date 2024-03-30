@@ -9,6 +9,9 @@ import static javafx.collections.FXCollections.unmodifiableObservableList;
 
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import ch.epfl.alpano.Panorama;
 import ch.epfl.alpano.PanoramaComputer;
 import ch.epfl.alpano.dem.ContinuousElevationModel;
@@ -31,6 +34,8 @@ import javafx.scene.image.Image;
  * @author Robin Mamié
  */
 public final class PanoramaComputerBean {
+
+	private static final Logger logger = LogManager.getLogger(PanoramaComputerBean.class);
 
 	/**
 	 * La propriété du Panorama.
@@ -87,44 +92,43 @@ public final class PanoramaComputerBean {
 				@Override
 				public void run() {
 					PanoramaComputer pc = new PanoramaComputer(cemProperty().get(), slopeNecessary.get());
-					System.out.println("\n*************************************************************");
+					logger.info("*************************************************************");
 					if (panorama.get() != null) {
-						System.out.println("Erasing previous panorama...");
+						logger.info("Erasing previous panorama...");
 					}
 					panorama.set(null);
 					image.set(null);
-					System.out.println("Launching computation with the following parameters:");
-					System.out.println("-------------------------------------------");
-					System.out.println(parameters.get());
-					System.out.println("-------------------------------------------");
+					logger.info("Launching computation with the following parameters:");
+					logger.info("-------------------------------------------");
+					logger.info(parameters.get());
+					logger.info("-------------------------------------------");
 					status.bind(pc.statusProperty());
 					long start = System.nanoTime();
 					try {
 						panorama.set(pc.computePanorama(parameters.get().panoramaParameters()));
 					} catch (final InterruptedException e) {
-						e.printStackTrace();
+						logger.error(e.getMessage(), e);
 						Thread.currentThread().interrupt();
 					}
 
 					status.unbind();
 					status.set(0);
-					System.out.printf("Panorama computed after %.3f seconds.%n", (System.nanoTime() - start) * 1e-9);
+					logger.info("Panorama computed after {} seconds.", (System.nanoTime() - start) * 1e-9);
 					final var i = renderPanorama(panorama.get(),
 							slopeNecessary.get() ? stdPanorama(panorama.get()) : outlinePanorama(panorama.get()),
 							status);
 
-					System.out.printf("Panorama rendered after %.3f seconds.%n", (System.nanoTime() - start) * 1e-9);
+					logger.info("Panorama rendered after {} seconds.", (System.nanoTime() - start) * 1e-9);
 
 					final var list = new Labelizer(cemProperty().get(), summits, hideNonSummits.getValue())
 							.labels(parameters.get().panoramaDisplayParameters());
-					System.out.printf("Panorama's labels computed after %.3f seconds.%n",
-							(System.nanoTime() - start) * 1e-9);
+					logger.info("Panorama's labels computed after {} seconds.", (System.nanoTime() - start) * 1e-9);
 
 					runLater(() -> {
 						labels.setAll(list);
 						image.set(i);
-						System.out.println("Computation and rendering finished.");
-						System.out.println("*************************************************************\n");
+						logger.info("Computation and rendering finished.");
+						logger.info("*************************************************************");
 					});
 				}
 			}.start();

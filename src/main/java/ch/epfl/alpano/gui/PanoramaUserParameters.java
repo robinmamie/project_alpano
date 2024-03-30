@@ -259,16 +259,16 @@ public final class PanoramaUserParameters implements Serializable {
 		final var eastOrWest = observerLongitude() >= 0.0 ? 'E' : 'W';
 		final var superSamplingExponent = superSamplingExponent() == 1 ? "2×" : "4×";
 
-		return format("Position : %.4f°%c %.4f°%c%n",
+		return format("Position : %.4f°%c %.4f°%c ; ",
 				abs(observerLatitude() / DECIMAL_SHIFT), northOrSouth,
 				abs(observerLongitude() / DECIMAL_SHIFT), eastOrWest)
-				+ format("Altitude : %d m  Angle de vue : %d°%n",
+				+ format("Altitude : %d m ; Angle de vue : %d° ; ",
 						observerElevation(), horizontalFieldOfView())
-				+ format("Azimut : %d° (%s)  Visibilité : %d km%n",
+				+ format("Azimut : %d° (%s) ; Visibilité : %d km ; ",
 						centerAzimuth(),
 						toOctantString(Math.toRadians(centerAzimuth()), "N", "E", "S", "W"),
 						maxDistance())
-				+ format("Largeur : %d px  Hauteur : %d px%n", width(), height())
+				+ format("Largeur : %d px ; Hauteur : %d px ; ", width(), height())
 				+ format("Suréchantillonage : %s", superSamplingExponent() == 0
 						? "non"
 						: superSamplingExponent);
