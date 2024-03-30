@@ -55,7 +55,7 @@ public enum PredefinedPanoramas {
 	PredefinedPanoramas(final int longitude, final int latitude, final int elevation,
 			final int centerAzimuth, final int horizontalFov) {
 		this.parameters = new PanoramaUserParameters(longitude, latitude, elevation, centerAzimuth,
-				horizontalFov, MAX_DISTANCE, WIDTH, HEIGHT, SUPER_SAMPLING_EX);
+				horizontalFov, MAX_DISTANCE, new ImageParameters(WIDTH, HEIGHT, SUPER_SAMPLING_EX));
 	}
 
 	public PanoramaUserParameters parameters() {

@@ -87,13 +87,11 @@ public final class PanoramaUserParameters implements Serializable {
 	 * @param centerAzimuth         L'azimut central.
 	 * @param horizontalFieldOfView Le champ de vue horizontal.
 	 * @param maxDistance           La distance maximale.
-	 * @param width                 La largeur de l'image.
-	 * @param height                La hauteur de l'image.
-	 * @param superSamplingExponent L'exposant de suréchantillonage.
+	 * @param imageParameters       Les paramètres de l'image.
 	 */
 	public PanoramaUserParameters(final int observerLongitude, final int observerLatitude, final int observerElevation,
-			final int centerAzimuth, final int horizontalFieldOfView, final int maxDistance, final int width,
-			final int height, final int superSamplingExponent) {
+			final int centerAzimuth, final int horizontalFieldOfView, final int maxDistance,
+			final ImageParameters imageParameters) {
 		this(new EnumMap<>(Map.ofEntries(
 				Map.entry(OBSERVER_LONGITUDE, observerLongitude),
 				Map.entry(OBSERVER_LATITUDE, observerLatitude),
@@ -101,9 +99,9 @@ public final class PanoramaUserParameters implements Serializable {
 				Map.entry(CENTER_AZIMUTH, centerAzimuth),
 				Map.entry(HORIZONTAL_FIELD_OF_VIEW, horizontalFieldOfView),
 				Map.entry(MAX_DISTANCE, maxDistance),
-				Map.entry(WIDTH, width),
-				Map.entry(HEIGHT, height),
-				Map.entry(SUPER_SAMPLING_EXPONENT, superSamplingExponent))));
+				Map.entry(WIDTH, imageParameters.width()),
+				Map.entry(HEIGHT, imageParameters.height()),
+				Map.entry(SUPER_SAMPLING_EXPONENT, imageParameters.superSamplingExponent()))));
 	}
 
 	/**

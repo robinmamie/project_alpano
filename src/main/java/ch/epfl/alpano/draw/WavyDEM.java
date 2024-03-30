@@ -12,20 +12,10 @@ import ch.epfl.alpano.dem.DiscreteElevationModel;
  *
  * @author Robin Mamié
  */
-public final class WavyDEM implements DiscreteElevationModel {
+public record WavyDEM(Interval2D extent) implements DiscreteElevationModel {
 
 	private static final double PERIOD = 100d;
 	private static final double HEIGHT = 1000d;
-	private final Interval2D extent;
-
-	public WavyDEM(final Interval2D extent) {
-		this.extent = extent;
-	}
-
-	@Override
-	public Interval2D extent() {
-		return extent;
-	}
 
 	@Override
 	public double elevationSample(final int x, final int y) {
