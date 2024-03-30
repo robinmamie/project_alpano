@@ -14,11 +14,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Random;
-
 import org.junit.jupiter.api.Test;
 
-class Interval1DTest {
+final class Interval1DTest {
 
 	private static Interval1D i_0_9() {
 		return new Interval1D(0, 9);
@@ -53,14 +51,14 @@ class Interval1DTest {
 
 	@Test
 	void containsIsTrueOnlyForTheIntervalsElements() {
-		int sqrtIt = (int) ceil(sqrt(RANDOM_ITERATIONS));
-		Random rng = newRandom();
-		for (int i = 0; i < sqrtIt; ++i) {
-			int a = rng.nextInt(200) - 100;
-			int b = a + rng.nextInt(50);
-			Interval1D interval = new Interval1D(a, b);
-			for (int j = 0; j < sqrtIt; ++j) {
-				int v = rng.nextInt(200) - 100;
+		final var sqrtIt = (int) ceil(sqrt(RANDOM_ITERATIONS));
+		final var rng = newRandom();
+		for (var i = 0; i < sqrtIt; ++i) {
+			final var a = rng.nextInt(200) - 100;
+			final var b = a + rng.nextInt(50);
+			final var interval = new Interval1D(a, b);
+			for (var j = 0; j < sqrtIt; ++j) {
+				final var v = rng.nextInt(200) - 100;
 				assertEquals(a <= v && v <= b, interval.contains(v));
 			}
 		}
@@ -68,12 +66,12 @@ class Interval1DTest {
 
 	@Test
 	void containsWorksAtTheLimit() {
-		Random rng = newRandom();
-		for (int i = 0; i < RANDOM_ITERATIONS; ++i) {
-			int max = rng.nextInt(2000);
-			int a = rng.nextInt(max) - 1000;
-			int b = max - 1000;
-			Interval1D interval = new Interval1D(a, b);
+		final var rng = newRandom();
+		for (var i = 0; i < RANDOM_ITERATIONS; ++i) {
+			final var max = rng.nextInt(2000);
+			final var a = rng.nextInt(max) - 1000;
+			final var b = max - 1000;
+			final var interval = new Interval1D(a, b);
 			assertFalse(interval.contains(a - 1));
 			assertTrue(interval.contains(a));
 			assertTrue(interval.contains(b));
@@ -150,18 +148,19 @@ class Interval1DTest {
 
 	@Test
 	void unionWorksWhenOneIntervalIsContiguousWithTheOther() {
-		Interval1D i = i_0_2().union(i_6_9().union(i_3_5()));
+		final var i = i_0_2().union(i_6_9().union(i_3_5()));
 		assertEquals(i_0_9(), i);
 	}
 
 	@Test
 	void equalsIsStructural() {
-		Random rng = newRandom();
-		for (int i = 0; i < RANDOM_ITERATIONS; ++i) {
-			int a = rng.nextInt(), b = rng.nextInt();
-			Interval1D int1 = new Interval1D(min(a, b), max(a, b));
-			Interval1D int2 = new Interval1D(min(a, b), max(a, b));
-			Interval1D int3 = new Interval1D(min(a, b) + 1, max(a, b) + 1);
+		final var rng = newRandom();
+		for (var i = 0; i < RANDOM_ITERATIONS; ++i) {
+			final var a = rng.nextInt();
+			final var b = rng.nextInt();
+			final var int1 = new Interval1D(min(a, b), max(a, b));
+			final var int2 = new Interval1D(min(a, b), max(a, b));
+			final var int3 = new Interval1D(min(a, b) + 1, max(a, b) + 1);
 			assertEquals(int1, int2);
 			assertNotEquals(int1, int3);
 		}
@@ -169,13 +168,15 @@ class Interval1DTest {
 
 	@Test
 	void hashCodeAndEqualsAreCompatible() {
-		Random rng = newRandom();
-		for (int i = 0; i < RANDOM_ITERATIONS; ++i) {
-			int a = rng.nextInt(), b = rng.nextInt();
-			int c = rng.nextInt(), d = rng.nextInt();
-			Interval1D int1 = new Interval1D(min(a, b), max(a, b));
-			Interval1D int2 = new Interval1D(min(c, d), max(c, d));
-			Interval1D int3 = new Interval1D(min(c, d), max(c, d));
+		final var rng = newRandom();
+		for (var i = 0; i < RANDOM_ITERATIONS; ++i) {
+			final var a = rng.nextInt();
+			final var b = rng.nextInt();
+			final var c = rng.nextInt();
+			final var d = rng.nextInt();
+			final var int1 = new Interval1D(min(a, b), max(a, b));
+			final var int2 = new Interval1D(min(c, d), max(c, d));
+			final var int3 = new Interval1D(min(c, d), max(c, d));
 			assertTrue(hashCodeIsCompatibleWithEquals(int1, int2));
 			assertTrue(hashCodeIsCompatibleWithEquals(int2, int3));
 		}
@@ -187,7 +188,7 @@ class Interval1DTest {
 	}
 
 	private void testContains(final int value) {
-		Interval1D test = new Interval1D(0, 2);
+		final var test = new Interval1D(0, 2);
 		assertTrue(test.contains(value));
 	}
 
@@ -208,32 +209,32 @@ class Interval1DTest {
 
 	@Test
 	void containsFailsOnOtherValue() {
-		Interval1D test = new Interval1D(0, 2);
+		final var test = new Interval1D(0, 2);
 		assertFalse(test.contains(3));
 	}
 
 	@Test
 	void sizeWorksOnRandomInterval() {
-		Interval1D test = new Interval1D(0, 2);
-		int expectedSize = 3;
-		int actualSize = test.size();
+		final var test = new Interval1D(0, 2);
+		final var expectedSize = 3;
+		final var actualSize = test.size();
 		assertEquals(expectedSize, actualSize);
 	}
 
 	@Test
 	void sizeWorksOnSmallestInterval() {
-		Interval1D test = new Interval1D(0, 0);
-		int expectedSize = 1;
-		int actualSize = test.size();
+		final var test = new Interval1D(0, 0);
+		final var expectedSize = 1;
+		final var actualSize = test.size();
 		assertEquals(expectedSize, actualSize);
 	}
 
 	@Test
 	void sizeOfIntersectionWithWorksWithRandomIntervals() {
-		Interval1D a = new Interval1D(0, 2);
-		Interval1D b = new Interval1D(1, 3);
-		int expectedSize = 2;
-		int actualSize = a.sizeOfIntersectionWith(b);
+		final var a = new Interval1D(0, 2);
+		final var b = new Interval1D(1, 3);
+		final var expectedSize = 2;
+		var actualSize = a.sizeOfIntersectionWith(b);
 		assertEquals(expectedSize, actualSize);
 		actualSize = b.sizeOfIntersectionWith(a);
 		assertEquals(expectedSize, actualSize);
@@ -241,10 +242,10 @@ class Interval1DTest {
 
 	@Test
 	void sizeOfIntersectionWithWorksWithDisjointIntervals() {
-		Interval1D a = new Interval1D(0, 2);
-		Interval1D b = new Interval1D(3, 5);
-		int expectedSize = 0;
-		int actualSize = a.sizeOfIntersectionWith(b);
+		final var a = new Interval1D(0, 2);
+		final var b = new Interval1D(3, 5);
+		final var expectedSize = 0;
+		var actualSize = a.sizeOfIntersectionWith(b);
 		assertEquals(expectedSize, actualSize);
 		actualSize = b.sizeOfIntersectionWith(a);
 		assertEquals(expectedSize, actualSize);
@@ -252,10 +253,10 @@ class Interval1DTest {
 
 	@Test
 	void sizeOfIntersectionWithWorksWithInnerIntervals() {
-		Interval1D a = new Interval1D(0, 5);
-		Interval1D b = new Interval1D(2, 4);
-		int expectedSize = 3;
-		int actualSize = a.sizeOfIntersectionWith(b);
+		final var a = new Interval1D(0, 5);
+		final var b = new Interval1D(2, 4);
+		final var expectedSize = 3;
+		var actualSize = a.sizeOfIntersectionWith(b);
 		assertEquals(expectedSize, actualSize);
 		actualSize = b.sizeOfIntersectionWith(a);
 		assertEquals(expectedSize, actualSize);
@@ -263,35 +264,35 @@ class Interval1DTest {
 
 	@Test
 	void unionWorksWithUnionableIntervals() {
-		Interval1D a = new Interval1D(0, 5);
-		Interval1D b = new Interval1D(2, 6);
-		Interval1D expectedInterval = new Interval1D(0, 6);
-		Interval1D actualInterval = a.union(b);
+		final var a = new Interval1D(0, 5);
+		final var b = new Interval1D(2, 6);
+		final var expectedInterval = new Interval1D(0, 6);
+		final var actualInterval = a.union(b);
 		assertEquals(expectedInterval, actualInterval);
 	}
 
 	@Test
 	void unionFailsWithNonUnionableIntervals() {
-		Interval1D a = new Interval1D(0, 5);
-		Interval1D b = new Interval1D(7, 7);
+		final var a = new Interval1D(0, 5);
+		final var b = new Interval1D(7, 7);
 
 		assertThrows(IllegalArgumentException.class, () -> a.union(b));
 	}
 
 	@Test
 	void unionWorksWithUnionableInnerIntervals() {
-		Interval1D a = new Interval1D(0, 5);
-		Interval1D b = new Interval1D(2, 3);
-		Interval1D expectedInterval = a;
-		Interval1D actualInterval = a.union(b);
+		final var a = new Interval1D(0, 5);
+		final var b = new Interval1D(2, 3);
+		final var expectedInterval = a;
+		final var actualInterval = a.union(b);
 		assertEquals(expectedInterval, actualInterval);
 	}
 
 	@Test
 	void toStringWorksWithRandomInterval() {
-		Interval1D test = new Interval1D(4, 12);
-		String expectedString = "[4..12]";
-		String actualString = test.toString();
+		final var test = new Interval1D(4, 12);
+		final var expectedString = "[4..12]";
+		final var actualString = test.toString();
 		assertEquals(expectedString, actualString);
 	}
 

@@ -4,11 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-class LabeledListStringConverterTest {
+final class LabeledListStringConverterTest {
 
 	@Test
 	void exampleOfProfWorks() {
-		LabeledListStringConverter c = new LabeledListStringConverter("zéro", "un", "deux");
+		final var c = new LabeledListStringConverter("zéro", "un", "deux");
 		assertEquals(2, (int) c.fromString("deux"));
 		assertEquals("zéro", c.toString(0));
 	}

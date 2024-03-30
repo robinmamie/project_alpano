@@ -6,20 +6,18 @@ import static java.lang.Math.PI;
 import static java.lang.Math.scalb;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.Random;
-
 import org.junit.jupiter.api.Test;
 
-class DistanceTest {
+final class DistanceTest {
 
-	private static double EARTH_CIRCUMFERENCE = 40_030_174; // rounded to nearest integer
+	private static final double EARTH_CIRCUMFERENCE = 40_030_174; // rounded to nearest integer
 
 	@Test
 	void toRadiansAndToMetersAreInverseForRandomValues() {
-		Random rng = newRandom();
-		for (int i = 0; i < RANDOM_ITERATIONS; ++i) {
-			double dRad = rng.nextDouble() * scalb(PI, 1);
-			double dRad2 = Distance.toRadians(Distance.toMeters(dRad));
+		final var rng = newRandom();
+		for (var i = 0; i < RANDOM_ITERATIONS; ++i) {
+			final var dRad = rng.nextDouble() * scalb(PI, 1);
+			final var dRad2 = Distance.toRadians(Distance.toMeters(dRad));
 			assertEquals(dRad, dRad2, 1e-10);
 		}
 	}

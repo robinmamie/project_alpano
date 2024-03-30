@@ -4,11 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-class FixedPointStringConverterTest {
+final class FixedPointStringConverterTest {
 
 	@Test
 	void exampleOfProfWorks() {
-		FixedPointStringConverter c = new FixedPointStringConverter(1);
+		final var c = new FixedPointStringConverter(1);
 
 		assertEquals(120, (int) c.fromString("12"));
 		assertEquals(123, (int) c.fromString("12.3"));

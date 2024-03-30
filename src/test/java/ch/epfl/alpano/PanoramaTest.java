@@ -6,11 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.util.Random;
-
 import org.junit.jupiter.api.Test;
 
-class PanoramaTest {
+final class PanoramaTest {
 
 	private static PanoramaParameters PARAMS() {
 		return new PanoramaParameters(
@@ -30,7 +28,7 @@ class PanoramaTest {
 
 	@Test
 	void builderConstructorCorrectlyInitializesSamples() {
-		Panorama p = new Panorama.Builder(PARAMS()).build();
+		final var p = new Panorama.Builder(PARAMS()).build();
 		assertEquals(Float.POSITIVE_INFINITY, p.distanceAt(0, 0), 0);
 		assertEquals(0, p.longitudeAt(0, 0), 0);
 		assertEquals(0, p.latitudeAt(0, 0), 0);
@@ -40,49 +38,50 @@ class PanoramaTest {
 
 	@Test
 	void setDistanceAtFailsWithInvalidIndex() {
-		Panorama.Builder b = new Panorama.Builder(PARAMS());
+		final var b = new Panorama.Builder(PARAMS());
 		assertThrows(IndexOutOfBoundsException.class, () -> b.setDistanceAt(10, 0, 1));
 	}
 
 	@Test
 	void setLongitudeAtReturnsThis() {
-		Panorama.Builder b = new Panorama.Builder(PARAMS());
+		final var b = new Panorama.Builder(PARAMS());
 		assertSame(b, b.setLongitudeAt(0, 0, 1));
 	}
 
 	@Test
 	void setSlopeAtFailsAfterBuild() {
-		Panorama.Builder b = new Panorama.Builder(PARAMS());
+		final var b = new Panorama.Builder(PARAMS());
 		b.build();
 		assertThrows(IllegalStateException.class, () -> b.setSlopeAt(0, 0, 0));
 	}
 
 	@Test
 	void buildFailsAfterBuild() {
-		Panorama.Builder b = new Panorama.Builder(PARAMS());
+		final var b = new Panorama.Builder(PARAMS());
 		b.build();
 		assertThrows(IllegalStateException.class, b::build);
 	}
 
 	@Test
 	void parametersReturnsParameters() {
-		PanoramaParameters ps = PARAMS();
-		Panorama p = new Panorama.Builder(ps).build();
+		final var ps = PARAMS();
+		final var p = new Panorama.Builder(ps).build();
 		assertSame(ps, p.parameters());
 	}
 
 	@Test
 	void builderSettersWork() {
-		PanoramaParameters ps = PARAMS();
-		float[] values = new float[ps.width() * ps.height()];
-		Random rng = newRandom();
-		for (int i = 0; i < values.length; ++i)
+		final var ps = PARAMS();
+		final var values = new float[ps.width() * ps.height()];
+		final var rng = newRandom();
+		for (var i = 0; i < values.length; ++i) {
 			values[i] = rng.nextFloat() + 0.5f;
+		}
 
-		Panorama.Builder b = new Panorama.Builder(ps);
-		for (int x = 0; x < ps.width(); ++x) {
-			for (int y = 0; y < ps.height(); ++y) {
-				float v = values[y + x * ps.height()];
+		final var b = new Panorama.Builder(ps);
+		for (var x = 0; x < ps.width(); ++x) {
+			for (var y = 0; y < ps.height(); ++y) {
+				final var v = values[y + x * ps.height()];
 				b.setDistanceAt(x, y, v)
 						.setElevationAt(x, y, v)
 						.setLatitudeAt(x, y, v)
@@ -91,10 +90,10 @@ class PanoramaTest {
 			}
 		}
 
-		Panorama p = b.build();
-		for (int x = 0; x < ps.width(); ++x) {
-			for (int y = 0; y < ps.height(); ++y) {
-				float v = values[y + x * ps.height()];
+		final var p = b.build();
+		for (var x = 0; x < ps.width(); ++x) {
+			for (var y = 0; y < ps.height(); ++y) {
+				final var v = values[y + x * ps.height()];
 				assertEquals(v, p.distanceAt(x, y), 0);
 				assertEquals(v, p.elevationAt(x, y), 0);
 				assertEquals(v, p.latitudeAt(x, y), 0);

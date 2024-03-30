@@ -26,44 +26,45 @@ import java.util.function.DoubleUnaryOperator;
 
 import org.junit.jupiter.api.Test;
 
-class Math2Test {
+final class Math2Test {
 
 	@Test
 	void sqSquaresRandomValues() {
-		Random rng = newRandom();
-		for (int i = 0; i < RANDOM_ITERATIONS; ++i) {
-			double x = rng.nextDouble() * 1_000d - 500d;
+		final var rng = newRandom();
+		for (var i = 0; i < RANDOM_ITERATIONS; ++i) {
+			final var x = rng.nextDouble() * 1_000d - 500d;
 			assertEquals(x * x, sq(x), 1e-10);
 		}
 	}
 
 	@Test
 	void floorModWorksOnRandomValues() {
-		Random rng = newRandom();
-		for (int i = 0; i < RANDOM_ITERATIONS; ++i) {
-			double n = rng.nextDouble() * 1_000d - 500d;
-			double d = 0;
-			while (d == 0)
+		final var rng = newRandom();
+		for (var i = 0; i < RANDOM_ITERATIONS; ++i) {
+			final var n = rng.nextDouble() * 1_000d - 500d;
+			var d = 0d;
+			while (d == 0) {
 				d = rng.nextDouble() * 1_000d - 500d;
-			double q = (int) floor(n / d);
-			double r = floorMod(n, d);
+			}
+			final var q = (int) floor(n / d);
+			final var r = floorMod(n, d);
 			assertEquals(n, q * d + r, 1e-10);
 		}
 	}
 
 	@Test
 	void haversinWorksOnRandomAngles() {
-		Random rng = newRandom();
-		for (int i = 0; i < RANDOM_ITERATIONS; ++i) {
-			double a = nextAngle(rng);
-			double h = (1d - cos(a)) / 2d;
+		final var rng = newRandom();
+		for (var i = 0; i < RANDOM_ITERATIONS; ++i) {
+			final var a = nextAngle(rng);
+			final var h = (1d - cos(a)) / 2d;
 			assertEquals(h, haversin(a), 1e-10);
 		}
 	}
 
 	@Test
 	void angularDistanceWorksOnKnownAngles() {
-		double data[] = {
+		final var data = new double[] {
 				0, 45, 45,
 				45, 0, -45,
 				0, 179, 179,
@@ -71,98 +72,100 @@ class Math2Test {
 				181, 359, 178,
 				181, 2, -179
 		};
-		for (int i = 0; i < data.length; i += 3) {
-			double a1 = toRadians(data[i]);
-			double a2 = toRadians(data[i + 1]);
-			double expectedD = toRadians(data[i + 2]);
+		for (var i = 0; i < data.length; i += 3) {
+			final var a1 = toRadians(data[i]);
+			final var a2 = toRadians(data[i + 1]);
+			final var expectedD = toRadians(data[i + 2]);
 			assertEquals(expectedD, angularDistance(a1, a2), 1e-10);
 		}
 	}
 
 	@Test
 	void angularDistanceIsInExpectedRange() {
-		Random rng = newRandom();
-		for (int i = 0; i < RANDOM_ITERATIONS; ++i) {
-			double a1 = nextAngle(rng);
-			double a2 = nextAngle(rng);
-			double d = angularDistance(a1, a2);
+		final var rng = newRandom();
+		for (var i = 0; i < RANDOM_ITERATIONS; ++i) {
+			final var a1 = nextAngle(rng);
+			final var a2 = nextAngle(rng);
+			final var d = angularDistance(a1, a2);
 			assertTrue(-PI <= d && d < PI);
 		}
 	}
 
 	@Test
 	void angularDistanceIsSymmetric() {
-		Random rng = newRandom();
-		for (int i = 0; i < RANDOM_ITERATIONS; ++i) {
-			double a1 = nextAngle(rng);
-			double a2 = nextAngle(rng);
+		final var rng = newRandom();
+		for (var i = 0; i < RANDOM_ITERATIONS; ++i) {
+			final var a1 = nextAngle(rng);
+			final var a2 = nextAngle(rng);
 			assertEquals(0, angularDistance(a1, a2) + angularDistance(a2, a1), 1e-10);
 		}
 	}
 
 	@Test
 	void lerpIsFirstValueAtStart() {
-		Random rng = newRandom();
-		for (int i = 0; i < RANDOM_ITERATIONS; ++i) {
-			double v1 = (rng.nextDouble() - 0.5) * 1000d;
-			double v2 = (rng.nextDouble() - 0.5) * 1000d;
+		final var rng = newRandom();
+		for (var i = 0; i < RANDOM_ITERATIONS; ++i) {
+			final var v1 = (rng.nextDouble() - 0.5) * 1000d;
+			final var v2 = (rng.nextDouble() - 0.5) * 1000d;
 			assertEquals(v1, lerp(v1, v2, 0), 1e-10);
 		}
 	}
 
 	@Test
 	void lerpIsAverageValueAtMiddle() {
-		Random rng = newRandom();
-		for (int i = 0; i < RANDOM_ITERATIONS; ++i) {
-			double v1 = (rng.nextDouble() - 0.5) * 1000d;
-			double v2 = (rng.nextDouble() - 0.5) * 1000d;
+		final var rng = newRandom();
+		for (var i = 0; i < RANDOM_ITERATIONS; ++i) {
+			final var v1 = (rng.nextDouble() - 0.5) * 1000d;
+			final var v2 = (rng.nextDouble() - 0.5) * 1000d;
 			assertEquals((v1 + v2) / 2d, lerp(v1, v2, 0.5), 1e-10);
 		}
 	}
 
 	@Test
 	void lerpIsSecondValueAtEnd() {
-		Random rng = newRandom();
-		for (int i = 0; i < RANDOM_ITERATIONS; ++i) {
-			double v1 = (rng.nextDouble() - 0.5) * 1000d;
-			double v2 = (rng.nextDouble() - 0.5) * 1000d;
+		final var rng = newRandom();
+		for (var i = 0; i < RANDOM_ITERATIONS; ++i) {
+			final var v1 = (rng.nextDouble() - 0.5) * 1000d;
+			final var v2 = (rng.nextDouble() - 0.5) * 1000d;
 			assertEquals(v2, lerp(v1, v2, 1), 1e-10);
 		}
 	}
 
 	@Test
 	void lerpIsInExpectedRange() {
-		Random rng = newRandom();
-		for (int i = 0; i < RANDOM_ITERATIONS; ++i) {
-			double v1 = (rng.nextDouble() - 0.5) * 1000d;
-			double v2 = (rng.nextDouble() - 0.5) * 1000d;
-			double p = rng.nextDouble();
-			double v = lerp(v1, v2, p);
+		final var rng = newRandom();
+		for (var i = 0; i < RANDOM_ITERATIONS; ++i) {
+			final var v1 = (rng.nextDouble() - 0.5) * 1000d;
+			final var v2 = (rng.nextDouble() - 0.5) * 1000d;
+			final var p = rng.nextDouble();
+			final var v = lerp(v1, v2, p);
 			assertTrue(min(v1, v2) <= v && v <= max(v1, v2));
 		}
 	}
 
 	@Test
 	void bilerpIsInExpectedRange() {
-		Random rng = newRandom();
-		for (int i = 0; i < RANDOM_ITERATIONS; ++i) {
-			double v1 = (rng.nextDouble() - 0.5) * 1000d;
-			double v2 = (rng.nextDouble() - 0.5) * 1000d;
-			double v3 = (rng.nextDouble() - 0.5) * 1000d;
-			double v4 = (rng.nextDouble() - 0.5) * 1000d;
-			double x = rng.nextDouble(), y = rng.nextDouble();
-			double v = bilerp(v1, v2, v3, v4, x, y);
-			assertTrue(min(min(v1, v2), min(v3, v4)) <= v
-					&& v <= max(max(v1, v2), max(v3, v4)));
+		final var rng = newRandom();
+		for (var i = 0; i < RANDOM_ITERATIONS; ++i) {
+			final var v1 = (rng.nextDouble() - 0.5) * 1000d;
+			final var v2 = (rng.nextDouble() - 0.5) * 1000d;
+			final var v3 = (rng.nextDouble() - 0.5) * 1000d;
+			final var v4 = (rng.nextDouble() - 0.5) * 1000d;
+			final var x = rng.nextDouble();
+			final var y = rng.nextDouble();
+			final var v = bilerp(v1, v2, v3, v4, x, y);
+			assertTrue(min(min(v1, v2), min(v3, v4)) <= v && v <= max(max(v1, v2), max(v3, v4)));
 		}
 	}
 
 	@Test
 	void bilerpIsCorrectInCorners() {
-		Random rng = newRandom();
-		for (int i = 0; i < RANDOM_ITERATIONS; ++i) {
-			double v0 = rng.nextDouble(), v1 = rng.nextDouble();
-			double v2 = rng.nextDouble(), v3 = rng.nextDouble();
+		final var rng = newRandom();
+		for (var i = 0; i < RANDOM_ITERATIONS; ++i) {
+			final var v0 = rng.nextDouble();
+			final var v1 = rng.nextDouble();
+			final var v2 = rng.nextDouble();
+			final var v3 = rng.nextDouble();
 			assertEquals(v0, bilerp(v0, v1, v2, v3, 0, 0), 1e-10);
 			assertEquals(v1, bilerp(v1, v1, v2, v3, 1, 0), 1e-10);
 			assertEquals(v2, bilerp(v2, v1, v2, v3, 0, 1), 1e-10);
@@ -172,10 +175,12 @@ class Math2Test {
 
 	@Test
 	void bilerpLerpsAlongSides() {
-		Random rng = newRandom();
-		for (int i = 0; i < RANDOM_ITERATIONS; ++i) {
-			double v0 = rng.nextDouble(), v1 = rng.nextDouble();
-			double v2 = rng.nextDouble(), v3 = rng.nextDouble();
+		final var rng = newRandom();
+		for (var i = 0; i < RANDOM_ITERATIONS; ++i) {
+			final var v0 = rng.nextDouble();
+			final var v1 = rng.nextDouble();
+			final var v2 = rng.nextDouble();
+			final var v3 = rng.nextDouble();
 			assertEquals((v0 + v1) / 2d, bilerp(v0, v1, v2, v3, 0.5, 0), 1e-10);
 			assertEquals((v0 + v2) / 2d, bilerp(v0, v1, v2, v3, 0, 0.5), 1e-10);
 			assertEquals((v2 + v3) / 2d, bilerp(v0, v1, v2, v3, 0.5, 1), 1e-10);
@@ -185,10 +190,10 @@ class Math2Test {
 
 	@Test
 	void firstIntervalContainingRootWorksOnSin() {
-		double i1 = firstIntervalContainingRoot(new Sin(), -1d, 1d, 0.1 + 1e-11);
+		final var i1 = firstIntervalContainingRoot(new Sin(), -1d, 1d, 0.1 + 1e-11);
 		assertEquals(-0.1, i1, 1e-10);
 
-		double i2 = firstIntervalContainingRoot(new Sin(), 1, 4, 1);
+		final var i2 = firstIntervalContainingRoot(new Sin(), 1, 4, 1);
 		assertEquals(3, i2, 0);
 	}
 
@@ -200,21 +205,21 @@ class Math2Test {
 
 	@Test
 	void improveRootWorksOnSin() {
-		double pi = improveRoot(new Sin(), 3.1, 3.2, 1e-10);
+		final var pi = improveRoot(new Sin(), 3.1, 3.2, 1e-10);
 		assertEquals(PI, pi, 1e-10);
 
-		double mPi = improveRoot(new Sin(), -4, -3.1, 1e-10);
+		final var mPi = improveRoot(new Sin(), -4, -3.1, 1e-10);
 		assertEquals(-PI, mPi, 1e-10);
 	}
 
-	private static double nextAngle(Random rng) {
+	private static double nextAngle(final Random rng) {
 		return rng.nextDouble() * 2d * PI;
 	}
 }
 
-class Sin implements DoubleUnaryOperator {
+final class Sin implements DoubleUnaryOperator {
 	@Override
-	public double applyAsDouble(double x) {
+	public double applyAsDouble(final double x) {
 		return sin(x);
 	}
 }

@@ -12,11 +12,11 @@ import java.util.Random;
 
 import org.junit.jupiter.api.Test;
 
-class Interval2DTest {
+final class Interval2DTest {
 
 	private static final int RANDOM_ITERATIONS = 0;
 
-	private static Interval2D newInterval2D(int x1, int x2, int y1, int y2) {
+	private static Interval2D newInterval2D(final int x1, final int x2, final int y1, final int y2) {
 		return new Interval2D(new Interval1D(x1, x2), new Interval1D(y1, y2));
 	}
 
@@ -55,9 +55,9 @@ class Interval2DTest {
 
 	@Test
 	void containsWorksOnKnownIntervals() {
-		Interval2D i = i_2_2_2_2();
-		for (int x = 1; x <= 3; ++x) {
-			for (int y = 1; y <= 3; ++y) {
+		final var i = i_2_2_2_2();
+		for (var x = 1; x <= 3; ++x) {
+			for (var y = 1; y <= 3; ++y) {
 				assertEquals(x == 2 && y == 2, i.contains(x, y));
 			}
 		}
@@ -77,7 +77,7 @@ class Interval2DTest {
 	}
 
 	@Test
-	 void sizeOfIntersectionWorksOnIntersectingIntervals() {
+	void sizeOfIntersectionWorksOnIntersectingIntervals() {
 		assertEquals(1, i_2_2_2_2().sizeOfIntersectionWith(i_2_2_2_2()));
 		assertEquals(21 * 11, i_0_20_0_10().sizeOfIntersectionWith(i_0_20_0_10()));
 		assertEquals(1, i_2_2_2_2().sizeOfIntersectionWith(i_0_20_0_10()));
@@ -89,13 +89,13 @@ class Interval2DTest {
 	void boudingUnionWorksOnKnownIntervals() {
 		assertEquals(i_2_2_2_2(), i_2_2_2_2().boundingUnion(i_2_2_2_2()));
 
-		Interval2D i1 = i_0_10_0_10().boundingUnion(i_0_9_0_11());
+		final var i1 = i_0_10_0_10().boundingUnion(i_0_9_0_11());
 		assertEquals(0, i1.iX().includedFrom());
 		assertEquals(10, i1.iX().includedTo());
 		assertEquals(0, i1.iY().includedFrom());
 		assertEquals(11, i1.iY().includedTo());
 
-		Interval2D i2 = i_2_2_2_2().boundingUnion(i_11_20_0_10());
+		final var i2 = i_2_2_2_2().boundingUnion(i_11_20_0_10());
 		assertEquals(2, i2.iX().includedFrom());
 		assertEquals(20, i2.iX().includedTo());
 		assertEquals(0, i2.iY().includedFrom());
@@ -123,19 +123,19 @@ class Interval2DTest {
 
 	@Test
 	void isUnionableWithIsReflexive() {
-		Random rng = newRandom();
-		for (int i = 0; i < RANDOM_ITERATIONS; ++i) {
-			Interval2D interval = nextInterval(rng, 500, 1000);
+		final var rng = newRandom();
+		for (var i = 0; i < RANDOM_ITERATIONS; ++i) {
+			final var interval = nextInterval(rng, 500, 1000);
 			assertTrue(interval.isUnionableWith(interval));
 		}
 	}
 
 	@Test
 	void isUnionableWithIsSymmetric() {
-		Random rng = newRandom();
-		for (int i = 0; i < RANDOM_ITERATIONS; ++i) {
-			Interval2D i1 = nextInterval(rng, 5, 10);
-			Interval2D i2 = nextInterval(rng, 5, 10);
+		final var rng = newRandom();
+		for (var i = 0; i < RANDOM_ITERATIONS; ++i) {
+			final var i1 = nextInterval(rng, 5, 10);
+			final var i2 = nextInterval(rng, 5, 10);
 			assertTrue(!i1.isUnionableWith(i2) || i2.isUnionableWith(i1));
 		}
 	}
@@ -166,26 +166,27 @@ class Interval2DTest {
 
 	@Test
 	void unionIsCommutative() {
-		Random rng = newRandom();
-		for (int i = 0; i < RANDOM_ITERATIONS; ++i) {
-			Interval2D i1 = nextInterval(rng, 5, 10);
-			Interval2D i2 = nextInterval(rng, 5, 10);
-			if (i1.isUnionableWith(i2))
+		final var rng = newRandom();
+		for (var i = 0; i < RANDOM_ITERATIONS; ++i) {
+			final var i1 = nextInterval(rng, 5, 10);
+			final var i2 = nextInterval(rng, 5, 10);
+			if (i1.isUnionableWith(i2)) {
 				assertEquals(i1.union(i2), i2.union(i1));
+			}
 		}
 	}
 
 	@Test
 	void equalsIsStructural() {
-		Random rng = newRandom();
-		for (int i = 0; i < RANDOM_ITERATIONS; ++i) {
-			int x1 = rng.nextInt(1000) - 500;
-			int x2 = x1 + rng.nextInt(1000);
-			int y1 = rng.nextInt(1000) - 500;
-			int y2 = y1 + rng.nextInt(1000);
-			Interval2D int1 = newInterval2D(x1, x2, y1, y2);
-			Interval2D int2 = newInterval2D(x1, x2, y1, y2);
-			Interval2D int3 = newInterval2D(x1, x2, y1, y2 + 1);
+		final var rng = newRandom();
+		for (var i = 0; i < RANDOM_ITERATIONS; ++i) {
+			final var x1 = rng.nextInt(1000) - 500;
+			final var x2 = x1 + rng.nextInt(1000);
+			final var y1 = rng.nextInt(1000) - 500;
+			final var y2 = y1 + rng.nextInt(1000);
+			final var int1 = newInterval2D(x1, x2, y1, y2);
+			final var int2 = newInterval2D(x1, x2, y1, y2);
+			final var int3 = newInterval2D(x1, x2, y1, y2 + 1);
 			assertEquals(int1, int2);
 			assertEquals(int2, int1);
 			assertNotEquals(int1, int3);
@@ -195,21 +196,25 @@ class Interval2DTest {
 
 	@Test
 	void hashCodeAndEqualsAreCompatible() {
-		Random rng = newRandom();
-		for (int i = 0; i < RANDOM_ITERATIONS; ++i) {
-			int a = rng.nextInt(1000) - 500, b = a + rng.nextInt(20);
-			int c = rng.nextInt(1000) - 500, d = c + rng.nextInt(20);
-			Interval2D i1 = newInterval2D(a, b, c, d);
-			Interval2D i1b = newInterval2D(a, b, c, d);
-			Interval2D i2 = newInterval2D(a, b, c, d + 1);
+		final var rng = newRandom();
+		for (var i = 0; i < RANDOM_ITERATIONS; ++i) {
+			final var a = rng.nextInt(1000) - 500;
+			final var b = a + rng.nextInt(20);
+			final var c = rng.nextInt(1000) - 500;
+			final var d = c + rng.nextInt(20);
+			final var i1 = newInterval2D(a, b, c, d);
+			final var i1b = newInterval2D(a, b, c, d);
+			final var i2 = newInterval2D(a, b, c, d + 1);
 			assertTrue(hashCodeIsCompatibleWithEquals(i1, i1b));
 			assertTrue(hashCodeIsCompatibleWithEquals(i1, i2));
 		}
 	}
 
-	private Interval2D nextInterval(Random rng, int maxOffset, int maxSize) {
-		int offsetX = rng.nextInt(maxOffset), offsetY = rng.nextInt(maxOffset);
-		int sizeX = rng.nextInt(maxSize), sizeY = rng.nextInt(maxSize);
+	private Interval2D nextInterval(final Random rng, final int maxOffset, final int maxSize) {
+		final var offsetX = rng.nextInt(maxOffset);
+		final var offsetY = rng.nextInt(maxOffset);
+		final var sizeX = rng.nextInt(maxSize);
+		final var sizeY = rng.nextInt(maxSize);
 		return newInterval2D(-offsetX, sizeX - offsetX, -offsetY, sizeY - offsetY);
 	}
 
@@ -219,9 +224,9 @@ class Interval2DTest {
 	}
 
 	private void testContains(final int i, final int j) {
-		Interval1D a = new Interval1D(0, 2);
-		Interval1D b = new Interval1D(5, 8);
-		Interval2D c = new Interval2D(a, b);
+		final var a = new Interval1D(0, 2);
+		final var b = new Interval1D(5, 8);
+		final var c = new Interval2D(a, b);
 		assertTrue(c.contains(i, j));
 	}
 
@@ -242,32 +247,32 @@ class Interval2DTest {
 
 	@Test
 	void containsFailsOnOtherValue() {
-		Interval1D a = new Interval1D(0, 2);
-		Interval1D b = new Interval1D(5, 8);
-		Interval2D c = new Interval2D(a, b);
+		final var a = new Interval1D(0, 2);
+		final var b = new Interval1D(5, 8);
+		final var c = new Interval2D(a, b);
 		assertFalse(c.contains(10, 6));
 	}
 
 	@Test
 	void sizeWorksOnRandomInterval() {
-		Interval1D a = new Interval1D(0, 2);
-		Interval1D b = new Interval1D(5, 8);
-		Interval2D c = new Interval2D(a, b);
-		int expectedSize = 12;
-		int actualSize = c.size();
+		final var a = new Interval1D(0, 2);
+		final var b = new Interval1D(5, 8);
+		final var c = new Interval2D(a, b);
+		final var expectedSize = 12;
+		final var actualSize = c.size();
 		assertEquals(expectedSize, actualSize);
 	}
 
 	@Test
 	void sizeOfIntersectionWithWorksWithRandomIntervals() {
-		Interval1D a1 = new Interval1D(0, 2);
-		Interval1D b1 = new Interval1D(5, 8);
-		Interval2D c1 = new Interval2D(a1, b1);
-		Interval1D a2 = new Interval1D(2, 4);
-		Interval1D b2 = new Interval1D(3, 8);
-		Interval2D c2 = new Interval2D(a2, b2);
-		int expectedSize = 4;
-		int actualSize = c1.sizeOfIntersectionWith(c2);
+		final var a1 = new Interval1D(0, 2);
+		final var b1 = new Interval1D(5, 8);
+		final var c1 = new Interval2D(a1, b1);
+		final var a2 = new Interval1D(2, 4);
+		final var b2 = new Interval1D(3, 8);
+		final var c2 = new Interval2D(a2, b2);
+		final var expectedSize = 4;
+		var actualSize = c1.sizeOfIntersectionWith(c2);
 		assertEquals(expectedSize, actualSize);
 		actualSize = c2.sizeOfIntersectionWith(c1);
 		assertEquals(expectedSize, actualSize);
@@ -275,14 +280,14 @@ class Interval2DTest {
 
 	@Test
 	void sizeOfIntersectionWithWorksWithDisjointIntervals() {
-		Interval1D a1 = new Interval1D(0, 2);
-		Interval1D b1 = new Interval1D(5, 8);
-		Interval2D c1 = new Interval2D(a1, b1);
-		Interval1D a2 = new Interval1D(3, 4);
-		Interval1D b2 = new Interval1D(3, 8);
-		Interval2D c2 = new Interval2D(a2, b2);
-		int expectedSize = 0;
-		int actualSize = c1.sizeOfIntersectionWith(c2);
+		final var a1 = new Interval1D(0, 2);
+		final var b1 = new Interval1D(5, 8);
+		final var c1 = new Interval2D(a1, b1);
+		final var a2 = new Interval1D(3, 4);
+		final var b2 = new Interval1D(3, 8);
+		final var c2 = new Interval2D(a2, b2);
+		final var expectedSize = 0;
+		var actualSize = c1.sizeOfIntersectionWith(c2);
 		assertEquals(expectedSize, actualSize);
 		actualSize = c2.sizeOfIntersectionWith(c1);
 		assertEquals(expectedSize, actualSize);
@@ -290,41 +295,41 @@ class Interval2DTest {
 
 	@Test
 	void unionWorksWithUnionableIntervals() {
-		Interval1D a1 = new Interval1D(0, 2);
-		Interval1D b1 = new Interval1D(5, 8);
-		Interval2D c1 = new Interval2D(a1, b1);
-		Interval1D a2 = new Interval1D(0, 4);
-		Interval1D b2 = new Interval1D(3, 8);
-		Interval2D c2 = new Interval2D(a2, b2);
+		final var a1 = new Interval1D(0, 2);
+		final var b1 = new Interval1D(5, 8);
+		final var c1 = new Interval2D(a1, b1);
+		final var a2 = new Interval1D(0, 4);
+		final var b2 = new Interval1D(3, 8);
+		final var c2 = new Interval2D(a2, b2);
 
-		Interval1D e1 = new Interval1D(0, 4);
-		Interval1D e2 = new Interval1D(3, 8);
-		Interval2D expectedInterval = new Interval2D(e1, e2);
-		Interval2D actualInterval = c1.union(c2);
+		final var e1 = new Interval1D(0, 4);
+		final var e2 = new Interval1D(3, 8);
+		final var expectedInterval = new Interval2D(e1, e2);
+		final var actualInterval = c1.union(c2);
 		assertEquals(expectedInterval, actualInterval);
 	}
 
 	@Test
 	void unionFailsWithNonUnionableIntervals() {
-		Interval1D a1 = new Interval1D(0, 2);
-		Interval1D b1 = new Interval1D(5, 8);
-		Interval2D c1 = new Interval2D(a1, b1);
+		final var a1 = new Interval1D(0, 2);
+		final var b1 = new Interval1D(5, 8);
+		final var c1 = new Interval2D(a1, b1);
 
-		Interval1D a2 = new Interval1D(4, 4);
-		Interval1D b2 = new Interval1D(3, 8);
-		Interval2D c2 = new Interval2D(a2, b2);
+		final var a2 = new Interval1D(4, 4);
+		final var b2 = new Interval1D(3, 8);
+		final var c2 = new Interval2D(a2, b2);
 
 		assertThrows(IllegalArgumentException.class, () -> c1.union(c2));
 	}
 
 	@Test
 	void toStringWorksWithRandomInterval() {
-		Interval1D a1 = new Interval1D(-1, 14);
-		Interval1D b1 = new Interval1D(0, 22);
-		Interval2D c1 = new Interval2D(a1, b1);
+		final var a1 = new Interval1D(-1, 14);
+		final var b1 = new Interval1D(0, 22);
+		final var c1 = new Interval2D(a1, b1);
 
-		String expectedString = "[-1..14]×[0..22]";
-		String actualString = c1.toString();
+		final var expectedString = "[-1..14]×[0..22]";
+		final var actualString = c1.toString();
 		assertEquals(expectedString, actualString);
 	}
 

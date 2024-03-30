@@ -9,7 +9,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
-import java.util.function.DoubleUnaryOperator;
 
 import org.junit.jupiter.api.Test;
 
@@ -17,24 +16,25 @@ import ch.epfl.alpano.dem.ContinuousElevationModel;
 import ch.epfl.alpano.dem.DiscreteElevationModel;
 import ch.epfl.alpano.dem.ElevationProfile;
 
-class PanoramaComputerTest {
+final class PanoramaComputerTest {
 
 	@Test
 	void constructorFailsWithNullDEM() {
-		assertThrows(NullPointerException.class, () ->new PanoramaComputer(null));
+		assertThrows(NullPointerException.class, () -> new PanoramaComputer(null));
 	}
 
 	@Test
 	void computePanoramaWorksOnFlatTerrain() throws InterruptedException {
-		int w = 50, h = 20;
-		GeoPoint o = new GeoPoint(0, 0);
-		PanoramaParameters pp = new PanoramaParameters(o, 100, toRadians(45), toRadians(h), 300_000, w, h);
-		PanoramaComputer pc = new PanoramaComputer(zeroContDEM());
-		Panorama p = pc.computePanorama(pp);
-		for (int y = 0; y < h; ++y) {
-			float d = p.distanceAt(0, y);
-			float hDist = (float) o.distanceTo(new GeoPoint(p.longitudeAt(0, y), p.latitudeAt(0, y)));
-			for (int x = 1; x < w; ++x) {
+		final var w = 50;
+		final var h = 20;
+		final var o = new GeoPoint(0, 0);
+		final var pp = new PanoramaParameters(o, 100, toRadians(45), toRadians(h), 300_000, w, h);
+		final var pc = new PanoramaComputer(zeroContDEM());
+		final var p = pc.computePanorama(pp);
+		for (var y = 0; y < h; ++y) {
+			final var d = p.distanceAt(0, y);
+			final var hDist = (float) o.distanceTo(new GeoPoint(p.longitudeAt(0, y), p.latitudeAt(0, y)));
+			for (var x = 1; x < w; ++x) {
 				assertEquals(d, p.distanceAt(x, y), 1e-6);
 				assertEquals(hDist, (float) o.distanceTo(new GeoPoint(p.longitudeAt(x, y), p.latitudeAt(x, y))), 1e-2);
 				assertEquals(0, p.slopeAt(x, y), 1e-6);
@@ -45,14 +45,15 @@ class PanoramaComputerTest {
 
 	@Test
 	void computePanoramaWorksOnHillyTerrain() throws IOException, InterruptedException {
-		int w = 50, h = 20;
-		GeoPoint o = new GeoPoint(0, 0);
-		PanoramaParameters pp = new PanoramaParameters(o, 2000, toRadians(45), toRadians(h), 300_000, w, h);
-		PanoramaComputer pc = new PanoramaComputer(wavyContDEM());
-		Panorama p = pc.computePanorama(pp);
-		int i = 0;
-		for (int x = 0; x < w; ++x) {
-			for (int y = 0; y < h; ++y) {
+		final var w = 50;
+		final var h = 20;
+		final var o = new GeoPoint(0, 0);
+		final var pp = new PanoramaParameters(o, 2000, toRadians(45), toRadians(h), 300_000, w, h);
+		final var pc = new PanoramaComputer(wavyContDEM());
+		final var p = pc.computePanorama(pp);
+		var i = 0;
+		for (var x = 0; x < w; ++x) {
+			for (var y = 0; y < h; ++y) {
 				assertEquals(WAVY_EXPECTED_DATA[i++], p.distanceAt(x, y), 1e-5);
 				assertEquals(WAVY_EXPECTED_DATA[i++], p.longitudeAt(x, y), 1e-5);
 				assertEquals(WAVY_EXPECTED_DATA[i++], p.latitudeAt(x, y), 1e-5);
@@ -64,14 +65,14 @@ class PanoramaComputerTest {
 
 	@Test
 	void rayToGroundDistanceAccountsForEarthCurvatureAndRefraction() {
-		double dropPerM2 = (1d - 0.13d) / (2d * 6_371_000d);
-		double startingElevation = 1_000;
-		ElevationProfile p = new ElevationProfile(zeroContDEM(), new GeoPoint(0, 0), toRadians(45), 100_000);
-		DoubleUnaryOperator rToG = PanoramaComputer.rayToGroundDistance(p, startingElevation, 1);
-		for (int k = 0; k < 100; ++k) {
-			double m = k * 1000d;
-			double d = rToG.applyAsDouble(m);
-			double expD = startingElevation + m + dropPerM2 * m * m;
+		final var dropPerM2 = (1d - 0.13d) / (2d * 6_371_000d);
+		final var startingElevation = 1_000;
+		final var p = new ElevationProfile(zeroContDEM(), new GeoPoint(0, 0), toRadians(45), 100_000);
+		final var rToG = PanoramaComputer.rayToGroundDistance(p, startingElevation, 1);
+		for (var k = 0; k < 100; ++k) {
+			final var m = k * 1000d;
+			final var d = rToG.applyAsDouble(m);
+			final var expD = startingElevation + m + dropPerM2 * m * m;
 			assertEquals(expD, d, 1e-6);
 		}
 	}
@@ -103,18 +104,21 @@ class PanoramaComputerTest {
 		}
 
 		@Override
-		public double elevationSample(int x, int y) {
-			if (!extent.contains(x, y))
+		public double elevationSample(final int x, final int y) {
+			if (!extent.contains(x, y)) {
 				throw new IllegalArgumentException();
+			}
 			return 0;
 		}
 	}
 
 	private final static class WavyDEM implements DiscreteElevationModel {
-		private final static double PERIOD = 100, HEIGHT = 1000;
+
+		private static final double PERIOD = 100;
+		private static final double HEIGHT = 1000;
 		private final Interval2D extent;
 
-		public WavyDEM(Interval2D extent) {
+		public WavyDEM(final Interval2D extent) {
 			this.extent = extent;
 		}
 
@@ -124,11 +128,12 @@ class PanoramaComputerTest {
 		}
 
 		@Override
-		public double elevationSample(int x, int y) {
-			if (!extent.contains(x, y))
+		public double elevationSample(final int x, final int y) {
+			if (!extent.contains(x, y)) {
 				throw new IllegalArgumentException();
-			double x1 = PI * 2d * x / PERIOD;
-			double y1 = PI * 2d * y / PERIOD;
+			}
+			final var x1 = PI * 2d * x / PERIOD;
+			final var y1 = PI * 2d * y / PERIOD;
 			return (1 + sin(x1) * cos(y1)) / 2d * HEIGHT;
 		}
 	}

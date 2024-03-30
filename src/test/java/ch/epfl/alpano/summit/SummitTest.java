@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import ch.epfl.alpano.GeoPoint;
 
-class SummitTest {
+final class SummitTest {
 
 	@Test
 	void constructorFailsWithNullName() {
@@ -23,22 +23,25 @@ class SummitTest {
 
 	@Test
 	void nameReturnsName() {
-		String n = "sommet";
-		Summit s = new Summit(n, new GeoPoint(0, 0), 1);
+		final var n = "sommet";
+		final var s = new Summit(n, new GeoPoint(0, 0), 1);
 		assertEquals(n, s.name());
+		assertEquals(0, s.priority());
 	}
 
 	@Test
 	void positionReturnsPosition() {
-		GeoPoint p = new GeoPoint(toRadians(3), toRadians(5));
-		Summit s = new Summit("sommet", p, 1);
+		final var p = new GeoPoint(toRadians(3), toRadians(5));
+		final var s = new Summit("sommet", p, 1);
 		assertEquals(p, s.position());
+		assertEquals(0, s.priority());
 	}
 
 	@Test
 	void elevationReturnsElevation() {
-		int e = 1234;
-		Summit s = new Summit("sommet", new GeoPoint(0, 0), e);
+		final var e = 1234;
+		final var s = new Summit("sommet", new GeoPoint(0, 0), e);
 		assertEquals(e, s.elevation());
+		assertEquals(0, s.priority());
 	}
 }
