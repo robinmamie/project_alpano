@@ -347,7 +347,8 @@ public final class Alpano extends Application {
 				final var fg = format((Locale) null, "map=15/%.4f/%.4f", lat, lon);
 				try {
 					final var osmURI = new URI("http", "www.openstreetmap.org", "/", qy, fg);
-					Desktop.getDesktop().browse(osmURI);
+					logger.info("Opening {}", osmURI);
+					openBrowser(osmURI);
 				} catch (final URISyntaxException ex) {
 					logger.error("Could not parse URI.", ex);
 				} catch (final IOException ey) {
@@ -362,6 +363,28 @@ public final class Alpano extends Application {
 						.canonicalize(COMPUTER_B.getParameters().panoramaParameters().azimuthForX(x) + Math.PI)));
 			}
 		});
+	}
+
+	private void openBrowser(final URI osmURI) throws IOException {
+		final var os = System.getProperty("os.name").toLowerCase();
+		if (os.indexOf("mac") >= 0 || os.indexOf("win") >= 0) {
+			Desktop.getDesktop().browse(osmURI);
+		} else if (os.indexOf("nux") >= 0 || os.indexOf("nix") >= 0) {
+			final var rt = Runtime.getRuntime();
+			final var browsers = new String[] { "firefox", "google-chrome", "mozilla", "epiphany", "konqueror",
+					"netscape", "opera", "links", "lynx" };
+			final var cmd = new StringBuilder();
+			for (var i = 0; i < browsers.length; i++) {
+				if (i == 0) {
+					cmd.append(String.format("%s \"%s\"", browsers[i], osmURI));
+				} else {
+					cmd.append(String.format(" || %s \"%s\"", browsers[i], osmURI));
+				}
+			}
+			rt.exec(new String[] { "sh", "-c", cmd.toString() });
+		} else {
+			logger.warn("Could not open broswer on this platform.");
+		}
 	}
 
 	/**
