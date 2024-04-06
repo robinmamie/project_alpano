@@ -47,7 +47,7 @@
 		<!-- https://mvnrepository.com/artifact/org.openjfx/javafx-maven-plugin -->
 		<javafx-maven.version>0.0.8</javafx-maven.version>
 		<!-- https://mvnrepository.com/artifact/org.jacoco/jacoco-maven-plugin -->
-		<jacoco.version>0.8.11</jacoco.version>
+		<jacoco.version>0.8.12</jacoco.version>
 	</properties>
 
 	<dependencies>
