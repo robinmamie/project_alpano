@@ -17,33 +17,32 @@
 		<maven.compiler.release>21</maven.compiler.release>
 
 		<!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
-		<log4j.version>2.23.1</log4j.version>
+		<log4j.version>2.24.2</log4j.version>
 		<!-- https://mvnrepository.com/artifact/org.openjfx/javafx-base -->
 		<!-- https://mvnrepository.com/artifact/org.openjfx/javafx-controls -->
 		<!-- https://mvnrepository.com/artifact/org.openjfx/javafx-graphics -->
 		<!-- https://mvnrepository.com/artifact/org.openjfx/javafx-swing -->
-		<javafx.version>21.0.2</javafx.version>
+		<javafx.version>23.0.1</javafx.version>
 		<!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
-		<junit.version>5.10.2</junit.version>
+		<junit.version>5.11.3</junit.version>
 		<!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-clean-plugin -->
-		<maven-clean.version>3.3.2</maven-clean.version>
+		<maven-clean.version>3.4.0</maven-clean.version>
 		<!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-resources-plugin -->
 		<maven-resources.version>3.3.1</maven-resources.version>
 		<!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-compiler-plugin -->
 		<maven-compiler.version>3.13.0</maven-compiler.version>
 		<!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-surefire-plugin -->
-		<maven-surefire.version>3.2.5</maven-surefire.version>
+		<maven-surefire.version>3.5.2</maven-surefire.version>
 		<!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-jar-plugin -->
-		<maven-jar.version>3.3.0</maven-jar.version>
+		<maven-jar.version>3.4.2</maven-jar.version>
 		<!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-install-plugin -->
-		<maven-install.version>3.1.1</maven-install.version>
+		<maven-install.version>3.1.3</maven-install.version>
 		<!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-deploy-plugin -->
-		<maven-deploy.version>3.1.1</maven-deploy.version>
+		<maven-deploy.version>3.1.3</maven-deploy.version>
 		<!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-site-plugin -->
-		<maven-site.version>3.12.1</maven-site.version>
-		<!--
-		https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-project-info-reports-plugin -->
-		<maven-project-info.version>3.5.0</maven-project-info.version>
+		<maven-site.version>3.21.0</maven-site.version>
+		<!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-project-info-reports-plugin -->
+		<maven-project-info.version>3.8.0</maven-project-info.version>
 		<!-- https://mvnrepository.com/artifact/org.openjfx/javafx-maven-plugin -->
 		<javafx-maven.version>0.0.8</javafx-maven.version>
 		<!-- https://mvnrepository.com/artifact/org.jacoco/jacoco-maven-plugin -->
